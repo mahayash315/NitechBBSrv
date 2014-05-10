@@ -3,8 +3,9 @@
   <classpathentry kind="src" path="test" output=".target"/>
   <classpathentry kind="lib" path=".\lib\core.jar"/>
   <classpathentry kind="lib" path=".\lib\framework.jar"/>
-  <classpathentry path="C:\c0de\workspace\MeikoBBSrv\target\scala-2.10\classes_managed" kind="lib"></classpathentry>
-  <classpathentry kind="lib" path="C:\work\play\framework\..\repository\cache\com.google.code.gson\gson\jars\gson-1.7.1.jar"/>
+  <classpathentry path="C:\c0de\workspace\NitechBBSrv\target\scala-2.10\classes_managed" kind="lib"></classpathentry>
+  <classpathentry kind="lib" path="C:\work\play\framework\..\repository\cache\mysql\mysql-connector-java\jars\mysql-connector-java-5.1.30.jar"/>
+  <classpathentry kind="lib" path="C:\work\play\framework\..\repository\cache\com.google.code.gson\gson\jars\gson-2.2.4.jar"/>
   <classpathentry kind="lib" path="C:\work\play\framework\..\repository\cache\org.atilika.kuromoji\kuromoji\jars\kuromoji-0.7.7.jar"/>
   <classpathentry kind="lib" path="C:\work\play\repository\local\com.typesafe.play\play-java-jdbc_2.10\2.2.2\jars\play-java-jdbc_2.10.jar"/>
   <classpathentry kind="lib" path="C:\work\play\repository\local\com.typesafe.play\play-jdbc_2.10\2.2.2\jars\play-jdbc_2.10.jar"/>

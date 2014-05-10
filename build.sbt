@@ -1,8 +1,9 @@
-name := "MeikoBBSrv"
+name := "NitechBBSrv"
 
 version := "1.0-SNAPSHOT"
 
 libraryDependencies ++= Seq(
+  "mysql" % "mysql-connector-java" % "5.1.30",
   "com.google.code.gson" % "gson" % "2.2.4",
   "org.atilika.kuromoji" % "kuromoji" % "0.7.7",
   javaJdbc,
