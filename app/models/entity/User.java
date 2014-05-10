@@ -70,11 +70,18 @@ public class User extends Model {
 	}
 	
 	/**
-	 * id に該当するものを検索
+	 * id または nitechId に該当するものを検索
 	 * @return
 	 */
 	public User unique() {
-		return userModelService.findById(id);
+		User o = null;
+		if ((o = userModelService.findById(id)) != null) {
+			return o;
+		}
+		if ((o = userModelService.findByNitechId(nitechId)) != null) {
+			return o;
+		}
+		return null;
 	}
 	
 	

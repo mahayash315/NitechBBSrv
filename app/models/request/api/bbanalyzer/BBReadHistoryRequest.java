@@ -6,10 +6,10 @@ import utils.api.bbanalyzer.DataConverter;
 
 public class BBReadHistoryRequest {
 	public String hashedNitechId;
-	public ArrayList<BBReadHistoryItem> history;
+	public ArrayList<BBReadHistoryItem> histories;
 	
-	public BBReadHistoryRequest(String nitechId, ArrayList<BBReadHistoryItem> history) {
+	public BBReadHistoryRequest(String nitechId, ArrayList<BBReadHistoryItem> histories) {
 		this.hashedNitechId = DataConverter.getSHA512(nitechId);
-		this.history = history;
+		this.histories = histories;
 	}
 }

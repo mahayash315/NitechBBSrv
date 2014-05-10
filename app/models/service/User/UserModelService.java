@@ -47,5 +47,21 @@ public class UserModelService implements ModelService<User> {
 		}
 		return null;
 	}
+	
+	
+	/**
+	 * nitechId でエントリを取り出す
+	 * @param entry
+	 * @return
+	 */
+	public User findByNitechId(String nitechId) {
+		if (nitechId != null) {
+			return User.find
+					.where()
+						.eq("nitechId", nitechId)
+					.findUnique();
+		}
+		return null;
+	}
 
 }

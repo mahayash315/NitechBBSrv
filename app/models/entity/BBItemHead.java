@@ -90,11 +90,18 @@ public class BBItemHead extends Model {
 	}
 	
 	/**
-	 * id に該当するものを検索
+	 * id または user, idDate, idIndex に該当するものを検索
 	 * @return
 	 */
 	public BBItemHead unique() {
-		return bbItemHeadModelService.findById(id);
+		BBItemHead o = null;
+		if ((o = bbItemHeadModelService.findById(id)) != null) {
+			return o;
+		}
+		if ((o = bbItemHeadModelService.findByUserDateIndex(user, idDate, idIndex)) != null) {
+			return o;
+		}
+		return null;
 	}
 	
 	

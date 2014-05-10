@@ -1,6 +1,7 @@
 package models.service.BBItemHead;
 
 import models.entity.BBItemHead;
+import models.entity.User;
 import models.service.Model.ModelService;
 
 public class BBItemHeadModelService implements ModelService<BBItemHead> {
@@ -47,5 +48,38 @@ public class BBItemHeadModelService implements ModelService<BBItemHead> {
 		}
 		return null;
 	}
+	
+	
+	/**
+	 * user, idDate, idIndex でエントリを取り出す
+	 * @param user
+	 * @param idDate
+	 * @param idIndex
+	 * @return
+	 */
+	public BBItemHead findByUserDateIndex(User user, String idDate, String idIndex) {
+		if (user != null && idDate != null && idIndex != null) {
+			return BBItemHead.find
+						.where()
+							.eq("user", user)
+							.eq("idDate", idDate)
+							.eq("idIndex", idIndex)
+						.findUnique();
+		}
+		return null;
+	}
+	
+	/**
+	 * user, idDate, idIndex でエントリを取り出す
+	 * @param entry
+	 * @return
+	 */
+	public BBItemHead findByUserDateIndex(BBItemHead entry) {
+		if (entry != null) {
+			return findByUserDateIndex(entry.getUser(), entry.getIdDate(), entry.getIdIndex());
+		}
+		return null;
+	}
+	
 
 }
