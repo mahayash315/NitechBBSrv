@@ -7,10 +7,11 @@ create table bb_item_head (
   id                        bigint auto_increment not null,
   id_date                   varchar(191) not null,
   id_index                  varchar(191) not null,
+  user_id                   bigint,
   date_show                 varchar(191),
   date_exec                 varchar(191),
   title                     longtext,
-  constraint uq_bb_item_head_1 unique (id_date,id_index),
+  constraint uq_bb_item_head_1 unique (user_id,id_date,id_index),
   constraint pk_bb_item_head primary key (id))
 ;
 
@@ -29,10 +30,12 @@ create table user (
   constraint pk_user primary key (id))
 ;
 
-alter table bb_read_history add constraint fk_bb_read_history_user_1 foreign key (user_id) references user (id) on delete restrict on update restrict;
-create index ix_bb_read_history_user_1 on bb_read_history (user_id);
-alter table bb_read_history add constraint fk_bb_read_history_item_2 foreign key (bb_item_head_id) references bb_item_head (id) on delete restrict on update restrict;
-create index ix_bb_read_history_item_2 on bb_read_history (bb_item_head_id);
+alter table bb_item_head add constraint fk_bb_item_head_user_1 foreign key (user_id) references user (id) on delete restrict on update restrict;
+create index ix_bb_item_head_user_1 on bb_item_head (user_id);
+alter table bb_read_history add constraint fk_bb_read_history_user_2 foreign key (user_id) references user (id) on delete restrict on update restrict;
+create index ix_bb_read_history_user_2 on bb_read_history (user_id);
+alter table bb_read_history add constraint fk_bb_read_history_item_3 foreign key (bb_item_head_id) references bb_item_head (id) on delete restrict on update restrict;
+create index ix_bb_read_history_item_3 on bb_read_history (bb_item_head_id);
 
 
 

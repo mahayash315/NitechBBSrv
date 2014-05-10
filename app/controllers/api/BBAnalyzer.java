@@ -1,5 +1,7 @@
 package controllers.api;
 
+import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
+import models.request.api.bbanalyzer.BBReadHistoryRequest;
 import models.response.api.bbanalyzer.BBAnalyzerResponse;
 import models.response.api.bbanalyzer.BBAnalyzerResult;
 import models.service.api.bbanalyzer.BBAnalyzerService;
@@ -9,9 +11,11 @@ import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.api.bbanalyzer.BBAnalyzerUtil;
+import utils.api.bbanalyzer.GsonUtil;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 public class BBAnalyzer extends Controller {
 
@@ -80,5 +84,73 @@ public class BBAnalyzer extends Controller {
 //		}
 		
 		return ok(Json.toJson(response));
+	}
+	
+	
+	/**
+	 * 新着記事の送信を受け付ける
+	 * @return
+	 */
+	@BodyParser.Of(BodyParser.Json.class)
+	public static Result postNewItemHeads() {
+		JsonNode jsonNode = request().body().asJson();
+		
+		// アサート
+		if( jsonNode == null ) {
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			response.setMessage("Parse error.");
+			return internalServerError(Json.toJson(response));
+		}
+		
+		try {
+			// オブジェクトに変換
+			String json = Json.stringify(jsonNode);
+			BBNewItemHeadsRequest request = GsonUtil.use().fromJson(json, BBNewItemHeadsRequest.class);
+			
+			
+			
+			
+		} catch (JsonSyntaxException e) {
+			// JSON パースエラー
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			response.setMessage("Parse error. Invalid JSON sent.");
+			return badRequest(Json.toJson(response));
+		}
+		
+		return ok();
+	}
+	
+	
+	/**
+	 * 閲覧履歴の送信を受け付ける
+	 * @return
+	 */
+	@BodyParser.Of(BodyParser.Json.class)
+	public static Result postReadHistory() {
+		JsonNode jsonNode = request().body().asJson();
+		
+		// アサート
+		if( jsonNode == null ) {
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			response.setMessage("Parse error.");
+			return badRequest(Json.toJson(response));
+		}
+		
+		try {
+			// オブジェクトに変換
+			String json = Json.stringify(jsonNode);
+			BBReadHistoryRequest request = GsonUtil.use().fromJson(json, BBReadHistoryRequest.class);
+			
+			
+			
+			
+		} catch (JsonSyntaxException e) {
+			// JSON パースエラー
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			response.setMessage("Parse error. Invalid JSON sent.");
+			return badRequest(Json.toJson(response));
+		}
+		
+		return ok();
 	}
 }

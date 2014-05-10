@@ -3,16 +3,20 @@
 # ~~~~
 
 # Home page
-GET     /                           	controllers.Application.index()
+GET     /									controllers.Application.index()
 
 # BBAnalyzer
-GET		/bbanalyzer						controllers.Default.redirect(to = "/bbanalyzer/")
-GET		/bbanalyzer/					controllers.BBAnalyzer.index()
-GET		/bbanalyzer/kuromoji			controllers.BBAnalyzer.kuromoji()
-POST	/bbanalyzer/kuromoji			controllers.BBAnalyzer.procKuromoji()
-POST	/bbanalyzer/analyzeBody			controllers.BBAnalyzer.analyzeBody()
-POST	/bbanalyzer/analyzeBody.json	controllers.api.BBAnalyzer.analyzeBody()
+GET		/bbanalyzer							controllers.Default.redirect(to = "/bbanalyzer/")
+GET		/bbanalyzer/						controllers.BBAnalyzer.index()
+GET		/bbanalyzer/kuromoji				controllers.BBAnalyzer.kuromoji()
+POST	/bbanalyzer/kuromoji				controllers.BBAnalyzer.procKuromoji()
+POST	/bbanalyzer/analyzeBody				controllers.BBAnalyzer.analyzeBody()
+
+# BBAnalyzer API
+POST	/bbanalyzer/analyzeBody.json		controllers.api.BBAnalyzer.analyzeBody()
+POST	/bbanalyzer/postNewItemHeads.json 	controllers.api.BBAnalyzer.postNewItemHeads()
+POST	/bbanalyzer/postReadHistory.json 	controllers.api.BBAnalyzer.postReadHistory()
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file              		 controllers.Assets.at(path="/public", file)
+GET     /assets/*file						controllers.Assets.at(path="/public", file)

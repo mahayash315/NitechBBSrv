@@ -7,7 +7,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import models.service.BBReadHistory.BBReadHistoryModelService;
+import models.service.BBReadHistory.BBReadHistoryService;
 import play.db.ebean.Model;
 
 @Entity
@@ -18,7 +21,7 @@ public class BBReadHistory extends Model {
 	Long id;
 	
 	@ManyToOne
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false)
 	User user;
 	
 	@OneToOne
@@ -32,7 +35,21 @@ public class BBReadHistory extends Model {
 	Long readTimeLength;
 	
 	
+	@Transient
+	BBReadHistoryService bbReadHistoryService = new BBReadHistoryService();
+	@Transient
+	BBReadHistoryModelService bbReadHistoryModelService = new BBReadHistoryModelService();
+	
+	
 	/* コンストラクタ */
+
+
+	public BBReadHistory() {
+	}
+	
+	public BBReadHistory(Long id) {
+		this.id = id;
+	}
 	
 	public BBReadHistory(User user, BBItemHead item, Long openTime,
 			Long readTimeLength) {
@@ -41,9 +58,44 @@ public class BBReadHistory extends Model {
 		this.openTime = openTime;
 		this.readTimeLength = readTimeLength;
 	}
-
+	
+	
+	/* finder */
+	
+	public static Finder<Long, BBReadHistory> find = new Finder<Long, BBReadHistory>(Long.class, BBReadHistory.class);
+	
+	
+	/* メソッド */
+	
+	/**
+	 * 結果を保存
+	 * @return
+	 */
+	public BBReadHistory store() {
+		if (unique() == null) {
+			return bbReadHistoryModelService.save(this);
+		}
+		return bbReadHistoryModelService.update(this);
+	}
+	
+	/**
+	 * id に該当するものを検索
+	 * @return
+	 */
+	public BBReadHistory unique() {
+		return bbReadHistoryModelService.findById(id);
+	}
+	
 	
 	/* getter, setter */
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 	
 	public User getUser() {
 		return user;
