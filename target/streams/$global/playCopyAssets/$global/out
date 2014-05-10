@@ -1,0 +1,6 @@
+[0m[[0mdebug[0m] [0mCopy play resource mappings: [0m
+[0m[[0mdebug[0m] [0m	(C:\c0de\workspace\MeikoBBSrv\public\images\favicon.png,C:\c0de\workspace\MeikoBBSrv\target\scala-2.10\classes\public\images\favicon.png)[0m
+[0m[[0mdebug[0m] [0m	(C:\c0de\workspace\MeikoBBSrv\public\javascripts\jquery-1.9.0.min.js,C:\c0de\workspace\MeikoBBSrv\target\scala-2.10\classes\public\javascripts\jquery-1.9.0.min.js)[0m
+[0m[[0mdebug[0m] [0m	(C:\c0de\workspace\MeikoBBSrv\public\stylesheets\main.css,C:\c0de\workspace\MeikoBBSrv\target\scala-2.10\classes\public\stylesheets\main.css)[0m
+[0m[[0mdebug[0m] [0m	(C:\c0de\workspace\MeikoBBSrv\public\stylesheets\bbanalyzer\main.css,C:\c0de\workspace\MeikoBBSrv\target\scala-2.10\classes\public\stylesheets\bbanalyzer\main.css)[0m
+[0m[[0mdebug[0m] [0m	(C:\c0de\workspace\MeikoBBSrv\public\stylesheets\bootstrap\bootstrap.min.css,C:\c0de\workspace\MeikoBBSrv\target\scala-2.10\classes\public\stylesheets\bootstrap\bootstrap.min.css)[0m

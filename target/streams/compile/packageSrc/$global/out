@@ -1,0 +1,31 @@
+[0m[[0minfo[0m] [0mPackaging C:\c0de\workspace\MeikoBBSrv\target\scala-2.10\meikobbsrv_2.10-1.0-SNAPSHOT-sources.jar ...[0m
+[0m[[0mdebug[0m] [0mInput file mappings:[0m
+[0m[[0mdebug[0m] [0m	application.conf[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\conf\application.conf[0m
+[0m[[0mdebug[0m] [0m	models\request\bbanalyzer\BBAnalyzerRequest.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\models\request\bbanalyzer\BBAnalyzerRequest.java[0m
+[0m[[0mdebug[0m] [0m	models\response\api\bbanalyzer\BBAnalyzerResult.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\models\response\api\bbanalyzer\BBAnalyzerResult.java[0m
+[0m[[0mdebug[0m] [0m	controllers\Application.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\controllers\Application.java[0m
+[0m[[0mdebug[0m] [0m	utils\api\bbanalyzer\BBAnalyzerUtil.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\utils\api\bbanalyzer\BBAnalyzerUtil.java[0m
+[0m[[0mdebug[0m] [0m	models\setting\api\bbanalyzer\BBAnalyzerStatusSetting.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\models\setting\api\bbanalyzer\BBAnalyzerStatusSetting.java[0m
+[0m[[0mdebug[0m] [0m	models\response\api\bbanalyzer\BBAnalyzerResponse.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\models\response\api\bbanalyzer\BBAnalyzerResponse.java[0m
+[0m[[0mdebug[0m] [0m	models\service\api\bbanalyzer\BBAnalyzerService.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\models\service\api\bbanalyzer\BBAnalyzerService.java[0m
+[0m[[0mdebug[0m] [0m	Global.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\Global.java[0m
+[0m[[0mdebug[0m] [0m	utils\bbanalyzer\BBAnalyzerUtil.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\utils\bbanalyzer\BBAnalyzerUtil.java[0m
+[0m[[0mdebug[0m] [0m	controllers\api\BBAnalyzer.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\controllers\api\BBAnalyzer.java[0m
+[0m[[0mdebug[0m] [0m	controllers\BBAnalyzer.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\controllers\BBAnalyzer.java[0m
+[0m[[0mdebug[0m] [0m	models\response\bbanalyzer\BBAnalyzerResult.java[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\app\models\response\bbanalyzer\BBAnalyzerResult.java[0m
+[0m[[0mdebug[0m] [0m	routes[0m
+[0m[[0mdebug[0m] [0m	  C:\c0de\workspace\MeikoBBSrv\conf\routes[0m
+[0m[[0minfo[0m] [0mDone packaging.[0m
