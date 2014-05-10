@@ -79,11 +79,18 @@ public class BBReadHistory extends Model {
 	}
 	
 	/**
-	 * id に該当するものを検索
+	 * id または User, BBItemHead, openTime, readTimeLength に該当するものを検索
 	 * @return
 	 */
 	public BBReadHistory unique() {
-		return bbReadHistoryModelService.findById(id);
+		BBReadHistory o = null;
+		if ((o = bbReadHistoryModelService.findById(id)) != null) {
+			return o;
+		}
+		if ((o = bbReadHistoryModelService.findByUserHeadTime(user, item, openTime, readTimeLength)) != null) {
+			return o;
+		}
+		return null;
 	}
 	
 	

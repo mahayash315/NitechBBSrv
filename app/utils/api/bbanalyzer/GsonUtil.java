@@ -33,4 +33,14 @@ public class GsonUtil {
 	public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
 		return gson.fromJson(json, classOfT);
 	}
+	
+	
+	/**
+	 * オブジェクトから JSON に変換する
+	 * @param src
+	 * @return
+	 */
+	public String toJson(Object src) {
+		return gson.toJson(src);
+	}
 }

@@ -38,23 +38,34 @@ public class BBReadHistoryService {
 		}
 		
 		
-		// ReadHistory 保存
-		for (BBReadHistoryItem item : request.histories) {
+		// 各 ReadHistory を保存
+		for (BBReadHistoryItem historyItem : request.histories) {
 			// BBItemHead 取得
-			BBItemHead head = BBItemHeadModelService.use().findByUserDateIndex(user, item.getIdDate(), item.getIdIndex());
-			if (head == null) {
+			BBItemHead item = BBItemHeadModelService.use().findByUserDateIndex(user, historyItem.getIdDate(), historyItem.getIdIndex());
+			if (item == null) {
 				// 新規 BBItemHead 作成
-				head = new BBItemHead(item.getIdDate(), item.getIdIndex(), null, null, null);
+				item = new BBItemHead(historyItem.getIdDate(), historyItem.getIdIndex(), null, null, null);
 				
 				// BBItemHead の保存
-				if (head.store() == null) {
+				if (item.store() == null) {
 					// 保存に失敗した場合は internalServerError を返す
 					return BBAnalyzerService.use().getInternalErrorReadHistoryResponse();
 				}
 			}
 			
-			// TODO 作る
-			BBReadHistory history = new BBReadHistory();
+			// すでに同じ ReadHistory が保存されていないか確認
+			if (BBReadHistoryModelService.use().findByUserHeadTime(user, item, historyItem.getOpenTime(), historyItem.getReadTimeLength()) != null) {
+				continue;
+			}
+			
+			// BBReadHistory 作成
+			BBReadHistory history = new BBReadHistory(user, item, historyItem.getOpenTime(), historyItem.getReadTimeLength());
+			
+			// BBReadHistory 保存
+			if (history.store() == null) {
+				// 保存に失敗した場合は internalServerError を返す
+				return BBAnalyzerService.use().getInternalErrorReadHistoryResponse();
+			}
 		}
 		
 		

@@ -1,6 +1,8 @@
 package models.service.BBReadHistory;
 
+import models.entity.BBItemHead;
 import models.entity.BBReadHistory;
+import models.entity.User;
 import models.service.Model.ModelService;
 
 public class BBReadHistoryModelService implements ModelService<BBReadHistory> {
@@ -48,4 +50,25 @@ public class BBReadHistoryModelService implements ModelService<BBReadHistory> {
 		return null;
 	}
 
+	
+	/**
+	 * User, BBItemHead, openTime, readTimeLength でエントリを取得する
+	 * @param user
+	 * @param item
+	 * @param openTime
+	 * @param readTimeLength
+	 * @return
+	 */
+	public BBReadHistory findByUserHeadTime(User user, BBItemHead item, Long openTime, Long readTimeLength) {
+		if (user != null && item != null && openTime != null && readTimeLength != null) {
+			return BBReadHistory.find
+						.where()
+							.eq("user", user)
+							.eq("item", item)
+							.eq("openTime", openTime)
+							.eq("readTimeLength", readTimeLength)
+						.findUnique();
+		}
+		return null;
+	}
 }

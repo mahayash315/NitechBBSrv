@@ -4,6 +4,10 @@ import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.request.api.bbanalyzer.BBReadHistoryRequest;
 import models.response.api.bbanalyzer.BBAnalyzerResponse;
 import models.response.api.bbanalyzer.BBAnalyzerResult;
+import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
+import models.response.api.bbanalyzer.BBReadHistoryResponse;
+import models.service.BBItemHead.BBItemHeadService;
+import models.service.BBReadHistory.BBReadHistoryService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.setting.api.bbanalyzer.BBAnalyzerStatusSetting;
 import play.libs.Json;
@@ -106,18 +110,18 @@ public class BBAnalyzer extends Controller {
 			// オブジェクトに変換
 			String json = Json.stringify(jsonNode);
 			BBNewItemHeadsRequest request = GsonUtil.use().fromJson(json, BBNewItemHeadsRequest.class);
+
+			// リクエストを処理
+			BBNewItemHeadsResponse response = BBItemHeadService.use().storeBBNewItemHeads(request);
 			
-			
-			
-			
+			// レスポンド
+			return ok(GsonUtil.use().toJson(response));
 		} catch (JsonSyntaxException e) {
 			// JSON パースエラー
 			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
 			response.setMessage("Parse error. Invalid JSON sent.");
 			return badRequest(Json.toJson(response));
 		}
-		
-		return ok();
 	}
 	
 	
@@ -141,16 +145,16 @@ public class BBAnalyzer extends Controller {
 			String json = Json.stringify(jsonNode);
 			BBReadHistoryRequest request = GsonUtil.use().fromJson(json, BBReadHistoryRequest.class);
 			
+			// リクエストを処理
+			BBReadHistoryResponse response = BBReadHistoryService.use().storeReceivedHistory(request);
 			
-			
-			
+			// レスポンド
+			return ok(GsonUtil.use().toJson(response));
 		} catch (JsonSyntaxException e) {
 			// JSON パースエラー
 			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
 			response.setMessage("Parse error. Invalid JSON sent.");
 			return badRequest(Json.toJson(response));
 		}
-		
-		return ok();
 	}
 }
