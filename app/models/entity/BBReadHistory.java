@@ -34,6 +34,11 @@ public class BBReadHistory extends Model {
 	@Column(name = "read_time_length")
 	Long readTimeLength;
 	
+	@Column(name = "referer")
+	String referer;
+	
+	@Column(name = "filter")
+	String filter;
 	
 	@Transient
 	BBReadHistoryService bbReadHistoryService = new BBReadHistoryService();
@@ -51,12 +56,13 @@ public class BBReadHistory extends Model {
 		this.id = id;
 	}
 	
-	public BBReadHistory(User user, BBItemHead item, Long openTime,
-			Long readTimeLength) {
+	public BBReadHistory(User user, BBItemHead item, Long openTime, Long readTimeLength, String referer, String filter) {
 		this.user = user;
 		this.item = item;
 		this.openTime = openTime;
 		this.readTimeLength = readTimeLength;
+		this.referer = referer;
+		this.filter = filter;
 	}
 	
 	
@@ -88,7 +94,7 @@ public class BBReadHistory extends Model {
 		if ((o = bbReadHistoryModelService.findById(id)) != null) {
 			return o;
 		}
-		if ((o = bbReadHistoryModelService.findByUserHeadTime(user, item, openTime, readTimeLength)) != null) {
+		if ((o = bbReadHistoryModelService.findByUserHeadTime(user, item, openTime)) != null) {
 			return o;
 		}
 		return null;
@@ -135,5 +141,21 @@ public class BBReadHistory extends Model {
 
 	public void setReadTimeLength(Long readTimeLength) {
 		this.readTimeLength = readTimeLength;
+	}
+
+	public String getReferer() {
+		return referer;
+	}
+
+	public void setReferer(String referer) {
+		this.referer = referer;
+	}
+
+	public String getFilter() {
+		return filter;
+	}
+
+	public void setFilter(String filter) {
+		this.filter = filter;
 	}
 }

@@ -5,8 +5,8 @@
 
 create table bb_item_head (
   id                        bigint auto_increment not null,
-  id_date                   varchar(191) not null,
-  id_index                  varchar(191) not null,
+  id_date                   varchar(10) not null,
+  id_index                  varchar(3) not null,
   user_id                   bigint,
   date_show                 varchar(191),
   date_exec                 varchar(191),
@@ -23,6 +23,8 @@ create table bb_read_history (
   bb_item_head_id           bigint,
   open_time                 bigint,
   read_time_length          bigint,
+  referer                   varchar(255),
+  filter                    varchar(255),
   constraint pk_bb_read_history primary key (id))
 ;
 

@@ -6,12 +6,14 @@ public class BBReadHistoryItem {
 	private String mIdDate;
 	private String mIdIndex;
 	private long mReadTimeLength;
+	private String mReferer;
 	
-	public BBReadHistoryItem(long openTime, String idDate, String idIndex) {
+	public BBReadHistoryItem(long openTime, String idDate, String idIndex, String referer) {
 		this.mOpenTime = openTime;
 		this.mIdDate = idDate;
 		this.mIdIndex = idIndex;
 		this.mReadTimeLength = 0;
+		this.mReferer = referer;
 	}
 
 
@@ -26,6 +28,9 @@ public class BBReadHistoryItem {
 	}
 	public long getReadTimeLength() {
 		return mReadTimeLength;
+	}
+	public String getReferer() {
+		return mReferer;
 	}
 
 

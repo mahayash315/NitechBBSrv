@@ -54,12 +54,15 @@ public class BBReadHistoryService {
 			}
 			
 			// すでに同じ ReadHistory が保存されていないか確認
-			if (BBReadHistoryModelService.use().findByUserHeadTime(user, item, historyItem.getOpenTime(), historyItem.getReadTimeLength()) != null) {
+			if (BBReadHistoryModelService.use().findByUserHeadTime(user, item, historyItem.getOpenTime()) != null) {
 				continue;
 			}
 			
 			// BBReadHistory 作成
-			BBReadHistory history = new BBReadHistory(user, item, historyItem.getOpenTime(), historyItem.getReadTimeLength());
+			String[] splitted = historyItem.getReferer().split("#", 2);
+			String referer = splitted[0];
+			String filter = (splitted.length == 2) ? splitted[1] : null;
+			BBReadHistory history = new BBReadHistory(user, item, historyItem.getOpenTime(), historyItem.getReadTimeLength(), referer, filter);
 			
 			// BBReadHistory 保存
 			if (history.store() == null) {

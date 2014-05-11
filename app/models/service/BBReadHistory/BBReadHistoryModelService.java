@@ -56,17 +56,15 @@ public class BBReadHistoryModelService implements ModelService<BBReadHistory> {
 	 * @param user
 	 * @param item
 	 * @param openTime
-	 * @param readTimeLength
 	 * @return
 	 */
-	public BBReadHistory findByUserHeadTime(User user, BBItemHead item, Long openTime, Long readTimeLength) {
-		if (user != null && item != null && openTime != null && readTimeLength != null) {
+	public BBReadHistory findByUserHeadTime(User user, BBItemHead item, Long openTime) {
+		if (user != null && item != null && openTime != null) {
 			return BBReadHistory.find
 						.where()
 							.eq("user", user)
 							.eq("item", item)
 							.eq("openTime", openTime)
-							.eq("readTimeLength", readTimeLength)
 						.findUnique();
 		}
 		return null;
