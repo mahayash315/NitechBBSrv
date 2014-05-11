@@ -10,21 +10,11 @@ public class BBAnalyzerService {
 		return new BBAnalyzerService();
 	}
 	
-	public BBAnalyzerResponse getBadRequest() {
-		BBAnalyzerResponse result = new BBAnalyzerResponse();
-		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.BAD_REQUEST;
-		
-		result.setCode(status.getCode());
-		result.setStatus(status.getStatus());
-		
-		return result;
-	}
-	
 	/**
 	 * InternalServerError レスポンスを生成する。code と status が設定された状態を返す。
 	 * @return
 	 */
-	public BBReadHistoryResponse getInternalErrorReadHistoryResponse() {
+	public BBAnalyzerResponse getInternalErrorResponse() {
 		BBReadHistoryResponse result = new BBReadHistoryResponse();
 		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.INTERNAL_ERROR;
 		
@@ -38,7 +28,7 @@ public class BBAnalyzerService {
 	 * BadRequest レスポンスを生成する。code と status が設定された状態を返す。
 	 * @return
 	 */
-	public BBReadHistoryResponse getBadRequestReadHistoryResponse() {
+	public BBAnalyzerResponse getBadRequestResponse() {
 		BBReadHistoryResponse result = new BBReadHistoryResponse();
 		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.BAD_REQUEST;
 		
@@ -52,7 +42,7 @@ public class BBAnalyzerService {
 	 * OK レスポンスを生成する。code と status が設定された状態を返す。
 	 * @return
 	 */
-	public BBReadHistoryResponse getOKReadHistoryResponse() {
+	public BBAnalyzerResponse getOKResponse() {
 		BBReadHistoryResponse result = new BBReadHistoryResponse();
 		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.OK;
 		

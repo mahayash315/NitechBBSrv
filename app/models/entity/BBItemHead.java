@@ -41,6 +41,10 @@ public class BBItemHead extends Model {
 	
 	@Column(name = "date_exec", length=191, nullable = true)
 	String dateExec;
+
+	@Lob
+	@Column(name = "author")
+	String author;
 	
 	@Lob
 	@Column(name = "title")
@@ -153,6 +157,14 @@ public class BBItemHead extends Model {
 
 	public void setDateExec(String dateExec) {
 		this.dateExec = dateExec;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 
 	public String getTitle() {

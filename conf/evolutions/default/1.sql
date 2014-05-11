@@ -10,6 +10,7 @@ create table bb_item_head (
   user_id                   bigint,
   date_show                 varchar(191),
   date_exec                 varchar(191),
+  author                    longtext,
   title                     longtext,
   constraint uq_bb_item_head_1 unique (user_id,id_date,id_index),
   constraint pk_bb_item_head primary key (id))

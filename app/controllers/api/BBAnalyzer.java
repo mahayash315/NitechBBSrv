@@ -17,6 +17,7 @@ import play.mvc.Result;
 import utils.api.bbanalyzer.BBAnalyzerUtil;
 import utils.api.bbanalyzer.GsonUtil;
 
+import com.avaje.ebean.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -29,7 +30,7 @@ public class BBAnalyzer extends Controller {
 		
 		// アサート
 		if( json == null ) {
-			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequestResponse();
 			response.setMessage("Parse error.");
 			return badRequest(Json.toJson(response));
 		}
@@ -37,7 +38,7 @@ public class BBAnalyzer extends Controller {
 		// 本文受け取り
 		JsonNode jnBody = json.findPath("body");
 		if( jnBody == null ) {
-			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequestResponse();
 			response.setMessage("no body sent.");
 			return badRequest(Json.toJson(response));
 		}
@@ -96,12 +97,13 @@ public class BBAnalyzer extends Controller {
 	 * @return
 	 */
 	@BodyParser.Of(BodyParser.Json.class)
+	@Transactional
 	public static Result postNewItemHeads() {
 		JsonNode jsonNode = request().body().asJson();
 		
 		// アサート
 		if( jsonNode == null ) {
-			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequestResponse();
 			response.setMessage("Parse error.");
 			return internalServerError(Json.toJson(response));
 		}
@@ -118,7 +120,7 @@ public class BBAnalyzer extends Controller {
 			return ok(GsonUtil.use().toJson(response));
 		} catch (JsonSyntaxException e) {
 			// JSON パースエラー
-			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequestResponse();
 			response.setMessage("Parse error. Invalid JSON sent.");
 			return badRequest(Json.toJson(response));
 		}
@@ -130,12 +132,13 @@ public class BBAnalyzer extends Controller {
 	 * @return
 	 */
 	@BodyParser.Of(BodyParser.Json.class)
+	@Transactional
 	public static Result postReadHistory() {
 		JsonNode jsonNode = request().body().asJson();
 		
 		// アサート
 		if( jsonNode == null ) {
-			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequestResponse();
 			response.setMessage("Parse error.");
 			return badRequest(Json.toJson(response));
 		}
@@ -152,7 +155,7 @@ public class BBAnalyzer extends Controller {
 			return ok(GsonUtil.use().toJson(response));
 		} catch (JsonSyntaxException e) {
 			// JSON パースエラー
-			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequest();
+			BBAnalyzerResponse response = BBAnalyzerService.use().getBadRequestResponse();
 			response.setMessage("Parse error. Invalid JSON sent.");
 			return badRequest(Json.toJson(response));
 		}

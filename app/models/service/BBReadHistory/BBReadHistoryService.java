@@ -33,7 +33,7 @@ public class BBReadHistoryService {
 			// User の保存
 			if (user.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す
-				return BBAnalyzerService.use().getInternalErrorReadHistoryResponse();
+				return (BBReadHistoryResponse) BBAnalyzerService.use().getInternalErrorResponse();
 			}
 		}
 		
@@ -49,7 +49,7 @@ public class BBReadHistoryService {
 				// BBItemHead の保存
 				if (item.store() == null) {
 					// 保存に失敗した場合は internalServerError を返す
-					return BBAnalyzerService.use().getInternalErrorReadHistoryResponse();
+					return (BBReadHistoryResponse) BBAnalyzerService.use().getInternalErrorResponse();
 				}
 			}
 			
@@ -64,13 +64,13 @@ public class BBReadHistoryService {
 			// BBReadHistory 保存
 			if (history.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す
-				return BBAnalyzerService.use().getInternalErrorReadHistoryResponse();
+				return (BBReadHistoryResponse) BBAnalyzerService.use().getInternalErrorResponse();
 			}
 		}
 		
 		
 		// 成功
-		BBReadHistoryResponse response = BBAnalyzerService.use().getOKReadHistoryResponse();
+		BBReadHistoryResponse response = (BBReadHistoryResponse) BBAnalyzerService.use().getOKResponse();
 		response.setMessage("OK");
 		return response;
 	}
