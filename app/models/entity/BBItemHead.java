@@ -30,10 +30,10 @@ public class BBItemHead extends Model {
 	@Id
 	Long id;
 	
-	@Column(name = "id_date", length=191, nullable = false)
+	@Column(name = "id_date", length=10, nullable = false)
 	String idDate;
 	
-	@Column(name = "id_index", length=191, nullable = false)
+	@Column(name = "id_index", length=3, nullable = false)
 	String idIndex;
 	
 	@ManyToOne
