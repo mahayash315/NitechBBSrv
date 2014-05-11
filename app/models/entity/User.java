@@ -63,10 +63,11 @@ public class User extends Model {
 	 * @return
 	 */
 	public User store() {
-		if (unique() == null) {
+		User o = unique();
+		if (o == null) {
 			return userModelService.save(this);
 		}
-		return userModelService.update(this);
+		return userModelService.update(this, o.getId());
 	}
 	
 	/**

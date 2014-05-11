@@ -3,12 +3,9 @@ package models.response.api.bbanalyzer;
 
 public class BBAnalyzerResponse {
 
-	private Integer code;
-	private String status;
-	private String message;
-	private BBAnalyzerResult result;
-//	private String jsonData;
-	
+	protected Integer code;
+	protected String status;
+	protected String message;
 	
 
 	public Integer getCode() {
@@ -29,16 +26,4 @@ public class BBAnalyzerResponse {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public BBAnalyzerResult getResult() {
-		return result;
-	}
-	public void setResult(BBAnalyzerResult result) {
-		this.result = result;
-	}
-//	public String getJsonData() {
-//		return jsonData;
-//	}
-//	public void setJsonData(String jsonData) {
-//		this.jsonData = jsonData;
-//	}
 }

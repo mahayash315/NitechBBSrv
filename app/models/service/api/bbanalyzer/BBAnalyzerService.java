@@ -1,7 +1,6 @@
 package models.service.api.bbanalyzer;
 
 import models.response.api.bbanalyzer.BBAnalyzerResponse;
-import models.response.api.bbanalyzer.BBReadHistoryResponse;
 import models.setting.api.bbanalyzer.BBAnalyzerStatusSetting;
 
 public class BBAnalyzerService {
@@ -15,7 +14,7 @@ public class BBAnalyzerService {
 	 * @return
 	 */
 	public BBAnalyzerResponse getInternalErrorResponse() {
-		BBReadHistoryResponse result = new BBReadHistoryResponse();
+		BBAnalyzerResponse result = new BBAnalyzerResponse();
 		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.INTERNAL_ERROR;
 		
 		result.setCode(status.getCode());
@@ -29,7 +28,7 @@ public class BBAnalyzerService {
 	 * @return
 	 */
 	public BBAnalyzerResponse getBadRequestResponse() {
-		BBReadHistoryResponse result = new BBReadHistoryResponse();
+		BBAnalyzerResponse result = new BBAnalyzerResponse();
 		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.BAD_REQUEST;
 		
 		result.setCode(status.getCode());
@@ -43,7 +42,7 @@ public class BBAnalyzerService {
 	 * @return
 	 */
 	public BBAnalyzerResponse getOKResponse() {
-		BBReadHistoryResponse result = new BBReadHistoryResponse();
+		BBAnalyzerResponse result = new BBAnalyzerResponse();
 		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.OK;
 		
 		result.setCode(status.getCode());

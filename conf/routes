@@ -13,7 +13,6 @@ POST	/bbanalyzer/kuromoji				controllers.BBAnalyzer.procKuromoji()
 POST	/bbanalyzer/analyzeBody				controllers.BBAnalyzer.analyzeBody()
 
 # BBAnalyzer API
-POST	/bbanalyzer/analyzeBody.json		controllers.api.BBAnalyzer.analyzeBody()
 POST	/bbanalyzer/postNewItemHeads.json 	controllers.api.BBAnalyzer.postNewItemHeads()
 POST	/bbanalyzer/postReadHistory.json 	controllers.api.BBAnalyzer.postReadHistory()
 

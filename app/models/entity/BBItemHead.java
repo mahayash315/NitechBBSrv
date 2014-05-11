@@ -1,5 +1,7 @@
 package models.entity;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,7 +14,9 @@ import javax.persistence.UniqueConstraint;
 
 import models.service.BBItemHead.BBItemHeadModelService;
 import models.service.BBItemHead.BBItemHeadService;
+import play.data.format.Formats.DateTime;
 import play.db.ebean.Model;
+
 
 @Entity
 @Table(
@@ -49,6 +53,14 @@ public class BBItemHead extends Model {
 	@Lob
 	@Column(name = "title")
 	String title;
+	
+	@DateTime(pattern="YYYY/MM/DD")
+	@Column(name = "last_update")
+	Date lastUpdate;
+	
+//	@Version
+//	@Column(name = "OPTLOCK")
+//	Integer versionNum;
 
 	
 	@Transient
@@ -87,10 +99,13 @@ public class BBItemHead extends Model {
 	 * @return
 	 */
 	public BBItemHead store() {
-		if (unique() == null) {
+		lastUpdate = new Date();
+		
+		BBItemHead o = unique();
+		if (o == null) {
 			return bbItemHeadModelService.save(this);
 		}
-		return bbItemHeadModelService.update(this);
+		return bbItemHeadModelService.update(this, o.getId());
 	}
 	
 	/**
@@ -174,4 +189,13 @@ public class BBItemHead extends Model {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+
+	public Date getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Date lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
+
 }

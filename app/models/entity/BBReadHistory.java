@@ -72,10 +72,11 @@ public class BBReadHistory extends Model {
 	 * @return
 	 */
 	public BBReadHistory store() {
-		if (unique() == null) {
+		BBReadHistory o = unique();
+		if (o == null) {
 			return bbReadHistoryModelService.save(this);
 		}
-		return bbReadHistoryModelService.update(this);
+		return bbReadHistoryModelService.update(this, o.getId());
 	}
 	
 	/**

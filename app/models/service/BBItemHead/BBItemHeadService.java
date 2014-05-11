@@ -30,28 +30,47 @@ public class BBItemHeadService {
 			// User の保存
 			if (user.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す
-				return (BBNewItemHeadsResponse) BBAnalyzerService.use().getInternalErrorResponse();
+				return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
 		
 		// 各 BBItemHead に関して
 		for (models.request.api.bbanalyzer.BBItemHead itemHead : request.list) {
-			BBItemHead item = new BBItemHead();
+			BBItemHead item = BBItemHeadModelService.use().findByUserDateIndex(user, itemHead.getIdDate(), itemHead.getIdIndex());
+			if (item == null) {
+				item = new BBItemHead();
+				item.setUser(user);
+				item.setIdDate(itemHead.getIdDate());
+				item.setIdIndex(itemHead.getIdIndex());
+			}
 			
-			item.setUser(user);
-			item.setIdDate(itemHead.getIdDate());
-			item.setIdIndex(itemHead.getIdIndex());
-			item.setDateShow(itemHead.getDateShow());
-			item.setDateExec(itemHead.getDateExec());
-			item.setAuthor(itemHead.getAuthor());
-			item.setTitle(itemHead.getTitle());
+			String dateShow = itemHead.getDateShow();
+			String dateExec = itemHead.getDateExec();
+			String author = itemHead.getAuthor();
+			String title = itemHead.getTitle();
+			
+			if (dateShow != null && !dateShow.isEmpty()) {
+				item.setDateShow(dateShow);
+			}
+			if (dateExec != null && !dateExec.isEmpty()) {
+				item.setDateExec(dateExec);
+			}
+			if (author != null && !author.isEmpty()) {
+				item.setAuthor(author);
+			}
+			if (title != null && !title.isEmpty()) {
+				item.setTitle(title);
+			}
 			
 			if (item.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す
-				return (BBNewItemHeadsResponse) BBAnalyzerService.use().getInternalErrorResponse();
+				return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
 		
-		return null;
+		// 成功
+		BBNewItemHeadsResponse response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getOKResponse());
+		response.setMessage("OK");
+		return response;
 	}
 }
