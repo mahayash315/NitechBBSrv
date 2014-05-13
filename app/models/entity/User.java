@@ -21,8 +21,8 @@ public class User extends Model {
 	@Id
 	Long id;
 	
-	@Column(name = "nitech_id", length = 191)
-	String nitechId;
+	@Column(name = "hashed_nitech_id", length = 191)
+	String hashedNitechId;
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	List<BBItemHead> items;
@@ -46,8 +46,8 @@ public class User extends Model {
 		this.id = id;
 	}
 	
-	public User(String nitechId) {
-		this.nitechId = nitechId;
+	public User(String hashedNitechId) {
+		this.hashedNitechId = hashedNitechId;
 	}
 	
 	
@@ -79,7 +79,7 @@ public class User extends Model {
 		if ((o = userModelService.findById(id)) != null) {
 			return o;
 		}
-		if ((o = userModelService.findByNitechId(nitechId)) != null) {
+		if ((o = userModelService.findByNitechId(hashedNitechId)) != null) {
 			return o;
 		}
 		return null;
@@ -96,12 +96,12 @@ public class User extends Model {
 		this.id = id;
 	}
 	
-	public String getNitechId() {
-		return nitechId;
+	public String getHashedNitechId() {
+		return hashedNitechId;
 	}
 
-	public void setNitechId(String nitechId) {
-		this.nitechId = nitechId;
+	public void setHashedNitechId(String hashedNitechId) {
+		this.hashedNitechId = hashedNitechId;
 	}
 
 	public List<BBItemHead> getItems() {
