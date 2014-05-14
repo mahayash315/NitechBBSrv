@@ -1,10 +1,6 @@
 package models.service.MockBBItem;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import models.entity.MockBBItem;
-import models.entity.MockBBItem.MockBBItemPK;
 import models.request.mockbb.GetListRequest;
 import models.request.mockbb.admin.CreateItemRequest;
 import models.view.mockbb.GetListDto;
@@ -60,7 +56,6 @@ public class MockBBItemService {
 	public MockBBItem procCreateItem(CreateItemRequest request) {
 		MockBBItem item = new MockBBItem();
 		
-		item.setId(new MockBBItemPK(new SimpleDateFormat("yyyy-MM-dd").format(new Date()), null));
 		item.setDateShow(request.dateShow);
 		item.setDateExec(request.dateExec);
 		item.setAuthor(request.author);

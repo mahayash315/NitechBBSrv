@@ -1,5 +1,7 @@
 package models.service.MockBBItem;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import models.entity.MockBBItem;
@@ -8,9 +10,11 @@ import models.service.Model.ModelService;
 import models.setting.MockBBSetting;
 import utils.PageUtil;
 
+import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Page;
+import com.avaje.ebean.SqlRow;
 
 public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBBItem> {
 	
@@ -31,6 +35,11 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 	@Override
 	public MockBBItem save(MockBBItem entry) {
 		if (entry != null) {
+			// 主キー生成
+			if (entry.getId() == null) {
+				entry.setId(generatePK());
+			}
+			
 			entry.save();
 			if (entry.getId() != null) {
 				return entry;
@@ -96,6 +105,20 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 			el.add( Expr.eq("is_fragged", true) );
 		}
 		return el;
+	}
+	
+	private MockBBItemPK generatePK() {
+		String idDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+		Integer idIndex = null;
+		SqlRow row = Ebean.createSqlQuery("SELECT (max(id_index)+1) AS next_id FROM mock_bb_item WHERE id_date=?").setParameter(1, idDate).findUnique();
+		if (row != null) {
+			idIndex = row.getInteger("next_id");
+			if (idIndex == null) {
+				idIndex = Integer.valueOf(1);
+			}
+			return new MockBBItemPK(idDate, idIndex);
+		}
+		return null;
 	}
 
 }

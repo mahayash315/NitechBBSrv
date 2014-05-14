@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import models.service.MockBBItem.MockBBItemModelService;
 import models.service.MockBBItem.MockBBItemService;
@@ -56,7 +57,9 @@ public class MockBBItem extends Model {
 	String body;
 	
 	
+	@Transient
 	MockBBItemService mockBBItemService = new MockBBItemService();
+	@Transient
 	MockBBItemModelService mockBBItemModelService = new MockBBItemModelService();
 	
 	
@@ -249,13 +252,20 @@ public class MockBBItem extends Model {
 			}
 			return null;
 		}
+		
 		@Override
 		public String unbind(String key) {
 			return idDate+"_"+idIndex;
 		}
+		
 		@Override
 		public String javascriptUnbind() {
 			return null;
+		}
+		
+		@Override
+		public String toString() {
+			return idDate+"_"+idIndex;
 		}
 		
 		public String getIdDate() {
