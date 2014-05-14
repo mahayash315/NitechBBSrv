@@ -2,14 +2,14 @@ package models.service.Model;
 
 import play.db.ebean.Model;
 
-public interface ModelService<T extends Model> {
+public interface ModelService<I extends Object, T extends Model> {
 	
 	/**
 	 * id に対応するオブジェクトを返す (SELECT)
 	 * @param id
 	 * @return
 	 */
-	public T findById(Long id);
+	public T findById(I id);
 	
 	/**
 	 * entry を INSERT する
@@ -31,5 +31,5 @@ public interface ModelService<T extends Model> {
 	 * @param id
 	 * @return
 	 */
-	public T update(T entry, Long id);
+	public T update(T entry, I id);
 }

@@ -3,7 +3,7 @@ package models.service.User;
 import models.entity.User;
 import models.service.Model.ModelService;
 
-public class UserModelService implements ModelService<User> {
+public class UserModelService implements ModelService<Long, User> {
 
 	public static UserModelService use() {
 		return new UserModelService();

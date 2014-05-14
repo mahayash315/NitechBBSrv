@@ -4,7 +4,7 @@ import models.entity.BBItemHead;
 import models.entity.User;
 import models.service.Model.ModelService;
 
-public class BBItemHeadModelService implements ModelService<BBItemHead> {
+public class BBItemHeadModelService implements ModelService<Long, BBItemHead> {
 	
 	public static BBItemHeadModelService use() {
 		return new BBItemHeadModelService();

@@ -5,7 +5,7 @@ import models.entity.BBReadHistory;
 import models.entity.User;
 import models.service.Model.ModelService;
 
-public class BBReadHistoryModelService implements ModelService<BBReadHistory> {
+public class BBReadHistoryModelService implements ModelService<Long, BBReadHistory> {
 
 	public static BBReadHistoryModelService use() {
 		return new BBReadHistoryModelService();

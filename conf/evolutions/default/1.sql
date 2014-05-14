@@ -28,9 +28,23 @@ create table bb_read_history (
   constraint pk_bb_read_history primary key (id))
 ;
 
+create table mock_bb_item (
+  id_date                   varchar(10),
+  id_index                  varchar(3),
+  date_show                 datetime,
+  date_exec                 datetime,
+  author                    varchar(191),
+  title                     varchar(191),
+  is_read                   tinyint(1) default 0,
+  is_reference              tinyint(1) default 0,
+  is_flagged                tinyint(1) default 0,
+  body                      longtext,
+  constraint pk_mock_bb_item primary key (id_date, id_index))
+;
+
 create table user (
   id                        bigint auto_increment not null,
-  nitech_id                 varchar(191),
+  hashed_nitech_id          varchar(191),
   constraint pk_user primary key (id))
 ;
 
@@ -50,6 +64,8 @@ SET FOREIGN_KEY_CHECKS=0;
 drop table bb_item_head;
 
 drop table bb_read_history;
+
+drop table mock_bb_item;
 
 drop table user;
 
