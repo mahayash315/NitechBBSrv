@@ -8,6 +8,8 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
@@ -191,10 +193,11 @@ public class MockBBItem extends Model {
 	@Embeddable
 	public static class MockBBItemPK implements Serializable, PathBindable<MockBBItemPK> {
 
-		@Column(name = "id_date", length = 10)
+		@Column(name = "id_date", length = 10, nullable = false)
 		String idDate;
 		
-		@Column(name = "id_index")
+		@GeneratedValue(strategy = GenerationType. AUTO)
+		@Column(name = "id_index", nullable = false)
 		Integer idIndex;
 
 		public MockBBItemPK() {

@@ -29,8 +29,8 @@ create table bb_read_history (
 ;
 
 create table mock_bb_item (
-  id_date                   varchar(10),
-  id_index                  integer,
+  id_date                   varchar(10) not null,
+  id_index                  integer not null,
   date_show                 datetime,
   date_exec                 datetime,
   author                    varchar(191),

@@ -1,7 +1,12 @@
 package models.service.MockBBItem;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import models.entity.MockBBItem;
+import models.entity.MockBBItem.MockBBItemPK;
 import models.request.mockbb.GetListRequest;
+import models.request.mockbb.admin.CreateItemRequest;
 import models.view.mockbb.GetListDto;
 import models.view.mockbb.admin.ManageDto;
 
@@ -50,6 +55,22 @@ public class MockBBItemService {
 		dto.hasNextPage = page.hasNext();
 		
 		return dto;
+	}
+	
+	public MockBBItem procCreateItem(CreateItemRequest request) {
+		MockBBItem item = new MockBBItem();
+		
+		item.setId(new MockBBItemPK(new SimpleDateFormat("yyyy-MM-dd").format(new Date()), null));
+		item.setDateShow(request.dateShow);
+		item.setDateExec(request.dateExec);
+		item.setAuthor(request.author);
+		item.setTitle(request.title);
+		item.setRead(false);
+		item.setFragged(false);
+		item.setReference(request.isReference);
+		item.setBody(request.body);
+		
+		return item.store();
 	}
 	
 }

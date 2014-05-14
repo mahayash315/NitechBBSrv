@@ -4,15 +4,21 @@ import static play.data.Form.*;
 
 import java.util.Date;
 
+import models.entity.MockBBItem;
 import models.entity.MockBBItem.MockBBItemPK;
 import models.request.mockbb.admin.CreateItemRequest;
 import models.service.MockBBItem.MockBBItemService;
 import models.view.mockbb.admin.ManageDto;
 import play.data.Form;
+import play.mvc.Call;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import com.avaje.ebean.Ebean;
+
 public class Admin extends Controller {
+	
+	public static Call DEFAULT_MANAGE_CALL = controllers.mockbb.routes.Admin.manage(1, null, null, null);
 
 	public static Result index() {
 		return TODO;
@@ -34,6 +40,7 @@ public class Admin extends Controller {
 			e.printStackTrace();
 			return internalServerError(e.getLocalizedMessage());
 		}
+		
 	}
 	
 	public static Result createItemForm() {
@@ -53,10 +60,35 @@ public class Admin extends Controller {
 			e.printStackTrace();
 			return internalServerError(e.getLocalizedMessage());
 		}
+		
 	}
 	
 	public static Result create() {
-		return TODO;
+		// フォーム取得
+		Form<CreateItemRequest> createForm = form(CreateItemRequest.class).bindFromRequest();
+		
+		// バリデーション
+		if (createForm.hasErrors()) {
+			return badRequest(views.html.mockbb.admin.createItemForm.render(createForm));
+		}
+		
+		Ebean.beginTransaction();
+		try {
+			// 挿入
+			MockBBItem item = MockBBItemService.use().procCreateItem(createForm.get());
+			if (item != null) {
+				Ebean.commitTransaction();
+				return redirect(DEFAULT_MANAGE_CALL);
+			} else {
+				Ebean.rollbackTransaction();
+				return internalServerError(views.html.mockbb.admin.createItemForm.render(createForm));
+			}
+		} catch (Exception e) {
+			Ebean.rollbackTransaction();
+			return internalServerError(e.getLocalizedMessage());
+		} finally {
+			Ebean.endTransaction();
+		}
 	}
 	
 	public static Result editItemForm(MockBBItemPK id) {
