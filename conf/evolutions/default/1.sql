@@ -30,7 +30,7 @@ create table bb_read_history (
 
 create table mock_bb_item (
   id_date                   varchar(10),
-  id_index                  varchar(3),
+  id_index                  integer,
   date_show                 datetime,
   date_exec                 datetime,
   author                    varchar(191),

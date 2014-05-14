@@ -16,6 +16,18 @@ POST	/bbanalyzer/analyzeBody				controllers.BBAnalyzer.analyzeBody()
 POST	/bbanalyzer/postNewItemHeads.json 	controllers.api.BBAnalyzer.postNewItemHeads()
 POST	/bbanalyzer/postReadHistory.json 	controllers.api.BBAnalyzer.postReadHistory()
 
+# Mock BB
+GET		/mockbb								controllers.Default.redirect(to = "/mockbb/")
+GET		/mockbb/							controllers.MockBB.index()
+POST	/mockbb/list						controllers.MockBB.getList()
+GET		/mockbb/list						controllers.MockBB.getList()
+GET		/mockbb/admin						controllers.Default.redirect(to = "/mockbb/admin/")
+GET		/mockbb/admin/						controllers.mockbb.Admin.index()
+GET		/mockbb/admin/manage				controllers.mockbb.Admin.manage(p:Int ?= 1, s ?= null, o ?= null, f ?= null)
+GET		/mockbb/admin/create				controllers.mockbb.Admin.createItemForm()
+POST	/mockbb/admin/create				controllers.mockbb.Admin.create()
+GET		/mockbb/admin/edit/:id				controllers.mockbb.Admin.editItemForm(id:models.entity.MockBBItem.MockBBItemPK)
+POST	/mockbb/admin/edit/:id				controllers.mockbb.Admin.edit(id:models.entity.MockBBItem.MockBBItemPK)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file						controllers.Assets.at(path="/public", file)

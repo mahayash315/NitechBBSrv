@@ -5,9 +5,12 @@ import java.util.List;
 import models.entity.MockBBItem;
 import models.entity.MockBBItem.MockBBItemPK;
 import models.service.Model.ModelService;
+import models.setting.MockBBSetting;
+import utils.PageUtil;
 
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.Page;
 
 public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBBItem> {
 	
@@ -58,17 +61,31 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 	
 	
 	public List<MockBBItem> findList(String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
+		
+		ExpressionList<MockBBItem> el = generateExpressionList(orderByClause, filter, hideRead, hideReference, onlyFragged);
+		
+		return el.orderBy(DEFAULT_ORDER_BY_CLAUSE).findList();
+	}
+	
+	
+	public Page<MockBBItem> findPage(Integer pageSource, String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
+		
+		Integer page = PageUtil.rightPage(pageSource);
+		ExpressionList<MockBBItem> el = generateExpressionList(orderByClause, filter, hideRead, hideReference, onlyFragged);
+		
+		return el.findPagingList(MockBBSetting.PAGE_SIZE).getPage(page);
+	}
+	
+	
+	private ExpressionList<MockBBItem> generateExpressionList(String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
 		if (orderByClause == null || orderByClause.isEmpty()) {
 			orderByClause = DEFAULT_ORDER_BY_CLAUSE;
 		}
 		
-		ExpressionList<MockBBItem> el =
-				MockBBItem.find
-					.where()
-						.or(
-							Expr.ilike("author", "%"+filter+"%"),
-							Expr.ilike("title", "%"+filter+"%")
-						);
+		ExpressionList<MockBBItem> el = MockBBItem.find.where();
+		if (filter != null) {
+			el.add( Expr.or(Expr.ilike("author", "%"+filter+"%"), Expr.ilike("title", "%"+filter+"%")) );
+		}
 		if (hideRead) {
 			el.add( Expr.eq("is_read", false) );
 		}
@@ -78,8 +95,7 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 		if (onlyFragged) {
 			el.add( Expr.eq("is_fragged", true) );
 		}
-		
-		return el.orderBy(DEFAULT_ORDER_BY_CLAUSE).findList();
+		return el;
 	}
 
 }

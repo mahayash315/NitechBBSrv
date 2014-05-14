@@ -1,5 +1,4 @@
-@(response: models.response.mockbb.GetListResponse)
-
+@(dto: models.view.mockbb.GetListDto)
 
 
 
@@ -392,7 +391,8 @@
 	</script>
 </head>
 <body style="margin: 5px;" onload="onLoad();">
-<form name="form1" action="/keijiban/app;jsessionid=D72760855143274F96924DAB36541DB0" method="POST" target="_self"><input type="hidden" name="uri" value="keijiban"><input type="hidden" name="next_uri" value=""><input type="hidden" name="event_code" value="">
+@helper.form(action = controllers.routes.MockBB.getList, 'target -> "_self") {
+<input type="hidden" name="uri" value="keijiban"><input type="hidden" name="next_uri" value=""><input type="hidden" name="event_code" value="">
 	<input type="hidden" name="no_read" value="true" >
 	<input type="hidden" name="on_flag" value="false" >
 	<input type="hidden" name="reference_flag" value="false" >
@@ -479,11 +479,52 @@
 			</td>
 		</tr>
 		
+		
+		@for((item, count) <- dto.items.zipWithIndex) {
+			<tr>
+				<td nowrap style="color: #ff0000;" align="center" valign="top">
+					@if( item.isRead() ) {
+						<input type="checkbox" name="check_mk" checked onclick="checkRead(@count);" checked>&nbsp;
+					} else {
+						<input type="checkbox" name="check_mk" checked onclick="checkRead(@count);">&nbsp;
+					}
+					<input type="hidden" name="id_date"  value="@item.getId().getIdDate()"/>
+					<input type="hidden" name="id_index" value="@item.getId().getIdIndex()"/>
+				</td>
+				<td nowrap style="color: #ff0000;" align="center" valign="top">
+					@if( item.isFragged() ) {
+						<input type="checkbox" name="check_flag" checked onclick="checkFlag(@count);" checked>&nbsp;
+					} else {
+						<input type="checkbox" name="check_flag" checked onclick="checkFlag(@count);">&nbsp;
+					}
+				</td>			
+				<td nowrap style="color: #ff0000; font-size: 12px;" valign="top">
+					@item.getDateShow()
+				</td>
+				<td>&nbsp;</td>
+				<td nowrap style="color: #ff0000; font-size: 12px;" valign="top">
+					@item.getDateExec()
+				</td>
+				<td>&nbsp;</td>
+				<td style="font-size: 12px;" valign="top" bgcolor="#FFFF00">
+					
+						<a style="font-size: 12px;" href="#" onclick="detail(0); return false;">@item.getTitle()</a>
+					
+					
+				</td>
+				<td>&nbsp;</td>
+				<td style="font-size: 12px;" valign="top">
+					@item.getAuthor()
+				</td>
+			</tr>
+		}
+		
+		
+		
 	</table>
 		
 	<div id="id_popup" class="popupStyle"></div>
-
-</form>
+}
 
 </body>
 </html>

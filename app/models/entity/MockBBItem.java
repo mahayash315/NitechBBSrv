@@ -15,6 +15,9 @@ import models.service.MockBBItem.MockBBItemModelService;
 import models.service.MockBBItem.MockBBItemService;
 import play.data.format.Formats.DateTime;
 import play.db.ebean.Model;
+import play.mvc.PathBindable;
+
+import com.avaje.ebean.Page;
 
 @Entity
 @Table(name="mock_bb_item")
@@ -87,6 +90,10 @@ public class MockBBItem extends Model {
 	
 	public List<MockBBItem> findList(String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
 		return mockBBItemModelService.findList(orderByClause, filter, hideRead, hideReference, onlyFragged);
+	}
+	
+	public Page<MockBBItem> findPage(Integer pageSource, String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
+		return mockBBItemModelService.findPage(pageSource, orderByClause, filter, hideRead, hideReference, onlyFragged);
 	}
 	
 	
@@ -182,18 +189,18 @@ public class MockBBItem extends Model {
 	
 	
 	@Embeddable
-	public static class MockBBItemPK implements Serializable {
+	public static class MockBBItemPK implements Serializable, PathBindable<MockBBItemPK> {
 
 		@Column(name = "id_date", length = 10)
 		String idDate;
 		
-		@Column(name = "id_index", length = 3)
-		String idIndex;
+		@Column(name = "id_index")
+		Integer idIndex;
 
 		public MockBBItemPK() {
 			
 		}
-		public MockBBItemPK(String idDate, String idIndex) {
+		public MockBBItemPK(String idDate, Integer idIndex) {
 			this.idDate = idDate;
 			this.idIndex = idIndex;
 		}
@@ -231,6 +238,23 @@ public class MockBBItem extends Model {
 			return true;
 		}
 		
+		@Override
+		public MockBBItemPK bind(String key, String txt) {
+			String[] sp = txt.split("_",2);
+			if (sp.length == 2) {
+				return new MockBBItemPK(sp[0], Integer.getInteger(sp[1]));
+			}
+			return null;
+		}
+		@Override
+		public String unbind(String key) {
+			return idDate+"_"+idIndex;
+		}
+		@Override
+		public String javascriptUnbind() {
+			return null;
+		}
+		
 		public String getIdDate() {
 			return idDate;
 		}
@@ -239,11 +263,11 @@ public class MockBBItem extends Model {
 			this.idDate = idDate;
 		}
 
-		public String getIdIndex() {
+		public Integer getIdIndex() {
 			return idIndex;
 		}
 
-		public void setIdIndex(String idIndex) {
+		public void setIdIndex(Integer idIndex) {
 			this.idIndex = idIndex;
 		}
 	}
