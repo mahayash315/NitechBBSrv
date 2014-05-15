@@ -7,6 +7,7 @@ import java.util.Date;
 import models.entity.MockBBItem;
 import models.entity.MockBBItem.MockBBItemPK;
 import models.request.mockbb.admin.CreateItemRequest;
+import models.request.mockbb.admin.EditItemRequest;
 import models.service.MockBBItem.MockBBItemService;
 import models.view.mockbb.admin.ManageDto;
 import play.data.Form;
@@ -21,7 +22,7 @@ public class Admin extends Controller {
 	public static Call DEFAULT_MANAGE_CALL = controllers.mockbb.routes.Admin.manage(1, null, null, null);
 
 	public static Result index() {
-		return TODO;
+		return ok(views.html.mockbb.admin.index.render());
 	}
 	
 	public static Result manage(Integer pageSource, String sortBy, String order, String filter) {
@@ -49,6 +50,8 @@ public class Admin extends Controller {
 			// デフォルト値を作成
 			CreateItemRequest request = new CreateItemRequest();
 			request.dateShow = new Date();
+			request.isRead = false;
+			request.isFlagged = false;
 			request.isReference = false;
 			
 			// フォーム作成
@@ -92,10 +95,54 @@ public class Admin extends Controller {
 	}
 	
 	public static Result editItemForm(MockBBItemPK id) {
-		return TODO;
+		
+		try {
+			// オブジェクト取得
+			MockBBItem item = new MockBBItem(id).unique();
+			if (item == null) {
+				return notFound();
+			}
+			
+			// デフォルト値を作成
+			EditItemRequest request = item.getEditItemRequest();
+			
+			// フォーム作成
+			Form<EditItemRequest> editForm = form(EditItemRequest.class).fill(request);
+			
+			// 表示
+			return ok(views.html.mockbb.admin.editItemForm.render(id, editForm));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return internalServerError(e.getLocalizedMessage());
+		}
+		
 	}
 	
 	public static Result edit(MockBBItemPK id) {
-		return TODO;
+		// フォーム取得
+		Form<EditItemRequest> editForm = form(EditItemRequest.class).bindFromRequest();
+		
+		// バリデーション
+		if (editForm.hasErrors()) {
+			return badRequest(views.html.mockbb.admin.editItemForm.render(id, editForm));
+		}
+		
+		Ebean.beginTransaction();
+		try {
+			// 挿入
+			MockBBItem item = MockBBItemService.use().procEditItem(id, editForm.get());
+			if (item != null) {
+				Ebean.commitTransaction();
+				return redirect(DEFAULT_MANAGE_CALL);
+			} else {
+				Ebean.rollbackTransaction();
+				return internalServerError(views.html.mockbb.admin.editItemForm.render(id, editForm));
+			}
+		} catch (Exception e) {
+			Ebean.rollbackTransaction();
+			return internalServerError(e.getLocalizedMessage());
+		} finally {
+			Ebean.endTransaction();
+		}
 	}
 }

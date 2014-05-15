@@ -49,13 +49,13 @@
     	<table class="item_list">
     		<thead>
 				<tr>
-					@header("id", "id")
+					@header("id_date", "id")
 					@header("date_show", "掲示開始日")
 					@header("date_exec", "実施開始日")
 					@header("author", "掲示者")
 					@header("title", "件名")
 					@header("is_read", "既読")
-					@header("is_fragged", "強調")
+					@header("is_flagged", "強調")
 					@header("is_reference", "参考")
 				</tr>
     		</thead>
@@ -69,7 +69,7 @@
 						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.getAuthor()</a></td>
 						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.getTitle()</a></td>
 						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.isRead()</a></td>
-						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.isFragged()</a></td>
+						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.isFlagged()</a></td>
 						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.isReference()</a></td>
 					</tr>
 		       	}

@@ -70,26 +70,29 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 	
 	
 	public List<MockBBItem> findList(String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
+		if (orderByClause == null || orderByClause.isEmpty()) {
+			orderByClause = DEFAULT_ORDER_BY_CLAUSE;
+		}
 		
 		ExpressionList<MockBBItem> el = generateExpressionList(orderByClause, filter, hideRead, hideReference, onlyFragged);
 		
-		return el.orderBy(DEFAULT_ORDER_BY_CLAUSE).findList();
+		return el.orderBy(orderByClause).findList();
 	}
 	
 	
 	public Page<MockBBItem> findPage(Integer pageSource, String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
+		if (orderByClause == null || orderByClause.isEmpty()) {
+			orderByClause = DEFAULT_ORDER_BY_CLAUSE;
+		}
 		
 		Integer page = PageUtil.rightPage(pageSource);
 		ExpressionList<MockBBItem> el = generateExpressionList(orderByClause, filter, hideRead, hideReference, onlyFragged);
 		
-		return el.findPagingList(MockBBSetting.PAGE_SIZE).getPage(page);
+		return el.orderBy(orderByClause).findPagingList(MockBBSetting.PAGE_SIZE).getPage(page);
 	}
 	
 	
 	private ExpressionList<MockBBItem> generateExpressionList(String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
-		if (orderByClause == null || orderByClause.isEmpty()) {
-			orderByClause = DEFAULT_ORDER_BY_CLAUSE;
-		}
 		
 		ExpressionList<MockBBItem> el = MockBBItem.find.where();
 		if (filter != null) {
@@ -102,7 +105,7 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 			el.add( Expr.eq("is_reference", false) );
 		}
 		if (onlyFragged) {
-			el.add( Expr.eq("is_fragged", true) );
+			el.add( Expr.eq("is_flagged", true) );
 		}
 		return el;
 	}

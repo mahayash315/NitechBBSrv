@@ -11,7 +11,7 @@
 	<meta http-equiv="pragma"		 content="no-cache">
 	<meta http-equiv="cache-control" content="no-cache">
 	<meta http-equiv="expires"		 content="thu, 01 dec 1994 16:00:00 gmt">
-	<script language="javascript" src="/keijiban/scripts/keijiban.js"/></script>
+	<script language="javascript" src="@routes.Assets.at("javascripts/mockbb/keijiban.js")"/></script>
 
 	<title>掲示板 </title>
 	<style type="text/css">
@@ -200,9 +200,10 @@
 				alert("掲示情報の自動既読設定は利用できません。");
 			}	
 			setTimeout("reload()",100);			
+
+			uri = "detail" + "?id_date=" + id_date + "&id_index=" + id_index;
 			
-			
-			sub_window	= f_open(width, height, "_blank", "detail", "id_date=" + id_date + "&id_index=" + id_index);
+			sub_window	= window.open(uri, "_blank", "width=" + width + ",height=" + height + ",scrollbars,resizable=yes");
 			sub_window.focus();
 		}
 		
@@ -391,17 +392,49 @@
 	</script>
 </head>
 <body style="margin: 5px;" onload="onLoad();">
-@helper.form(action = controllers.routes.MockBB.getList, 'target -> "_self") {
+@helper.form(action = controllers.routes.MockBB.getList, 'target -> "_self", 'name -> "form1") {
 <input type="hidden" name="uri" value="keijiban"><input type="hidden" name="next_uri" value=""><input type="hidden" name="event_code" value="">
-	<input type="hidden" name="no_read" value="true" >
-	<input type="hidden" name="on_flag" value="false" >
-	<input type="hidden" name="reference_flag" value="false" >
-	<input type="hidden" name="order" value="info.bulletin_start_date" >
-	<input type="hidden" name="order_kind" value="desc" >
+	@if(dto.noReadFlag) {
+		<input type="hidden" name="no_read" value="true" >
+	} else {
+		<input type="hidden" name="no_read" value="false" >
+	}
+	@if(dto.onFlagFlag) {
+		<input type="hidden" name="on_flag" value="true" >
+	} else {
+		<input type="hidden" name="on_flag" value="false" >
+	}
+	@if(dto.referenceFlag) {
+		<input type="hidden" name="reference_flag" value="true" >
+	} else {
+		<input type="hidden" name="reference_flag" value="false" >
+	}
+	@if(dto.currentOrder != null) {
+		<input type="hidden" name="order" value="@dto.currentOrder" >
+	} else {
+		<input type="hidden" name="order" value="date_show" >
+	}
+	@if(dto.currentOrderKind != null) {
+		<input type="hidden" name="order_kind" value="@dto.currentOrderKind" >
+	} else {
+		<input type="hidden" name="order_kind" value="desc" >
+	}
 	<div style="font-size: 12px;">	
-		<input type="checkbox" name="check_no_read" value="true" onclick="changdisplay();" checked>既読非表示&nbsp;
-		<input type="checkbox" name="check_on_flag" value="true" onclick="changdisplay2();" >強調のみ表示&nbsp;
-		<input type="checkbox" name="check_reference_flag" value="true" onclick="changdisplay3();" >参考非表示&nbsp;
+		@if(dto.noReadFlag) {
+			<input type="checkbox" name="check_no_read" value="true" onclick="changdisplay();" checked>既読非表示&nbsp;
+		} else {
+			<input type="checkbox" name="check_no_read" value="true" onclick="changdisplay();" >既読非表示&nbsp;
+		}
+		@if(dto.onFlagFlag) {
+			<input type="checkbox" name="check_on_flag" value="true" onclick="changdisplay2();" checked>強調のみ表示&nbsp;
+		} else {
+			<input type="checkbox" name="check_on_flag" value="true" onclick="changdisplay2();" >強調のみ表示&nbsp;
+		}
+		@if(dto.referenceFlag) {
+			<input type="checkbox" name="check_reference_flag" value="true" onclick="changdisplay3();" checked>参考非表示&nbsp;
+		} else {
+			<input type="checkbox" name="check_reference_flag" value="true" onclick="changdisplay3();" >参考非表示&nbsp;
+		}
 		
 		&nbsp;&nbsp;&nbsp;&nbsp;
 			
@@ -416,86 +449,99 @@
 
 	<br>
 	<div><!--<span style="color: #0033FF; font-weight: bold;font-size: 12px;">情報はありません。</span>--></div>
-	<input type="hidden" name="info_length" value="0">
+	<input type="hidden" name="info_length" value="@dto.items.size()">
 	
 	<table>
 		<tr>
 			<td nowrap style="width: 30px;" valign="top" align="center">
-					
-				
-				<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('info.READ_FLAG', 'desc'); return false;" >既読</a>
+				@if(dto.currentOrder != null && dto.currentOrder.equals("is_read")) {
+					@if(dto.currentOrderKind != null && dto.currentOrderKind.equals("desc")) {
+						<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('is_read', 'asc'); return false;" >既読</a>
+					} else {
+						<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('is_read', 'desc'); return false;" >既読</a>
+					}
+				} else {
+					<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('is_read', 'asc'); return false;" >既読</a>
+				}
 					
 			</td>
 			<td nowrap style="width: 30px;" valign="top" align="center">
-				
-				<span style="color: #0033FF; font-size: 12px;" >強調</span>
-					
+				@if(dto.currentOrder != null && dto.currentOrder.equals("is_flagged")) {
+					@if(dto.currentOrderKind != null && dto.currentOrderKind.equals("desc")) {
+						<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('is_flagged', 'asc'); return false;" >強調</a>
+					} else {
+						<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('is_flagged', 'desc'); return false;" >強調</a>
+					}
+				} else {
+					<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('is_flagged', 'asc'); return false;" >強調</a>
+				}
 					
 			</td>
 			<td nowrap style="width: 65px;" valign="top">
-				&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('info.bulletin_start_date', 'desc'); return false;" onmouseover="mouseOver('掲示が開始された日付です。', 100, 100, 250, 50);" onmouseout="mouseOut();" >掲示開始</a>
+				@if(dto.currentOrder != null && dto.currentOrder.equals("date_show")) {
+					@if(dto.currentOrderKind != null && dto.currentOrderKind.equals("desc")) {
+						&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('date_show', 'asc'); return false;" onmouseover="mouseOver('掲示が開始された日付です。', 100, 100, 250, 50);" onmouseout="mouseOut();" >掲示開始</a>
+					} else {
+						&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('date_show', 'desc'); return false;" onmouseover="mouseOver('掲示が開始された日付です。', 100, 100, 250, 50);" onmouseout="mouseOut();" >掲示開始</a>
+					}
+				} else {
+					&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('date_show', 'asc'); return false;" onmouseover="mouseOver('掲示が開始された日付です。', 100, 100, 250, 50);" onmouseout="mouseOut();" >掲示開始</a>
+				}
 			</td>
 			<td style="width: 3px;">&nbsp;</td>
 			<td nowrap style="width: 65px;" valign="top">
-				&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('info.start_date', 'asc'); return false;" onmouseover="mouseOver('掲示内容のイベントが開始される日付です。', 100, 100, 250, 50);" onmouseout="mouseOut();" >実施開始</a>
+				@if(dto.currentOrder != null && dto.currentOrder.equals("date_exec")) {
+					@if(dto.currentOrderKind != null && dto.currentOrderKind.equals("desc")) {
+						&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('date_exec', 'asc'); return false;" onmouseover="mouseOver('掲示内容のイベントが開始される日付です。', 100, 100, 250, 50);" onmouseout="mouseOut();" >実施開始</a>
+					} else {
+						&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('date_exec', 'desc'); return false;" onmouseover="mouseOver('掲示内容のイベントが開始される日付です。', 100, 100, 250, 50);" onmouseout="mouseOut();" >実施開始</a>
+					}
+				} else {
+					&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('date_exec', 'asc'); return false;" onmouseover="mouseOver('掲示内容のイベントが開始される日付です。', 100, 100, 250, 50);" onmouseout="mouseOut();" >実施開始</a>
+				}
 			</td>
 			<td style="width: 3px;">&nbsp;</td>
 			<td nowrap width="60%" valign="top" align="center">
-				<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('info.title', 'asc'); return false;" >件名</a>
+				@if(dto.currentOrder != null && dto.currentOrder.equals("title")) {
+					@if(dto.currentOrderKind != null && dto.currentOrderKind.equals("desc")) {
+						<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('title', 'asc'); return false;" >件名</a>
+					} else {
+						<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('title', 'desc'); return false;" >件名</a>
+					}
+				} else {
+					<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('title', 'asc'); return false;" >件名</a>
+				}
 			</td>
 			<td style="width: 3px;">&nbsp;</td>
 			<td nowrap  width="30%" valign="top">
-				&nbsp;&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('info.user_name', 'asc'); return false;" >掲示者</a>
+				@if(dto.currentOrder != null && dto.currentOrder.equals("author")) {
+					@if(dto.currentOrderKind != null && dto.currentOrderKind.equals("desc")) {
+						&nbsp;&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('author', 'asc'); return false;" >掲示者</a>
+					} else {
+						&nbsp;&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('author', 'desc'); return false;" >掲示者</a>
+					}
+				} else {
+					&nbsp;&nbsp;<a style="color: #0033FF; font-size: 12px;" href="#" onclick="changOrder('author', 'asc'); return false;" >掲示者</a>
+				}
 			</td>
 		</tr>
-
-		
-		<tr>
-			<td nowrap style="color: #ff0000;" align="center" valign="top">
-				<input type="checkbox" name="check_mk" checked onclick="checkRead(0);">&nbsp;
-				<input type="hidden" name="id_date"  value="2014-05-02"/>
-				<input type="hidden" name="id_index" value="5"/>
-			</td>
-			<td nowrap style="color: #ff0000;" align="center" valign="top">
-				<input type="checkbox" name="check_flag" checked onclick="checkFlag(0);">&nbsp;
-			</td>			
-			<td nowrap style="color: #ff0000; font-size: 12px;" valign="top">
-				2014/05/02
-			</td>
-			<td>&nbsp;</td>
-			<td nowrap style="color: #ff0000; font-size: 12px;" valign="top">
-				
-			</td>
-			<td>&nbsp;</td>
-			<td style="font-size: 12px;" valign="top" bgcolor="#FFFF00">
-				
-					<a style="font-size: 12px;" href="#" onclick="detail(0); return false;">【休講】2610&nbsp;機械学習論（5/14）</a>
-				
-				
-			</td>
-			<td>&nbsp;</td>
-			<td style="font-size: 12px;" valign="top">
-				和田山　正
-			</td>
-		</tr>
-		
 		
 		@for((item, count) <- dto.items.zipWithIndex) {
 			<tr>
 				<td nowrap style="color: #ff0000;" align="center" valign="top">
-					@if( item.isRead() ) {
-						<input type="checkbox" name="check_mk" checked onclick="checkRead(@count);" checked>&nbsp;
-					} else {
+					@if(item.isRead()) {
 						<input type="checkbox" name="check_mk" checked onclick="checkRead(@count);">&nbsp;
+					} else {
+						<input type="checkbox" name="check_mk" onclick="checkRead(@count);">&nbsp;
 					}
 					<input type="hidden" name="id_date"  value="@item.getId().getIdDate()"/>
 					<input type="hidden" name="id_index" value="@item.getId().getIdIndex()"/>
 				</td>
 				<td nowrap style="color: #ff0000;" align="center" valign="top">
-					@if( item.isFragged() ) {
+					@if(item.isFlagged()) {
 						<input type="checkbox" name="check_flag" checked onclick="checkFlag(@count);" checked>&nbsp;
 					} else {
-						<input type="checkbox" name="check_flag" checked onclick="checkFlag(@count);">&nbsp;
+						<input type="checkbox" name="check_flag" onclick="checkFlag(@count);">&nbsp;
 					}
 				</td>			
 				<td nowrap style="color: #ff0000; font-size: 12px;" valign="top">
@@ -506,9 +552,15 @@
 					@item.getDateExec()
 				</td>
 				<td>&nbsp;</td>
-				<td style="font-size: 12px;" valign="top" bgcolor="#FFFF00">
+				@if(item.isFlagged()) {
+					<td style="font-size: 12px;" valign="top" bgcolor="#FFFF00">
+				} else { @if(item.isReference()) {
+					<td style="font-size: 12px;" valign="top" bgcolor="#CCCCCC">
+				} else {
+					<td style="font-size: 12px;" valign="top" bgcolor="#FFFFFF">
+				} }
 					
-						<a style="font-size: 12px;" href="#" onclick="detail(0); return false;">@item.getTitle()</a>
+						<a style="font-size: 12px;" href="#" onclick="detail(@count); return false;">@item.getTitle()</a>
 					
 					
 				</td>

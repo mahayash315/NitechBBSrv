@@ -1,8 +1,9 @@
 package controllers;
 
-import static play.data.Form.*;
+import models.request.mockbb.GetDetailRequest;
 import models.request.mockbb.GetListRequest;
 import models.service.MockBBItem.MockBBItemService;
+import models.view.mockbb.GetDetailDto;
 import models.view.mockbb.GetListDto;
 import play.data.Form;
 import play.mvc.Controller;
@@ -18,15 +19,53 @@ public class MockBB extends Controller {
 	
 	public static Result getList() {
 		try {
-			Form<GetListRequest> requestForm = form(GetListRequest.class).bindFromRequest();
+			Form<GetListRequest> requestForm = play.data.Form.form(GetListRequest.class).bindFromRequest();
+			
+			GetListRequest request = requestForm.get();
+			
+			if (request.uri != null) {
+				if (request.uri.equalsIgnoreCase("readcontrol")) {
+					boolean result = MockBBItemService.use().procGetListReadControl(request);
+					if (result) {
+						return ok(String.valueOf(request.checked));
+					} else {
+						return badRequest();
+					}
+				} else if (request.uri.equalsIgnoreCase("flagcontrol")) {
+					boolean result = MockBBItemService.use().procGetListFlagControl(request);
+					if (result) {
+						return ok(String.valueOf(request.checked));
+					} else {
+						return badRequest();
+					}
+				}
+			}
 		
-			GetListDto dto = MockBBItemService.use().procGetListRequest(requestForm.get());
+			GetListDto dto = MockBBItemService.use().procGetListRequest(request);
 			if (dto == null) {
 				return badRequest("bad request");
 			}
 		
 			return ok(views.html.mockbb.list.render(dto));
 		} catch (Exception e) {
+			e.printStackTrace();
+			return internalServerError("internal server error");
+		}
+	}
+	
+	
+	public static Result getDetail() {
+		try {
+			Form<GetDetailRequest> requestForm = play.data.Form.form(GetDetailRequest.class).bindFromRequest();
+		
+			GetDetailDto dto = MockBBItemService.use().procGetDetailRequest(requestForm.get());
+			if (dto == null) {
+				return badRequest("bad request");
+			}
+		
+			return ok(views.html.mockbb.detail.render(dto));
+		} catch (Exception e) {
+			e.printStackTrace();
 			return internalServerError("internal server error");
 		}
 	}

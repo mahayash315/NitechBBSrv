@@ -1,0 +1,125 @@
+@(dto: models.view.mockbb.GetDetailDto)
+
+
+
+
+
+
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-31j">
+	
+	<meta http-equiv="pragma"		 content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires"		 content="thu, 01 dec 1994 16:00:00 gmt">
+	<script language="javascript" src="/keijiban/scripts/keijiban.js"/></script>
+
+	<title>掲示板</title>
+	<link rel="stylesheet" type="text/css" href="/keijiban/css/print_display.css" media="print">
+	<script language="JavaScript">
+	<!--
+		function save(){
+			window.form1.document.execCommand("saveAs",true,"掲示板.html");
+		}
+		
+		var	checkreadhttpReq	= null;
+		function setFlag(id_date,id_index,checked) {
+			
+			var	uri		= "";
+			
+			uri	= document.form1.action
+					+	"?uri=flagcontrol";
+			uri	= uri + "&" + "id_date=" + id_date + "&id_index=" + id_index
+							+ "&checked=" + checked;
+			
+			checkreadhttpReq = createHttpRequest(resCheckRead);
+			if (checkreadhttpReq) {
+				checkreadhttpReq.open("GET", uri, true);
+				checkreadhttpReq.send(null);
+			} else {
+				alert("掲示情報のフラグ機能は利用できません。");
+			}	
+		}
+		function resCheckRead() {
+			if ((checkreadhttpReq.readyState == 4) && (checkreadhttpReq.status == 200)) {
+			  window.opener.reload();
+			  window.close();
+			}
+		}
+		
+	//	-->
+</script>
+</head>
+<body>
+<form name="form1" action="/keijiban/app;jsessionid=XXXXXXXXXXXXXXXXXXXXXXXXXXXX" method="POST" target="_self"><input type="hidden" name="uri" value="detail"><input type="hidden" name="next_uri" value=""><input type="hidden" name="event_code" value="">
+	<div id="print_display">
+			
+			<INPUT style="width: 80px;" TYPE="button" VALUE="印刷" onClick="print()"> 
+			<INPUT style="width: 80px;" TYPE="button" VALUE="保存" onClick="save()"> 
+			<input style="width: 80px;" type="button" value="閉じる" onclick="window.close();"/>
+			
+				<input style="width: 120px;" type="button" value="強調にして閉じる" onclick="setFlag('@dto.item.getId().getIdDate()','@dto.item.getId().getIdIndex()','true');"/>
+			
+			
+		
+		<br><br>
+	</div>
+	
+
+    <table style="width: 620px;" border="1">
+		<tr>
+	    	<td style="height: 26px; width: 90px; font-size: 12px;" valign="middle">
+				&nbsp;件名
+	    	</td>
+	    	<td style="height: 26px; width: 540px; font-size: 12px;" valign="middle" colspan="3">
+				@dto.item.getTitle()
+	    	</td>
+	    </tr>
+	    <tr>
+			<td style="height: 26px; width: 90px; font-size: 12px;" valign="middle">
+		    	&nbsp;掲示者
+		    </td>
+			<td style="height: 26px; width: 341px; font-size: 12px;" valign="middle" colspan="3">
+		    	@dto.item.getAuthor()
+		    </td>
+	    </tr>
+	    <tr>
+			<td style="height: 26px; width: 90px; font-size: 12px;" valign="middle">
+		    	&nbsp;実施開始日
+		    </td>
+			<td style="height: 26px; width: 220px; font-size: 12px;" valign="middle">
+		    	@dto.item.getDateExec()
+			</td>
+			<td style="height: 26px; width: 90px; font-size: 12px;" valign="middle">
+		    	&nbsp;実施終了日
+		    </td>
+			<td style="height: 26px; width: 220px; font-size: 12px;" valign="middle">
+		    	@dto.item.getDateExec()
+			</td>
+	    </tr>
+	    <tr>
+			<td style="height: 26px; width: 90px; font-size: 12px;" valign="middle">
+		    	&nbsp;掲示開始日
+		    </td>
+			<td style="height: 26px; width: 220px; font-size: 12px;" valign="middle">
+		    	@dto.item.getDateShow()
+			</td>
+			<td style="height: 26px; width: 90px; font-size: 12px;" valign="middle">
+		    	&nbsp;掲示終了日
+		    </td>
+			<td style="height: 26px; width: 220px; font-size: 12px;" valign="middle">
+		    	@dto.item.getDateShow()
+			</td>
+	    </tr>
+	    <tr>
+			<td style="height: 500px; font-size: 12px;" colspan="4" valign="top">
+				@dto.item.getBody()
+			</td>
+	    </tr>
+	</table>
+</form>
+
+
+</body>
+</html>

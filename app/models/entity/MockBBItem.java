@@ -14,6 +14,7 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import models.request.mockbb.admin.EditItemRequest;
 import models.service.MockBBItem.MockBBItemModelService;
 import models.service.MockBBItem.MockBBItemService;
 import play.data.format.Formats.DateTime;
@@ -50,7 +51,7 @@ public class MockBBItem extends Model {
 	boolean isReference;
 
 	@Column(name = "is_flagged")
-	boolean isFragged;
+	boolean isFlagged;
 	
 	@Lob
 	@Column(name = "body")
@@ -72,6 +73,9 @@ public class MockBBItem extends Model {
 	
 	public MockBBItem() {
 		
+	}
+	public MockBBItem(MockBBItemPK id) {
+		this.id = id;
 	}
 	
 	
@@ -99,6 +103,10 @@ public class MockBBItem extends Model {
 	
 	public Page<MockBBItem> findPage(Integer pageSource, String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
 		return mockBBItemModelService.findPage(pageSource, orderByClause, filter, hideRead, hideReference, onlyFragged);
+	}
+	
+	public EditItemRequest getEditItemRequest() {
+		return mockBBItemService.itemToEditItemRequest(this);
 	}
 	
 	
@@ -172,13 +180,13 @@ public class MockBBItem extends Model {
 	}
 
 
-	public boolean isFragged() {
-		return isFragged;
+	public boolean isFlagged() {
+		return isFlagged;
 	}
 
 
-	public void setFragged(boolean isFragged) {
-		this.isFragged = isFragged;
+	public void setFlagged(boolean isFlagged) {
+		this.isFlagged = isFlagged;
 	}
 
 
@@ -248,7 +256,7 @@ public class MockBBItem extends Model {
 		public MockBBItemPK bind(String key, String txt) {
 			String[] sp = txt.split("_",2);
 			if (sp.length == 2) {
-				return new MockBBItemPK(sp[0], Integer.getInteger(sp[1]));
+				return new MockBBItemPK(sp[0], Integer.valueOf(sp[1]));
 			}
 			return null;
 		}

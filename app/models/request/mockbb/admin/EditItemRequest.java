@@ -2,7 +2,7 @@ package models.request.mockbb.admin;
 
 import java.util.Date;
 
-public class CreateItemRequest {
+public class EditItemRequest {
 	public Date dateShow;
 	public Date dateExec;
 	public String author;
