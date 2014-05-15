@@ -58,7 +58,7 @@ public class UserModelService implements ModelService<Long, User> {
 		if (nitechId != null) {
 			return User.find
 					.where()
-						.eq("nitechId", nitechId)
+						.eq("hashedNitechId", nitechId)
 					.findUnique();
 		}
 		return null;
