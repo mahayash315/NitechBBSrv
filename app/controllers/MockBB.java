@@ -11,6 +11,9 @@ import play.mvc.Result;
 
 public class MockBB extends Controller {
 
+	public static Result redirectToIndex() {
+		return redirect(controllers.routes.MockBB.index());
+	}
 	
 	public static Result index() {
 		return redirect(controllers.routes.MockBB.getList());

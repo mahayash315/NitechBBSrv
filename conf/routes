@@ -6,7 +6,7 @@
 GET     /									controllers.Application.index()
 
 # BBAnalyzer
-GET		/bbanalyzer							controllers.Default.redirect(to = "/bbanalyzer/")
+GET		/bbanalyzer							controllers.BBAnalyzer.redirectToIndex()
 GET		/bbanalyzer/						controllers.BBAnalyzer.index()
 GET		/bbanalyzer/kuromoji				controllers.BBAnalyzer.kuromoji()
 POST	/bbanalyzer/kuromoji				controllers.BBAnalyzer.procKuromoji()
@@ -17,13 +17,13 @@ POST	/bbanalyzer/postNewItemHeads.json 	controllers.api.BBAnalyzer.postNewItemHe
 POST	/bbanalyzer/postReadHistory.json 	controllers.api.BBAnalyzer.postReadHistory()
 
 # Mock BB
-GET		/mockbb								controllers.Default.redirect(to = "/mockbb/")
+GET		/mockbb								controllers.MockBB.redirectToIndex()
 GET		/mockbb/							controllers.MockBB.index()
 POST	/mockbb/list						controllers.MockBB.getList()
 GET		/mockbb/list						controllers.MockBB.getList()
 GET		/mockbb/detail						controllers.MockBB.getDetail()
 POST	/mockbb/detail						controllers.MockBB.getDetail()
-GET		/mockbb/admin						controllers.Default.redirect(to = "/mockbb/admin/")
+GET		/mockbb/admin						controllers.mockbb.Admin.redirectToIndex()
 GET		/mockbb/admin/						controllers.mockbb.Admin.index()
 GET		/mockbb/admin/manage				controllers.mockbb.Admin.manage(p:Int ?= 1, s ?= null, o ?= null, f ?= null)
 GET		/mockbb/admin/create				controllers.mockbb.Admin.createItemForm()

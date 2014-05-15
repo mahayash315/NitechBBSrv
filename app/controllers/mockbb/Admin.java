@@ -1,7 +1,5 @@
 package controllers.mockbb;
 
-import static play.data.Form.*;
-
 import java.util.Date;
 
 import models.entity.MockBBItem;
@@ -20,7 +18,11 @@ import com.avaje.ebean.Ebean;
 public class Admin extends Controller {
 	
 	public static Call DEFAULT_MANAGE_CALL = controllers.mockbb.routes.Admin.manage(1, null, null, null);
-
+	
+	public static Result redirectToIndex() {
+		return redirect(controllers.mockbb.routes.Admin.index());
+	}
+	
 	public static Result index() {
 		return ok(views.html.mockbb.admin.index.render());
 	}
@@ -55,7 +57,7 @@ public class Admin extends Controller {
 			request.isReference = false;
 			
 			// フォーム作成
-			Form<CreateItemRequest> createForm = form(CreateItemRequest.class).fill(request);
+			Form<CreateItemRequest> createForm = play.data.Form.form(CreateItemRequest.class).fill(request);
 			
 			// 表示
 			return ok(views.html.mockbb.admin.createItemForm.render(createForm));
@@ -68,7 +70,7 @@ public class Admin extends Controller {
 	
 	public static Result create() {
 		// フォーム取得
-		Form<CreateItemRequest> createForm = form(CreateItemRequest.class).bindFromRequest();
+		Form<CreateItemRequest> createForm = play.data.Form.form(CreateItemRequest.class).bindFromRequest();
 		
 		// バリデーション
 		if (createForm.hasErrors()) {
@@ -107,7 +109,7 @@ public class Admin extends Controller {
 			EditItemRequest request = item.getEditItemRequest();
 			
 			// フォーム作成
-			Form<EditItemRequest> editForm = form(EditItemRequest.class).fill(request);
+			Form<EditItemRequest> editForm = play.data.Form.form(EditItemRequest.class).fill(request);
 			
 			// 表示
 			return ok(views.html.mockbb.admin.editItemForm.render(id, editForm));
@@ -120,7 +122,7 @@ public class Admin extends Controller {
 	
 	public static Result edit(MockBBItemPK id) {
 		// フォーム取得
-		Form<EditItemRequest> editForm = form(EditItemRequest.class).bindFromRequest();
+		Form<EditItemRequest> editForm = play.data.Form.form(EditItemRequest.class).bindFromRequest();
 		
 		// バリデーション
 		if (editForm.hasErrors()) {
