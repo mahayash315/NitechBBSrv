@@ -64,8 +64,8 @@
 		       	@for(item <- dto.items) {
 					<tr>
 						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.getId()</a></td>
-						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.getDateShow()</a></td>
-						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.getDateExec()</a></td>
+						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@helper.mockbb.defaultDate(item.getDateShow())</a></td>
+						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@helper.mockbb.defaultDate(item.getDateExec())</a></td>
 						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.getAuthor()</a></td>
 						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.getTitle()</a></td>
 						<td><a href="@controllers.mockbb.routes.Admin.editItemForm(item.getId())">@item.isRead()</a></td>

@@ -545,11 +545,11 @@
 					}
 				</td>			
 				<td nowrap style="color: #ff0000; font-size: 12px;" valign="top">
-					@item.getDateShow()
+					@helper.mockbb.defaultDate(item.getDateShow())
 				</td>
 				<td>&nbsp;</td>
 				<td nowrap style="color: #ff0000; font-size: 12px;" valign="top">
-					@item.getDateExec()
+					@helper.mockbb.defaultDate(item.getDateExec())
 				</td>
 				<td>&nbsp;</td>
 				@if(item.isFlagged()) {
