@@ -48,6 +48,11 @@ public class BBItemHeadModelService implements ModelService<Long, BBItemHead> {
 		}
 		return null;
 	}
+
+	@Override
+	public void delete(BBItemHead entry) {
+		entry.delete();
+	}
 	
 	
 	/**
@@ -80,6 +85,4 @@ public class BBItemHeadModelService implements ModelService<Long, BBItemHead> {
 		}
 		return null;
 	}
-	
-
 }

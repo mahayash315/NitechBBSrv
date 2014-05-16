@@ -18,7 +18,7 @@ import com.avaje.ebean.SqlRow;
 
 public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBBItem> {
 	
-	public static final String DEFAULT_ORDER_BY_CLAUSE = "";
+	public static final String DEFAULT_ORDER_BY_CLAUSE = "date_show desc";
 	
 	public static MockBBItemModelService use() {
 		return new MockBBItemModelService();
@@ -66,6 +66,11 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void delete(MockBBItem entry) {
+		entry.delete();
 	}
 	
 	

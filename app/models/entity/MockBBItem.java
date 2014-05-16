@@ -97,6 +97,12 @@ public class MockBBItem extends Model {
 		return null;
 	}
 	
+	public void remove() {
+		if (id != null) {
+			mockBBItemModelService.delete(this);
+		}
+	}
+	
 	public List<MockBBItem> findList(String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
 		return mockBBItemModelService.findList(orderByClause, filter, hideRead, hideReference, onlyFragged);
 	}

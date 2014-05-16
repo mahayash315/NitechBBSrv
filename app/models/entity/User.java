@@ -85,6 +85,15 @@ public class User extends Model {
 		return null;
 	}
 	
+	/**
+	 * このエントリを削除する
+	 */
+	public void remove() {
+		if (id != null) {
+			userModelService.delete(this);
+		}
+	}
+	
 	
 	/* getter, setter */
 

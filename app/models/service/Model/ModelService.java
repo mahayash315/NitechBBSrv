@@ -32,4 +32,10 @@ public interface ModelService<I extends Object, T extends Model> {
 	 * @return
 	 */
 	public T update(T entry, I id);
+	
+	/**
+	 * entry を DELETE する
+	 * @param entry
+	 */
+	public void delete(T entry);
 }

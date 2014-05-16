@@ -49,6 +49,7 @@ public class MockBBItemService {
 		}
 		
 		dto.item = item;
+		dto.customizedBody = item.getBody().replace("\n", "<br>");
 		
 		return dto;
 	}

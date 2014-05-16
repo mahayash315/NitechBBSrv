@@ -47,6 +47,11 @@ public class UserModelService implements ModelService<Long, User> {
 		}
 		return null;
 	}
+
+	@Override
+	public void delete(User entry) {
+		entry.delete();
+	}
 	
 	
 	/**

@@ -50,6 +50,11 @@ public class BBReadHistoryModelService implements ModelService<Long, BBReadHisto
 		return null;
 	}
 
+	@Override
+	public void delete(BBReadHistory entry) {
+		entry.delete();
+	}
+
 	
 	/**
 	 * User, BBItemHead, openTime, readTimeLength でエントリを取得する

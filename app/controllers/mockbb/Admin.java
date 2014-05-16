@@ -18,6 +18,7 @@ import com.avaje.ebean.Ebean;
 public class Admin extends Controller {
 	
 	public static Call DEFAULT_MANAGE_CALL = controllers.mockbb.routes.Admin.manage(1, null, null, null);
+	public static Call DELETE_REDIRECT_TO = controllers.mockbb.routes.Admin.manage(1, null, null, null);
 	
 	public static Result redirectToIndex() {
 		return redirect(controllers.mockbb.routes.Admin.index());
@@ -145,6 +146,21 @@ public class Admin extends Controller {
 			return internalServerError(e.getLocalizedMessage());
 		} finally {
 			Ebean.endTransaction();
+		}
+	}
+	
+	public static Result delete(MockBBItemPK id) {
+		try {
+			// オブジェクト取得
+			MockBBItem item = new MockBBItem(id).unique();
+			if (item == null) {
+				return notFound();
+			}
+			
+			item.remove();
+			return redirect(DELETE_REDIRECT_TO);
+		} catch (Exception e) {
+			return internalServerError(e.getLocalizedMessage());
 		}
 	}
 }

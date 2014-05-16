@@ -100,6 +100,15 @@ public class BBReadHistory extends Model {
 		return null;
 	}
 	
+	/**
+	 * このエントリを削除する
+	 */
+	public void remove() {
+		if (id != null) {
+			bbReadHistoryModelService.delete(this);;
+		}
+	}
+	
 	
 	/* getter, setter */
 

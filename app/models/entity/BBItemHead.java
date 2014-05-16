@@ -123,6 +123,15 @@ public class BBItemHead extends Model {
 		return null;
 	}
 	
+	/**
+	 * このエントリを削除する
+	 */
+	public void remove() {
+		if (id != null) {
+			bbItemHeadModelService.delete(this);
+		}
+	}
+	
 	
 	/* getter, setter */
 

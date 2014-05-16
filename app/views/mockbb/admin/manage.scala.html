@@ -35,11 +35,11 @@
     </th>
 }
 
-@main("掲示管理 | MockBB Admin") {
+@main("掲示管理") {
 
 	<div id="actions">
 		<form action="@link(0, null)" method="GET">
-			<input type="search" id="searchbox" name="f" value="@dto.currentFilter" placeholder="Filter by version or release date...">
+			<input type="search" id="searchbox" name="f" value="@dto.currentFilter" placeholder="Filter by author or title">
 			<input type="submit" id="searchsubmit" value="Filter" class="btn primary">
 		</form>
 		<a class="btn success" id="add" href="@controllers.mockbb.routes.Admin.createItemForm()">掲示追加</a>
