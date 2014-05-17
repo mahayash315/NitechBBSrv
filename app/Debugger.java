@@ -250,7 +250,7 @@ public class Debugger {
 		while(it.hasNext()) {
 			Entry<String, JsonNode> entry = it.next();
 
-			convertJsonToString(entry.getKey(), entry.getValue(), 0);
+			sb.append(convertJsonToString(entry.getKey(), entry.getValue(), 0));
 		}
 
 		return sb.toString();
