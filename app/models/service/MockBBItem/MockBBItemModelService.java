@@ -17,8 +17,9 @@ import com.avaje.ebean.Page;
 import com.avaje.ebean.SqlRow;
 
 public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBBItem> {
-	
+
 	public static final String DEFAULT_ORDER_BY_CLAUSE = "date_show desc";
+	public static final String ADDITIONAL_ORDER_BY_CLAUSE = "id_date desc, id_index desc";
 	
 	public static MockBBItemModelService use() {
 		return new MockBBItemModelService();
@@ -81,7 +82,7 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 		
 		ExpressionList<MockBBItem> el = generateExpressionList(orderByClause, filter, hideRead, hideReference, onlyFragged);
 		
-		return el.orderBy(orderByClause).findList();
+		return el.orderBy(generateOrderByClause(orderByClause)).findList();
 	}
 	
 	
@@ -93,14 +94,14 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 		Integer page = PageUtil.rightPage(pageSource);
 		ExpressionList<MockBBItem> el = generateExpressionList(orderByClause, filter, hideRead, hideReference, onlyFragged);
 		
-		return el.orderBy(orderByClause).findPagingList(MockBBSetting.PAGE_SIZE).getPage(page);
+		return el.orderBy(generateOrderByClause(orderByClause)).findPagingList(MockBBSetting.PAGE_SIZE).getPage(page);
 	}
 	
 	
 	private ExpressionList<MockBBItem> generateExpressionList(String orderByClause, String filter, boolean hideRead, boolean hideReference, boolean onlyFragged) {
 		
 		ExpressionList<MockBBItem> el = MockBBItem.find.where();
-		if (filter != null) {
+		if (filter != null && !filter.trim().isEmpty()) {
 			el.add( Expr.or(Expr.ilike("author", "%"+filter+"%"), Expr.ilike("title", "%"+filter+"%")) );
 		}
 		if (hideRead) {
@@ -113,6 +114,13 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 			el.add( Expr.eq("is_flagged", true) );
 		}
 		return el;
+	}
+	
+	private String generateOrderByClause(String orderByClause) {
+		if (orderByClause != null && !orderByClause.trim().isEmpty()) {
+			orderByClause += ", ";
+		}
+		return (orderByClause + ADDITIONAL_ORDER_BY_CLAUSE);
 	}
 	
 	private MockBBItemPK generatePK() {
