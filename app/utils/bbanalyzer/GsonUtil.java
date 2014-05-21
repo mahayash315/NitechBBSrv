@@ -1,4 +1,4 @@
-package utils.api.bbanalyzer;
+package utils.bbanalyzer;
 
 import java.lang.reflect.Type;
 
@@ -47,7 +47,6 @@ public class GsonUtil {
 	public <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {
 		return gson.fromJson(json, typeOfT);
 	}
-	
 	
 	
 	/**

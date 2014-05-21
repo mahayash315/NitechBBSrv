@@ -51,7 +51,9 @@ public class BBItemHeadModelService implements ModelService<Long, BBItemHead> {
 
 	@Override
 	public void delete(BBItemHead entry) {
-		entry.delete();
+		if (entry != null) {
+			entry.delete();
+		}
 	}
 	
 	

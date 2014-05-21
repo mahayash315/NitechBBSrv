@@ -52,7 +52,9 @@ public class BBReadHistoryModelService implements ModelService<Long, BBReadHisto
 
 	@Override
 	public void delete(BBReadHistory entry) {
-		entry.delete();
+		if (entry != null) {
+			entry.delete();
+		}
 	}
 
 	

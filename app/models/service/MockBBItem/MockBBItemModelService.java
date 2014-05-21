@@ -71,7 +71,9 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 
 	@Override
 	public void delete(MockBBItem entry) {
-		entry.delete();
+		if (entry != null) {
+			entry.delete();
+		}
 	}
 	
 	
