@@ -1,6 +1,8 @@
 package models.service.BBItemAppendix;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import models.entity.BBCategory;
 import models.entity.BBItemHead;
@@ -41,15 +43,61 @@ public class BBItemAppendixService {
 		// 掲示タイトルを形態素解析
 		List<Token> tokens = tokenizer.tokenize(head.getTitle());
 		
+		// List<Token> から Map<BBWord, Integer> に変換
+		Map<BBWord, Integer> words = new HashMap<BBWord, Integer>();
+		for(Token token : tokens) {
+			if (isNounOrVerb(token)) {
+				BBWord word = new BBWord(token.getSurfaceForm()).unique();
+				if (word != null) {
+					if (!words.containsKey(word)) {
+						words.put(word, Integer.valueOf(0));
+					}
+					words.put(word, words.get(word) + 1);
+				}
+			}
+		}
+		
 		// ナイーブベイズ推定
+		BBCategory maxCategory = null;
+		double maxPcd = 0;
+		for all category in BBCategory of User user {
+			double Pcd = calcProbCGivenD(category, words);
+			if (maxPcd < Pcd) {
+				maxCategory = category;
+				maxPcd = Pcd;
+			}
+		}
 		
+		// TODO
+		
+		return maxCategory;
 	}
 	
-	private double calcProbCGivenD(BBCategory category, List<BBWord> words) {
-		
+	/**
+	 * 事後確率 P_{C|D} (c | d), D=[W_1, W_2, ..., W_D] を計算する
+	 * @param category カテゴリ
+	 * @param words 単語の集合
+	 * @return 事後確率 P_{C|D} (c | d), D=[W_1, W_2, ..., W_D]
+	 */
+	private double calcProbCGivenD(BBCategory category, Map<BBWord, Integer> words) {
+		// TODO
+		return 0;
 	}
 	
-	private double calcProbWGivenC(BBWord word, BBCategory category) {
-		
+	/**
+	 * 条件付き確率 P_{W_i|C} (w_i | c) を計算する
+	 * @param word 単語
+	 * @param category カテゴリ
+	 * @param Pc P_{C} (c) 事前確率
+	 * @return 条件付き確率 P_{W_i|C} (w_i | c)
+	 */
+	private double calcProbWGivenC(BBWord word, BBCategory category, double Pc) {
+		// TODO
+		return 0;
+	}
+	
+	private boolean isNounOrVerb(Token t) {
+		String[] arr = t.getAllFeaturesArray();
+		return (arr[0].contains("名詞") || arr[0].equals("動詞"));
 	}
 }
