@@ -130,76 +130,61 @@ public class MockBBItem extends Model {
 		return dateShow;
 	}
 
-
 	public void setDateShow(Date dateShow) {
 		this.dateShow = dateShow;
 	}
-
 
 	public Date getDateExec() {
 		return dateExec;
 	}
 
-
 	public void setDateExec(Date dateExec) {
 		this.dateExec = dateExec;
 	}
-
 
 	public String getAuthor() {
 		return author;
 	}
 
-
 	public void setAuthor(String author) {
 		this.author = author;
 	}
-
 
 	public String getTitle() {
 		return title;
 	}
 
-
 	public void setTitle(String title) {
 		this.title = title;
 	}
-
 
 	public boolean isRead() {
 		return isRead;
 	}
 
-
 	public void setRead(boolean isRead) {
 		this.isRead = isRead;
 	}
-
 
 	public boolean isReference() {
 		return isReference;
 	}
 
-
 	public void setReference(boolean isReference) {
 		this.isReference = isReference;
 	}
-
 
 	public boolean isFlagged() {
 		return isFlagged;
 	}
 
-
 	public void setFlagged(boolean isFlagged) {
 		this.isFlagged = isFlagged;
 	}
 
-
 	public String getBody() {
 		return body;
 	}
-
 
 	public void setBody(String body) {
 		this.body = body;

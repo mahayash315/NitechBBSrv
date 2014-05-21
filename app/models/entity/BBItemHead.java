@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -57,6 +58,9 @@ public class BBItemHead extends Model {
 	@DateTime(pattern="YYYY/MM/DD")
 	@Column(name = "last_update")
 	Date lastUpdate;
+	
+	@OneToOne(mappedBy = "head")
+	BBItemAppendix appendix;
 	
 //	@Version
 //	@Column(name = "OPTLOCK")
@@ -205,6 +209,14 @@ public class BBItemHead extends Model {
 
 	public void setLastUpdate(Date lastUpdate) {
 		this.lastUpdate = lastUpdate;
+	}
+
+	public BBItemAppendix getAppendix() {
+		return appendix;
+	}
+
+	public void setAppendix(BBItemAppendix appendix) {
+		this.appendix = appendix;
 	}
 
 }
