@@ -20,7 +20,7 @@ public class BBWord extends Model {
 	@Id
 	Long id;
 	
-	@Column(name = "surface", length = 59)
+	@Column(name = "surface", length = 191)
 	String surface;
 	
 	@Transient
@@ -44,6 +44,10 @@ public class BBWord extends Model {
 	
 	/* コンストラクタ */
 	
+	public BBWord(String surface) {
+		this.surface = surface;
+	}
+	
 	public BBWord(String surface, String[] features, boolean isKnown) {
 		this.surface = surface;
 		this.features = new ArrayList<String>();
@@ -66,6 +70,8 @@ public class BBWord extends Model {
 	public BBWord unique() {
 		BBWord o = null;
 		if ((o = bbWordModelService.findById(id)) != null) {
+			return o;
+		} else if((o = bbWordModelService.findBySurface(surface)) != null) {
 			return o;
 		}
 		return null;

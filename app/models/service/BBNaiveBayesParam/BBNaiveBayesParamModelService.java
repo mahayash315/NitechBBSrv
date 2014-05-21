@@ -1,6 +1,8 @@
 package models.service.BBNaiveBayesParam;
 
 import models.entity.BBNaiveBayesParam;
+import models.entity.BBWord;
+import models.entity.User;
 import models.service.Model.ModelService;
 
 public class BBNaiveBayesParamModelService implements ModelService<Long, BBNaiveBayesParam> {
@@ -55,6 +57,18 @@ public class BBNaiveBayesParamModelService implements ModelService<Long, BBNaive
 		if (entry != null) {
 			entry.delete();
 		}
+	}
+	
+	
+	public BBNaiveBayesParam findByUserBBWord(User user, BBWord bbWord) {
+		if (user != null && bbWord != null) {
+			return BBNaiveBayesParam.find
+						.where()
+							.eq("user", user)
+							.eq("bbWord", bbWord)
+						.findUnique();
+		}
+		return null;
 	}
 
 }

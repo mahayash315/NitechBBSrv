@@ -21,9 +21,7 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 	public BBWord findById(Long id) {
 		if (id != null) {
 			BBWord o = BBWord.find.byId(id);
-			if (o != null) {
-				deserializeJson(o);
-			}
+			deserializeJson(o);
 			return o;
 		}
 		return null;
@@ -70,6 +68,21 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 		if (entry != null) {
 			entry.delete();
 		}
+	}
+	
+	
+	/**
+	 * Surface でエントリを探す
+	 * @param entry
+	 * @return
+	 */
+	public BBWord findBySurface(String surface) {
+		if (surface != null) {
+			BBWord o = BBWord.find.where().eq("surface", surface).findUnique();
+			deserializeJson(o);
+			return o;
+		}
+		return null;
 	}
 	
 	

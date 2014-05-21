@@ -62,6 +62,8 @@ public class BBNaiveBayesParam extends Model {
 		BBNaiveBayesParam o = null;
 		if ((o = bbNaiveBayesParamModelService.findById(id)) != null) {
 			return o;
+		} else if ((o = bbNaiveBayesParamModelService.findByUserBBWord(user, bbWord)) != null) {
+			return o;
 		}
 		return null;
 	}
