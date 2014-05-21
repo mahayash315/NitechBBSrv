@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -25,7 +26,11 @@ public class BBNaiveBayesParam extends Model {
 	
 	@OneToOne
 	@JoinColumn(name = "bb_word_id")
-	BBWord bbWord;
+	BBWord word;
+	
+	@ManyToOne
+	@JoinColumn(name = "bb_category_id")
+	BBCategory category;
 	
 	@Column(name = "p1")
 	double p1;
@@ -44,7 +49,7 @@ public class BBNaiveBayesParam extends Model {
 	
 	public BBNaiveBayesParam(User user, BBWord bbWord, double p1) {
 		this.user = user;
-		this.bbWord = bbWord;
+		this.word = bbWord;
 		this.p1 = p1;
 	}
 	
@@ -62,7 +67,7 @@ public class BBNaiveBayesParam extends Model {
 		BBNaiveBayesParam o = null;
 		if ((o = bbNaiveBayesParamModelService.findById(id)) != null) {
 			return o;
-		} else if ((o = bbNaiveBayesParamModelService.findByUserBBWord(user, bbWord)) != null) {
+		} else if ((o = bbNaiveBayesParamModelService.findByUserBBWord(user, word)) != null) {
 			return o;
 		}
 		return null;
@@ -86,12 +91,20 @@ public class BBNaiveBayesParam extends Model {
 		this.user = user;
 	}
 
-	public BBWord getBBWord() {
-		return bbWord;
+	public BBWord getWord() {
+		return word;
 	}
 
-	public void setBBWord(BBWord bbWord) {
-		this.bbWord = bbWord;
+	public void setWord(BBWord word) {
+		this.word = word;
+	}
+
+	public BBCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(BBCategory category) {
+		this.category = category;
 	}
 
 	public double getP1() {
