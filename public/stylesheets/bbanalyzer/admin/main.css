@@ -16,7 +16,7 @@ header h1.fill {
 
 section#main {
     position: relative;
-    margin-top: 55px;
+    margin-top: 0px;
     padding: 2em 5em;
     border-bottom: 1px solid #ccc;
     min-height: 600px;
