@@ -46,10 +46,17 @@ public class BBNaiveBayesParam extends Model {
 	public static Finder<Long, BBNaiveBayesParam> find = new Finder<Long, BBNaiveBayesParam>(Long.class, BBNaiveBayesParam.class);
 	
 	/* コンストラクタ */
-	
-	public BBNaiveBayesParam(User user, BBWord bbWord, double p1) {
+
+	public BBNaiveBayesParam(User user, BBWord word, BBCategory category) {
 		this.user = user;
-		this.word = bbWord;
+		this.word = word;
+		this.category = category;
+	}
+	
+	public BBNaiveBayesParam(User user, BBWord word, BBCategory category, double p1) {
+		this.user = user;
+		this.word = word;
+		this.category = category;
 		this.p1 = p1;
 	}
 	
@@ -67,7 +74,7 @@ public class BBNaiveBayesParam extends Model {
 		BBNaiveBayesParam o = null;
 		if ((o = bbNaiveBayesParamModelService.findById(id)) != null) {
 			return o;
-		} else if ((o = bbNaiveBayesParamModelService.findByUserBBWord(user, word)) != null) {
+		} else if ((o = bbNaiveBayesParamModelService.findByUserWordCategory(user, word, category)) != null) {
 			return o;
 		}
 		return null;

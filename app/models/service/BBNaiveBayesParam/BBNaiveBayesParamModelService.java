@@ -1,5 +1,6 @@
 package models.service.BBNaiveBayesParam;
 
+import models.entity.BBCategory;
 import models.entity.BBNaiveBayesParam;
 import models.entity.BBWord;
 import models.entity.User;
@@ -60,12 +61,13 @@ public class BBNaiveBayesParamModelService implements ModelService<Long, BBNaive
 	}
 	
 	
-	public BBNaiveBayesParam findByUserBBWord(User user, BBWord bbWord) {
-		if (user != null && bbWord != null) {
+	public BBNaiveBayesParam findByUserWordCategory(User user, BBWord word, BBCategory category) {
+		if (user != null && word != null) {
 			return BBNaiveBayesParam.find
 						.where()
 							.eq("user", user)
-							.eq("bbWord", bbWord)
+							.eq("word", word)
+							.eq("category", category)
 						.findUnique();
 		}
 		return null;
