@@ -8,11 +8,16 @@ import models.entity.BBCategory;
 import models.entity.BBItemHead;
 import models.entity.BBNaiveBayesParam;
 import models.entity.BBWord;
+import models.entity.User;
 
 import org.atilika.kuromoji.Token;
 import org.atilika.kuromoji.Tokenizer;
 
 public class BBItemAppendixService {
+	
+	private static final String[] CATEGORY_NAMES = new String[]{
+		"1", "2", "3", "4", "5"
+	};
 	
 	public static BBItemAppendixService use() {
 		return new BBItemAppendixService();
@@ -42,9 +47,19 @@ public class BBItemAppendixService {
 		if (head == null || head.getTitle() == null) {
 			return null;
 		}
+		User user = head.getUser();
 		
 		// 形態素解析器を初期化
 		Tokenizer tokenizer = Tokenizer.builder().build();
+		
+		// カテゴリ一覧を取得
+		List<BBCategory> categories = new ArrayList<BBCategory>();
+		for(String name : CATEGORY_NAMES) {
+			if (category == null) {
+				throw new Exception("Missing category "+name+" for user "+user.toString());
+			}
+			categories.add(category);
+		}
 		
 		// 掲示タイトルを形態素解析
 		List<Token> tokens = tokenizer.tokenize(head.getTitle());
@@ -66,14 +81,13 @@ public class BBItemAppendixService {
 		// ナイーブベイズ推定
 		BBCategory maxCategory = null;
 		double maxPcd = 0;
-		// TODO
-//		for all category in BBCategory of User user {
-//			double Pcd = calcProbCGivenD(head, category, words);
-//			if (maxPcd < Pcd) {
-//				maxCategory = category;
-//				maxPcd = Pcd;
-//			}
-//		}
+		for(BBCategory category : categories) {
+			double Pcd = calcProbCGivenD(head, category, words);
+			if (maxPcd < Pcd) {
+				maxCategory = category;
+				maxPcd = Pcd;
+			}
+		}
 		
 		return maxCategory;
 	}
@@ -123,7 +137,7 @@ public class BBItemAppendixService {
 	 */
 	private double getProbC(BBCategory category) {
 		// TODO
-		return 0;
+		return (1.0 / CATEGORY_NAMES.length);
 	}
 	
 	private boolean isNounOrVerb(Token t) {
