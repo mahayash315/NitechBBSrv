@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
@@ -59,7 +60,7 @@ public class BBItemHead extends Model {
 	@Column(name = "last_update")
 	Date lastUpdate;
 	
-	@OneToOne(mappedBy = "head")
+	@OneToOne(mappedBy = "head", fetch = FetchType.LAZY)
 	BBItemAppendix appendix;
 	
 //	@Version

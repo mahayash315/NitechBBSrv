@@ -10,15 +10,18 @@ import models.entity.BBItemHead;
 import models.entity.BBNaiveBayesParam;
 import models.entity.BBWord;
 import models.entity.User;
+import models.setting.BBItemAppendixSetting;
 
 import org.atilika.kuromoji.Token;
 import org.atilika.kuromoji.Tokenizer;
 
+import utils.bbanalyzer.MathUtil;
+
 public class BBItemAppendixService {
 	
-	private static final String[] CATEGORY_NAMES = new String[]{
-		"1", "2", "3", "4", "5"
-	};
+	private MathUtil mathUtil = new MathUtil();
+	private BBItemHead head;
+	private User user;
 	
 	public static BBItemAppendixService use() {
 		return new BBItemAppendixService();
@@ -48,14 +51,15 @@ public class BBItemAppendixService {
 		if (head == null || head.getTitle() == null) {
 			return null;
 		}
-		User user = head.getUser();
+		this.head = head;
+		this.user = head.getUser();
 		
 		// 形態素解析器を初期化
 		Tokenizer tokenizer = Tokenizer.builder().build();
 		
 		// カテゴリ一覧を取得
 		List<BBCategory> categories = new ArrayList<BBCategory>();
-		for(String catName : CATEGORY_NAMES) {
+		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
 			BBCategory category = new BBCategory(user, catName).unique();
 			if (category == null) {
 				throw new Exception("Missing category "+catName+" for user "+user.toString());
@@ -84,7 +88,7 @@ public class BBItemAppendixService {
 		BBCategory maxCategory = null;
 		double maxPcd = 0;
 		for(BBCategory category : categories) {
-			double Pcd = calcProbCGivenD(head, category, words);
+			double Pcd = calcProbCGivenD(category, words);
 			if (maxPcd < Pcd) {
 				maxCategory = category;
 				maxPcd = Pcd;
@@ -103,18 +107,18 @@ public class BBItemAppendixService {
 	 * @return 事後確率 P_{C|D} (c | d), D=[W_1, W_2, ..., W_D]
 	 * @throws Exception 
 	 */
-	private double calcProbCGivenD(BBItemHead head, BBCategory category, Map<BBWord, Integer> words) throws Exception {
+	private double calcProbCGivenD(BBCategory category, Map<BBWord, Integer> words) throws Exception {
 		double P = 1;
 		double Pc = getProbC(category);
 		
 		for(BBWord word : words.keySet()) {
-			BBNaiveBayesParam param = new BBNaiveBayesParam(head.getUser(), word, category).unique();
+			BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).unique();
 			if (param == null) {
 				throw new Exception("Missing a param necessary for calculating Pcd");
 			}
 			
 			Integer w = words.get(word);
-			P = P * calcProbWGivenC(w.intValue(), param.getP1(), Pc);
+			P = P * calcProbWGivenC_Poisson(w.intValue(), param.getPoissonLambda(), Pc);
 		}
 		P = P * Pc;
 		
@@ -128,8 +132,11 @@ public class BBItemAppendixService {
 	 * @param Pc P_{C} (c) 事前確率
 	 * @return 条件付き確率 P_{W_i|C} (w_i | c)
 	 */
-	private double calcProbWGivenC(int w, double p1, double Pc) {
-		return (1.0 / Math.sqrt(2*Math.PI)) * Math.exp(- (Math.pow((double)w - p1, 2)) / 2);
+//	private double calcProbWGivenC_Gauss(int w, double gaussMyu, double Pc) {
+//		return (1.0 / Math.sqrt(2*Math.PI)) * Math.exp(- (Math.pow((double)w - gaussMyu, 2.0)) / 2.0);
+//	}
+	private double calcProbWGivenC_Poisson(int w, double poissonLambda, double Pc) {
+		return Math.pow(poissonLambda, (double)w) / mathUtil.factorial(w).doubleValue() * Math.exp(- poissonLambda);
 	}
 	
 	/**
@@ -139,7 +146,7 @@ public class BBItemAppendixService {
 	 */
 	private double getProbC(BBCategory category) {
 		// TODO
-		return (1.0 / CATEGORY_NAMES.length);
+		return (1.0 / BBItemAppendixSetting.CATEGORY_NAMES.length);
 	}
 	
 	private boolean isNounOrVerb(Token t) {

@@ -32,8 +32,11 @@ public class BBNaiveBayesParam extends Model {
 	@JoinColumn(name = "bb_category_id")
 	BBCategory category;
 	
-	@Column(name = "p1")
-	double p1;
+	@Column(name = "gauss_myu")
+	double gaussMyu;
+	
+	@Column(name = "poisson_lambda")
+	double poissonLambda;
 	
 	
 	@Transient
@@ -53,11 +56,12 @@ public class BBNaiveBayesParam extends Model {
 		this.category = category;
 	}
 	
-	public BBNaiveBayesParam(User user, BBWord word, BBCategory category, double p1) {
+	public BBNaiveBayesParam(User user, BBWord word, BBCategory category, double gaussMyu, double poissonLambda) {
 		this.user = user;
 		this.word = word;
 		this.category = category;
-		this.p1 = p1;
+		this.gaussMyu = gaussMyu;
+		this.poissonLambda = poissonLambda;
 	}
 	
 	/* インスタンスメソッド */
@@ -114,11 +118,20 @@ public class BBNaiveBayesParam extends Model {
 		this.category = category;
 	}
 
-	public double getP1() {
-		return p1;
+	public double getGaussMyu() {
+		return gaussMyu;
 	}
 
-	public void setP1(double p1) {
-		this.p1 = p1;
+	public void setGaussMyu(double gaussMyu) {
+		this.gaussMyu = gaussMyu;
 	}
+
+	public double getPoissonLambda() {
+		return poissonLambda;
+	}
+
+	public void setPoissonLambda(double poissonLambda) {
+		this.poissonLambda = poissonLambda;
+	}
+
 }
