@@ -1,5 +1,6 @@
 package models.service.BBItemAppendix;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +55,10 @@ public class BBItemAppendixService {
 		
 		// カテゴリ一覧を取得
 		List<BBCategory> categories = new ArrayList<BBCategory>();
-		for(String name : CATEGORY_NAMES) {
+		for(String catName : CATEGORY_NAMES) {
+			BBCategory category = new BBCategory(user, catName).unique();
 			if (category == null) {
-				throw new Exception("Missing category "+name+" for user "+user.toString());
+				throw new Exception("Missing category "+catName+" for user "+user.toString());
 			}
 			categories.add(category);
 		}
