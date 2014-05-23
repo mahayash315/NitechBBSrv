@@ -39,7 +39,11 @@ public class BBItemAppendix extends Model {
 	
 	/* コンストラクタ */
 	
+	public BBItemAppendix() {
+		super();
+	}
 	public BBItemAppendix(BBItemHead head, BBCategory category) {
+		super();
 		this.head = head;
 		this.category = category;
 	}

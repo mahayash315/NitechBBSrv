@@ -44,7 +44,11 @@ public class BBCategory extends Model {
 	
 	/* コンストラクタ */
 	
+	public BBCategory() {
+		super();
+	}
 	public BBCategory(User user, String name) {
+		super();
 		this.user = user;
 		this.name = name;
 	}

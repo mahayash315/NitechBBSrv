@@ -12,6 +12,8 @@ import com.google.gson.reflect.TypeToken;
 public class BBWordModelService implements ModelService<Long, BBWord> {
 	
 	private static final Type GSON_TYPE_FEATURES = new TypeToken<List<String>>(){}.getType();
+	
+	private GsonUtil gsonUtil = new GsonUtil();
 
 	public static BBWordModelService use() {
 		return new BBWordModelService();
@@ -88,16 +90,18 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 	
 	
 	private void deserializeJson(BBWord o) {
-		String jsonFeatures = o.getJsonFeatures();
-		if (jsonFeatures != null) {
-			List<String> features = GsonUtil.use().fromJson(jsonFeatures, GSON_TYPE_FEATURES);
-			o.setFeatures(features);
+		if (o != null) {
+			String jsonFeatures = o.getJsonFeatures();
+			if (jsonFeatures != null) {
+				List<String> features = gsonUtil.fromJson(jsonFeatures, GSON_TYPE_FEATURES);
+				o.setFeatures(features);
+			}
 		}
 	}
 	
 	private void serializeJson(BBWord o) {
 		if (o != null) {
-			String jsonFeatures = GsonUtil.use().toJson(o.getFeatures());
+			String jsonFeatures = gsonUtil.toJson(o.getFeatures());
 			o.setJsonFeatures(jsonFeatures);
 		}
 	}

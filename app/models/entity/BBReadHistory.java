@@ -52,13 +52,16 @@ public class BBReadHistory extends Model {
 
 
 	public BBReadHistory() {
+		super();
 	}
 	
 	public BBReadHistory(Long id) {
+		super();
 		this.id = id;
 	}
 	
 	public BBReadHistory(User user, BBItemHead item, Long openTime, Long readTimeLength, String referer, String filter) {
+		super();
 		this.user = user;
 		this.item = item;
 		this.openTime = openTime;

@@ -50,13 +50,19 @@ public class BBNaiveBayesParam extends Model {
 	
 	/* コンストラクタ */
 
+	public BBNaiveBayesParam() {
+		super();
+	}
+	
 	public BBNaiveBayesParam(User user, BBWord word, BBCategory category) {
+		super();
 		this.user = user;
 		this.word = word;
 		this.category = category;
 	}
 	
 	public BBNaiveBayesParam(User user, BBWord word, BBCategory category, double gaussMyu, double poissonLambda) {
+		super();
 		this.user = user;
 		this.word = word;
 		this.category = category;

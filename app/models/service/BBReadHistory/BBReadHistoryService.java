@@ -7,11 +7,12 @@ import models.request.api.bbanalyzer.BBReadHistoryItem;
 import models.request.api.bbanalyzer.BBReadHistoryRequest;
 import models.response.api.bbanalyzer.BBReadHistoryResponse;
 import models.service.BBItemHead.BBItemHeadModelService;
+import models.service.BBNaiveBayesParam.BBNaiveBayesParamService;
 import models.service.User.UserModelService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 
 public class BBReadHistoryService {
-
+	
 	public static BBReadHistoryService use() {
 		return new BBReadHistoryService();
 	}
@@ -21,8 +22,9 @@ public class BBReadHistoryService {
 	 * BBReadHistoryRequest を処理する
 	 * @param request
 	 * @return
+	 * @throws Exception 
 	 */
-	public BBReadHistoryResponse storeReceivedHistory(BBReadHistoryRequest request) {
+	public BBReadHistoryResponse storeReceivedHistory(BBReadHistoryRequest request) throws Exception {
 		
 		// User 取得
 		User user = UserModelService.use().findByNitechId(request.hashedNitechId);
@@ -70,6 +72,10 @@ public class BBReadHistoryService {
 				return new BBReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
+		
+		
+		// ベイズ推定用パラメータの設定
+		BBNaiveBayesParamService.use().calcParam(user);
 		
 		
 		// 成功

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import models.entity.BBCategory;
+import models.entity.BBItemAppendix;
 import models.entity.BBItemHead;
 import models.entity.BBNaiveBayesParam;
 import models.entity.BBReadHistory;
@@ -16,6 +17,8 @@ import models.setting.BBItemAppendixSetting;
 
 import org.atilika.kuromoji.Token;
 import org.atilika.kuromoji.Tokenizer;
+
+import play.Logger;
 
 public class BBNaiveBayesParamService {
 	
@@ -32,16 +35,28 @@ public class BBNaiveBayesParamService {
 		this.user = user;
 		
 		// 表示履歴を取得
+		Logger.info("BBNaiveBayesParam#calcParam(User): began");
 		Long minOpenTime = Long.valueOf(System.currentTimeMillis() - DEFAULT_FETCH_OPENTIME_SPAN);
 		List<BBReadHistory> readHistories = new BBReadHistory().findListForUser(user, minOpenTime, null);
+
+		Logger.info("BBNaiveBayesParam#calcParam(User) fetched readHistories");
 		
 		// 表示履歴から掲示をカテゴリ分け
 		Map<BBCategory, Set<BBItemHead>> categorized = categorize(readHistories);
 		
+		Logger.info("BBNaiveBayesParam#calcParam(User): categorized");
+		
 		// 各カテゴリで NaiveBayes パラメータを計算する
 		for(BBCategory category : categorized.keySet()) {
 			calcParamPerCategory(category, categorized.get(category));
+			
+			for(BBItemHead item : categorized.get(category)) {
+				BBItemAppendix appendix = new BBItemAppendix(item, category);
+				item.setAppendix(appendix);
+				item.store();
+			}
 		}
+		Logger.info("BBNaiveBayesParam#calcParam(User): calculated params");
 	}
 	
 	/**
@@ -58,7 +73,8 @@ public class BBNaiveBayesParamService {
 		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
 			BBCategory category = new BBCategory(user, catName).unique();
 			if (category == null) {
-				throw new Exception("Missing category "+catName+" for user "+user.toString());
+				category = new BBCategory(user, catName);
+				category.store();
 			}
 			result.put(category, new HashSet<BBItemHead>());
 		}
@@ -68,6 +84,7 @@ public class BBNaiveBayesParamService {
 				params.put(item, new ParamHolder());
 			}
 		}
+		Logger.info("BBNaiveBayesParam#categorize(List<BBReadHistory): 1");
 		
 		Set<BBItemHead> items = params.keySet();
 		
@@ -78,6 +95,7 @@ public class BBNaiveBayesParamService {
 			
 			param.count = param.count + 1.0;
 		}
+		Logger.info("BBNaiveBayesParam#categorize(List<BBReadHistory): 2");
 		
 		// 記事閲覧回数の平均と分散を計算
 		double d_tmp = 0.0;
@@ -98,6 +116,7 @@ public class BBNaiveBayesParamService {
 		}
 		count_variance = d_diff_from_average / total_item_num;
 		pow_count_variance = count_variance * count_variance;
+		Logger.info("BBNaiveBayesParam#categorize(List<BBReadHistory): 3");
 		
 		double total_category_num = (double) BBItemAppendixSetting.CATEGORY_NAMES.length;
 		double half_category_num = total_category_num / 2.0;
@@ -124,6 +143,7 @@ public class BBNaiveBayesParamService {
 			
 			result.get(category).add(item);
 		}
+		Logger.info("BBNaiveBayesParam#categorize(List<BBReadHistory): 4");
 		
 		return result;
 	}
@@ -168,7 +188,10 @@ public class BBNaiveBayesParamService {
 			// 各単語の出現数の平均をパラメータとする
 			for(BBWord word : wordsPerItem.keySet()) {
 				Integer count = wordsPerItem.get(word);
-				if (words.containsKey(word)) {
+				if (count == null) {
+					count = Integer.valueOf(0);
+				}
+				if (!words.containsKey(word)) {
 					words.put(word, Double.valueOf(0.0));
 				}
 				Double d = words.get(word);
@@ -176,6 +199,7 @@ public class BBNaiveBayesParamService {
 				words.put(word, new_d);
 			}
 		}
+		Logger.info("BBNaiveBayesParam#categorize(List<BBReadHistory): 5");
 		
 		// 結果の保存
 		for(BBWord word : words.keySet()) {

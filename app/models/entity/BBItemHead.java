@@ -77,13 +77,16 @@ public class BBItemHead extends Model {
 	/* コンストラクタ */
 
 	public BBItemHead() {
+		super();
 	}
 	
 	public BBItemHead(Long id) {
+		super();
 		this.id = id;
 	}
 	
 	public BBItemHead(String idDate, String idIndex, String dateShow, String dateExec, String title) {
+		super();
 		this.idDate = idDate;
 		this.idIndex = idIndex;
 		this.dateShow = dateShow;

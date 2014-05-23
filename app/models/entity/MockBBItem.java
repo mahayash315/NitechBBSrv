@@ -72,9 +72,10 @@ public class MockBBItem extends Model {
 	/* コンストラクタ */
 	
 	public MockBBItem() {
-		
+		super();
 	}
 	public MockBBItem(MockBBItemPK id) {
+		super();
 		this.id = id;
 	}
 	

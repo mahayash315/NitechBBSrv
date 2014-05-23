@@ -40,13 +40,16 @@ public class User extends Model {
 	/* コンストラクタ */
 
 	public User() {
+		super();
 	}
 	
 	public User(Long id) {
+		super();
 		this.id = id;
 	}
 	
 	public User(String hashedNitechId) {
+		super();
 		this.hashedNitechId = hashedNitechId;
 	}
 	

@@ -44,11 +44,17 @@ public class BBWord extends Model {
 	
 	/* コンストラクタ */
 	
+	public BBWord() {
+		super();
+	}
+	
 	public BBWord(String surface) {
+		super();
 		this.surface = surface;
 	}
 	
 	public BBWord(String surface, String[] features, boolean isKnown) {
+		super();
 		this.surface = surface;
 		this.features = new ArrayList<String>();
 		for(String feature : features) {

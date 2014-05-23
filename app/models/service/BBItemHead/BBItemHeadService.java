@@ -1,14 +1,18 @@
 package models.service.BBItemHead;
 
+import models.entity.BBCategory;
+import models.entity.BBItemAppendix;
 import models.entity.BBItemHead;
 import models.entity.User;
 import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
-import models.service.BBNaiveBayesParam.BBNaiveBayesParamService;
+import models.service.BBItemAppendix.BBItemAppendixService;
 import models.service.User.UserModelService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 
 public class BBItemHeadService {
+	
+	private BBItemAppendixService bbItemAppendixService = new BBItemAppendixService();
 
 	public static BBItemHeadService use() {
 		return new BBItemHeadService();
@@ -64,14 +68,18 @@ public class BBItemHeadService {
 				item.setTitle(title);
 			}
 			
+			// カテゴリ推定
+			BBCategory category = bbItemAppendixService.estimateCategory(item);
+			if (category != null) {
+				BBItemAppendix appendix = new BBItemAppendix(item, category);
+				item.setAppendix(appendix);
+			}
+			
 			if (item.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す
 				return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
-		
-		// ベイズ推定用パラメータの設定
-		BBNaiveBayesParamService.use().calcParam(user);
 		
 		// 成功
 		BBNewItemHeadsResponse response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getOKResponse());
