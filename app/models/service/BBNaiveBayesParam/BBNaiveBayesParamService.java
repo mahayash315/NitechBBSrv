@@ -1,6 +1,5 @@
 package models.service.BBNaiveBayesParam;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,10 +12,10 @@ import models.entity.BBNaiveBayesParam;
 import models.entity.BBReadHistory;
 import models.entity.BBWord;
 import models.entity.User;
-import models.service.BBItemAppendix.Token;
-import models.service.BBItemAppendix.Tokenizer;
-import models.service.BBWord.BBWordModelService;
 import models.setting.BBItemAppendixSetting;
+
+import org.atilika.kuromoji.Token;
+import org.atilika.kuromoji.Tokenizer;
 
 public class BBNaiveBayesParamService {
 	
