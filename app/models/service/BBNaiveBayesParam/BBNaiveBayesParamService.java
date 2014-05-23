@@ -133,8 +133,9 @@ public class BBNaiveBayesParamService {
 	 * NaiveBayes パラメータを計算する
 	 * @param category
 	 * @param items
+	 * @throws Exception 
 	 */
-	private void calcParamPerCategory(BBCategory category, Set<BBItemHead> items) {
+	private void calcParamPerCategory(BBCategory category, Set<BBItemHead> items) throws Exception {
 		// 形態素解析器を初期化
 		Tokenizer tokenizer = Tokenizer.builder().build();
 
