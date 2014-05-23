@@ -4,6 +4,7 @@ import models.entity.BBItemHead;
 import models.entity.User;
 import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
+import models.service.BBNaiveBayesParam.BBNaiveBayesParamService;
 import models.service.User.UserModelService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 
@@ -18,8 +19,9 @@ public class BBItemHeadService {
 	 * BBNewItemHeadsRequest を処理する
 	 * @param request
 	 * @return
+	 * @throws Exception 
 	 */
-	public BBNewItemHeadsResponse storeBBNewItemHeads(BBNewItemHeadsRequest request) {
+	public BBNewItemHeadsResponse storeBBNewItemHeads(BBNewItemHeadsRequest request) throws Exception {
 		
 		// User 取得
 		User user = UserModelService.use().findByNitechId(request.hashedNitechId);
@@ -67,6 +69,9 @@ public class BBItemHeadService {
 				return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
+		
+		// ベイズ推定用パラメータの設定
+		BBNaiveBayesParamService.use().calcParam(user);
 		
 		// 成功
 		BBNewItemHeadsResponse response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getOKResponse());

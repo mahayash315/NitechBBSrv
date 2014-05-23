@@ -9,7 +9,7 @@ import models.service.Model.ModelService;
 
 public class BBReadHistoryModelService implements ModelService<Long, BBReadHistory> {
 	
-	private static final String FIND_LIST_FOR_DEFAULT_ORDER_BY = "openTimes desc";
+	private static final String FIND_LIST_FOR_DEFAULT_ORDER_BY = "openTime desc";
 
 	public static BBReadHistoryModelService use() {
 		return new BBReadHistoryModelService();
