@@ -15,6 +15,7 @@ import models.entity.BBWord;
 import models.entity.User;
 import models.service.BBItemAppendix.Token;
 import models.service.BBItemAppendix.Tokenizer;
+import models.service.BBWord.BBWordModelService;
 import models.setting.BBItemAppendixSetting;
 
 public class BBNaiveBayesParamService {
@@ -153,12 +154,14 @@ public class BBNaiveBayesParamService {
 			for(Token token : tokens) {
 				if (isNounOrVerb(token)) {
 					BBWord word = new BBWord(token.getSurfaceForm()).unique();
-					if (word != null) {
-						if (!wordsPerItem.containsKey(word)) {
-							wordsPerItem.put(word, Integer.valueOf(0));
-						}
-						wordsPerItem.put(word, wordsPerItem.get(word) + 1);
+					if (word == null) {
+						word = new BBWord(token.getSurfaceForm(), token.getFeaturesArray(), token.isKnown());
+						word.store();
 					}
+					if (!wordsPerItem.containsKey(word)) {
+						wordsPerItem.put(word, Integer.valueOf(0));
+					}
+					wordsPerItem.put(word, wordsPerItem.get(word) + 1);
 				}
 			}
 
