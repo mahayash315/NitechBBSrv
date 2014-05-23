@@ -15,6 +15,7 @@ import models.setting.BBItemAppendixSetting;
 public class BBNaiveBayesParamService {
 	
 	private static final long DEFAULT_FETCH_OPENTIME_SPAN = 30L * 24L * 60L * 60L * 1000L;
+	private static final double PARAM_CATEGORIZE_SPAN = 0.5;
 	
 	private User user;
 
@@ -44,7 +45,7 @@ public class BBNaiveBayesParamService {
 	 */
 	private Map<BBCategory,Set<BBItemHead>> categorize(List<BBReadHistory> readHistories) throws Exception {
 		Map<BBCategory, Set<BBItemHead>> result = new HashMap<BBCategory, Set<BBItemHead>>();
-		Map<BBItemHead, Double> weights = new HashMap<BBItemHead, Double>();
+		Map<BBItemHead, ParamHolder> params = new HashMap<BBItemHead, ParamHolder>();
 		
 		// Map 初期化
 		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
@@ -56,27 +57,63 @@ public class BBNaiveBayesParamService {
 		}
 		for(BBReadHistory history : readHistories) {
 			BBItemHead item = history.getItem();
-			if (!weights.containsKey(item)) {
-				weights.put(item, Double.valueOf(0.0));
+			if (!params.containsKey(item)) {
+				params.put(item, new ParamHolder());
 			}
 		}
 		
-		Set<BBItemHead> items = weights.keySet();
+		Set<BBItemHead> items = params.keySet();
 		
-		// 各記事の閲覧回数・閲覧時間から重みを計算
+		// 各記事の閲覧回数を集計
 		for(BBReadHistory history : readHistories) {
 			BBItemHead item = history.getItem();
-			Double weight = weights.get(item);
+			ParamHolder param = params.get(item);
 			
-			// TODO openTime からの経過時間を考慮した（時間が経つ程興味が減る）掲示の重み weight を計算
+			param.count = param.count + 1.0;
 		}
 		
-		// 重みから各記事をカテゴリ分け
+		// 記事閲覧回数の平均と分散を計算
+		double d_tmp = 0.0;
+		double d_diff_from_average = 0.0;
+		double count_average = 0.0;
+		double count_variance = 0.0;
+		double pow_count_variance = 0.0;
+		double total_item_num = (double) items.size();
+		double normalized_value = 0.0;
 		for(BBItemHead item : items) {
-			Double weight = weights.get(item);
+			ParamHolder param = params.get(item);
+			count_average += param.count / total_item_num;
+		}
+		for(BBItemHead item : items) {
+			ParamHolder param = params.get(item);
+			d_tmp = (param.count - count_average);
+			d_diff_from_average = d_tmp*d_tmp;
+		}
+		count_variance = d_diff_from_average / total_item_num;
+		pow_count_variance = count_variance * count_variance;
+		
+		double total_category_num = (double) BBItemAppendixSetting.CATEGORY_NAMES.length;
+		double half_category_num = total_category_num / 2.0;
+		// 集計結果から各記事をカテゴリ分け
+		for(BBItemHead item : items) {
+			ParamHolder param = params.get(item);
 			
-			// TODO カテゴリ分け
-			BBCategory category = null;
+			// 標準化
+			normalized_value = (param.count - count_average) / pow_count_variance;
+			
+			// カテゴリ分類
+			int catNum = (int) ((normalized_value + half_category_num) / (total_category_num-1.0));
+			catNum = catNum + 1;
+			if (catNum < 1) {
+				catNum = 1;
+			} else if (BBItemAppendixSetting.CATEGORY_NAMES.length <= catNum) {
+				catNum = BBItemAppendixSetting.CATEGORY_NAMES.length;
+			}
+
+			BBCategory category = new BBCategory(user, String.valueOf(catNum)).unique();
+			if (category == null) {
+				throw new Exception("Missing category "+catNum+" for user "+user.toString());
+			}
 			
 			result.get(category).add(item);
 		}
@@ -92,5 +129,11 @@ public class BBNaiveBayesParamService {
 	 */
 	private void calcParamPerCategory(BBCategory category, Set<BBItemHead> items) {
 		
+	}
+	
+	
+	
+	private class ParamHolder {
+		public double count = 0;
 	}
 }

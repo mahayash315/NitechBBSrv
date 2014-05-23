@@ -48,7 +48,7 @@ public class BBItemAppendixService {
 	
 	private BBCategory estimateCategoryUsingNaiveBayes(BBItemHead head) throws Exception {
 		// アサート
-		if (head == null || head.getTitle() == null) {
+		if (head == null || head.getUser() == null || head.getTitle() == null) {
 			return null;
 		}
 		this.head = head;
