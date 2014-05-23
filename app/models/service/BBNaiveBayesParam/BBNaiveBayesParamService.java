@@ -154,7 +154,7 @@ public class BBNaiveBayesParamService {
 				if (isNounOrVerb(token)) {
 					BBWord word = new BBWord(token.getSurfaceForm()).unique();
 					if (word == null) {
-						word = new BBWord(token.getSurfaceForm(), token.getFeaturesArray(), token.isKnown());
+						word = new BBWord(token.getSurfaceForm(), token.getAllFeaturesArray(), token.isKnown());
 						word.store();
 					}
 					if (!wordsPerItem.containsKey(word)) {
@@ -187,6 +187,11 @@ public class BBNaiveBayesParamService {
 			param.setPoissonLambda(d);
 			param.store();
 		}
+	}
+	
+	private boolean isNounOrVerb(Token t) {
+		String[] arr = t.getAllFeaturesArray();
+		return (arr[0].contains("名詞") || arr[0].equals("動詞"));
 	}
 	
 	
