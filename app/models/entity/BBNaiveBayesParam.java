@@ -84,6 +84,14 @@ public class BBNaiveBayesParam extends Model {
 		return null;
 	}
 	
+	public BBNaiveBayesParam uniqueOrStore() {
+		BBNaiveBayesParam o = unique();
+		if (o == null) {
+			o = bbNaiveBayesParamModelService.save(this);
+		}
+		return o;
+	}
+	
 	/* getter, setter */
 
 	public Long getId() {

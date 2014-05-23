@@ -1,5 +1,6 @@
 package models.service.BBNaiveBayesParam;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,8 +9,12 @@ import java.util.Set;
 
 import models.entity.BBCategory;
 import models.entity.BBItemHead;
+import models.entity.BBNaiveBayesParam;
 import models.entity.BBReadHistory;
+import models.entity.BBWord;
 import models.entity.User;
+import models.service.BBItemAppendix.Token;
+import models.service.BBItemAppendix.Tokenizer;
 import models.setting.BBItemAppendixSetting;
 
 public class BBNaiveBayesParamService {
@@ -34,7 +39,9 @@ public class BBNaiveBayesParamService {
 		Map<BBCategory, Set<BBItemHead>> categorized = categorize(readHistories);
 		
 		// 各カテゴリで NaiveBayes パラメータを計算する
-		
+		for(BBCategory category : categorized.keySet()) {
+			calcParamPerCategory(category, categorized.get(category));
+		}
 	}
 	
 	/**
@@ -128,7 +135,56 @@ public class BBNaiveBayesParamService {
 	 * @param items
 	 */
 	private void calcParamPerCategory(BBCategory category, Set<BBItemHead> items) {
+		// 形態素解析器を初期化
+		Tokenizer tokenizer = Tokenizer.builder().build();
+
+		// Map 初期化
+		Map<BBWord, Double> words = new HashMap<BBWord, Double>();
 		
+		double total_item_num = (double) items.size();
+		
+		// 各掲示から単語を集計
+		for(BBItemHead item : items) {
+			// 掲示タイトルを形態素解析
+			List<Token> tokens = tokenizer.tokenize(item.getTitle());
+
+			Map<BBWord, Integer> wordsPerItem = new HashMap<BBWord, Integer>();
+			// List<Token> から Map<BBWord, Integer> に変換, およびパラメータの取得
+			for(Token token : tokens) {
+				if (isNounOrVerb(token)) {
+					BBWord word = new BBWord(token.getSurfaceForm()).unique();
+					if (word != null) {
+						if (!wordsPerItem.containsKey(word)) {
+							wordsPerItem.put(word, Integer.valueOf(0));
+						}
+						wordsPerItem.put(word, wordsPerItem.get(word) + 1);
+					}
+				}
+			}
+
+			// 各単語の出現数の平均をパラメータとする
+			for(BBWord word : wordsPerItem.keySet()) {
+				Integer count = wordsPerItem.get(word);
+				if (words.containsKey(word)) {
+					words.put(word, Double.valueOf(0.0));
+				}
+				Double d = words.get(word);
+				Double new_d = Double.valueOf(d.doubleValue() + (count.doubleValue() / total_item_num));
+				words.put(word, new_d);
+			}
+		}
+		
+		// 結果の保存
+		for(BBWord word : words.keySet()) {
+			Double d = words.get(word);
+			BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).uniqueOrStore();
+			if (param == null) {
+				throw new Exception("Failed to unique() or store() BBNaiveBayesParam for user "+user.toString()+", word "+word.toString()+", category "+category.toString());
+			}
+			param.setGaussMyu(d);
+			param.setPoissonLambda(d);
+			param.store();
+		}
 	}
 	
 	
