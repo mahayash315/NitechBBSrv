@@ -77,7 +77,7 @@ public class BBNaiveBayesParam extends Model {
 		if (o == null) {
 			return bbNaiveBayesParamModelService.save(this);
 		}
-		return bbNaiveBayesParamModelService.update(this, id);
+		return bbNaiveBayesParamModelService.update(this, o.getId());
 	}
 	
 	public BBNaiveBayesParam unique() {

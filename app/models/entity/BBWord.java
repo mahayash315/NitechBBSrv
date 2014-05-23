@@ -70,7 +70,7 @@ public class BBWord extends Model {
 		if (o == null) {
 			return bbWordModelService.save(this);
 		}
-		return bbWordModelService.update(this, id);
+		return bbWordModelService.update(this, o.getId());
 	}
 	
 	public BBWord unique() {

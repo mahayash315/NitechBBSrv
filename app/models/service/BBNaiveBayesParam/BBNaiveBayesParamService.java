@@ -35,16 +35,13 @@ public class BBNaiveBayesParamService {
 		this.user = user;
 		
 		// 表示履歴を取得
-		Logger.info("BBNaiveBayesParam#calcParam(User): began");
 		Long minOpenTime = Long.valueOf(System.currentTimeMillis() - DEFAULT_FETCH_OPENTIME_SPAN);
 		List<BBReadHistory> readHistories = new BBReadHistory().findListForUser(user, minOpenTime, null);
 
-		Logger.info("BBNaiveBayesParam#calcParam(User) fetched readHistories");
 		
 		// 表示履歴から掲示をカテゴリ分け
 		Map<BBCategory, Set<BBItemHead>> categorized = categorize(readHistories);
 		
-		Logger.info("BBNaiveBayesParam#calcParam(User): categorized");
 		
 		// 各カテゴリで NaiveBayes パラメータを計算する
 		for(BBCategory category : categorized.keySet()) {
@@ -56,7 +53,6 @@ public class BBNaiveBayesParamService {
 				item.store();
 			}
 		}
-		Logger.info("BBNaiveBayesParam#calcParam(User): calculated params");
 	}
 	
 	/**
@@ -84,7 +80,6 @@ public class BBNaiveBayesParamService {
 				params.put(item, new ParamHolder());
 			}
 		}
-		Logger.info("BBNaiveBayesParam#categorize(List<BBReadHistory): 1");
 		
 		Set<BBItemHead> items = params.keySet();
 		
@@ -95,7 +90,6 @@ public class BBNaiveBayesParamService {
 			
 			param.count = param.count + 1.0;
 		}
-		Logger.info("BBNaiveBayesParam#categorize(List<BBReadHistory): 2");
 		
 		// 記事閲覧回数の平均と分散を計算
 		double d_tmp = 0.0;
@@ -140,6 +134,14 @@ public class BBNaiveBayesParamService {
 			if (category == null) {
 				throw new Exception("Missing category "+catNum+" for user "+user.toString());
 			}
+			
+			BBItemAppendix appendix = item.getAppendix();
+			if (appendix == null) {
+				appendix = new BBItemAppendix(item, category);
+			} else {
+				appendix.setCategory(category);
+			}
+			appendix.store();
 			
 			result.get(category).add(item);
 		}

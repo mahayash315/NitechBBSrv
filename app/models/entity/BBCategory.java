@@ -60,7 +60,7 @@ public class BBCategory extends Model {
 		if (o == null) {
 			return bbCategoryModelService.save(this);
 		}
-		return bbCategoryModelService.update(this, id);
+		return bbCategoryModelService.update(this, o.getId());
 	}
 	
 	public BBCategory unique() {

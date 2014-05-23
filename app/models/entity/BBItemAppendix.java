@@ -49,6 +49,24 @@ public class BBItemAppendix extends Model {
 	}
 
 	/* インスタンスメソッド */
+
+	public BBItemAppendix store() {
+		BBItemAppendix o = unique();
+		if (o == null) {
+			return bbItemAppendixModelService.save(this);
+		}
+		return bbItemAppendixModelService.update(this, o.getId());
+	}
+	
+	public BBItemAppendix unique() {
+		BBItemAppendix o = null;
+		if ((o = bbItemAppendixModelService.findById(id)) != null) {
+			return o;
+		} else if ((o = bbItemAppendixModelService.findByHead(head)) != null) {
+			return o;
+		}
+		return null;
+	}
 	
 	
 	/* getter, setter */
