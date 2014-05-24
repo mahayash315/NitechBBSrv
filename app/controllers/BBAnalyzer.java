@@ -38,4 +38,11 @@ public class BBAnalyzer extends Controller {
 	public static Result analyzeBody() {
 		return ok();
 	}
+	
+	public static Result calcNaiveBayesParams() {
+		
+		
+		
+		return ok();
+	}
 }

@@ -8,13 +8,21 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
 import models.service.BBNaiveBayesParam.BBNaiveBayesParamModelService;
 import models.service.BBNaiveBayesParam.BBNaiveBayesParamService;
+import play.Logger;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name = "bb_naive_bayes_param")
+@Table(
+	name = "bb_naive_bayes_param",
+	uniqueConstraints = {
+		@UniqueConstraint(columnNames = {"user_id", "bb_word_id", "bb_category_id"})
+	}
+)
 public class BBNaiveBayesParam extends Model {
 
 	@Id
@@ -37,6 +45,10 @@ public class BBNaiveBayesParam extends Model {
 	
 	@Column(name = "poisson_lambda")
 	double poissonLambda;
+	
+	@Version
+	@Column(name="OPTLOCK")
+	int versionNum;
 	
 	
 	@Transient
@@ -73,10 +85,16 @@ public class BBNaiveBayesParam extends Model {
 	/* インスタンスメソッド */
 	
 	public BBNaiveBayesParam store() {
+		Logger.info("store(): id="+id);
 		BBNaiveBayesParam o = unique();
 		if (o == null) {
+			Logger.info("store(): saving");
 			return bbNaiveBayesParamModelService.save(this);
 		}
+		if (id == null) {
+			id = o.getId();
+		}
+		Logger.info("store(): found id="+o.getId()+", updating");
 		return bbNaiveBayesParamModelService.update(this, o.getId());
 	}
 	

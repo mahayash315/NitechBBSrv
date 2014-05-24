@@ -39,6 +39,8 @@ create table bb_naive_bayes_param (
   bb_category_id            bigint,
   gauss_myu                 double,
   poisson_lambda            double,
+  OPTLOCK                   integer not null,
+  constraint uq_bb_naive_bayes_param_1 unique (user_id,bb_word_id,bb_category_id),
   constraint pk_bb_naive_bayes_param primary key (id))
 ;
 

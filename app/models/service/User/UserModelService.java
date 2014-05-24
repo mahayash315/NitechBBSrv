@@ -1,5 +1,7 @@
 package models.service.User;
 
+import java.util.Set;
+
 import models.entity.User;
 import models.service.Model.ModelService;
 
@@ -67,6 +69,10 @@ public class UserModelService implements ModelService<Long, User> {
 					.findUnique();
 		}
 		return null;
+	}
+	
+	public Set<User> findSet() {
+		return User.find.findSet();
 	}
 
 }

@@ -1,6 +1,7 @@
 package models.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -98,6 +99,13 @@ public class User extends Model {
 		}
 	}
 	
+	/**
+	 * ユーザ一覧を取得する
+	 * @return
+	 */
+	public Set<User> findSet() {
+		return userModelService.findSet();
+	}
 	
 	/* getter, setter */
 

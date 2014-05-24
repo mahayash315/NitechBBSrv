@@ -14,7 +14,6 @@ import models.request.api.bbanalyzer.BBReadHistoryItem;
 import models.request.api.bbanalyzer.BBReadHistoryRequest;
 import models.response.api.bbanalyzer.BBReadHistoryResponse;
 import models.service.BBItemHead.BBItemHeadModelService;
-import models.service.BBNaiveBayesParam.BBNaiveBayesParamService;
 import models.service.User.UserModelService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.setting.BBItemAppendixSetting;
@@ -87,15 +86,6 @@ public class BBReadHistoryService {
 				return new BBReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
-		
-		
-		// 閲覧履歴からカテゴリ決定
-		categorizeFromReadHistory(user);
-		
-		
-		// ベイズ推定用パラメータの設定
-		BBNaiveBayesParamService.use().calcParam(user);
-		
 		
 		// 成功
 		BBReadHistoryResponse response = new BBReadHistoryResponse(BBAnalyzerService.use().getOKResponse());
@@ -181,10 +171,10 @@ public class BBReadHistoryService {
 			// カテゴリ分類
 			int catNum = (int) ((normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING) / divide_value);
 			catNum = catNum + 1;
-			Logger.info("normalized_value = "+normalized_value);
-			Logger.info("with padding = "+(normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING));
-			Logger.info("calculated catNumInDouble = "+(double)(1.0 + (normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING) / divide_value));
-			Logger.info("calculated catNum="+catNum);
+			Logger.info("(item "+item.getId()+") normalized_value = "+normalized_value);
+			Logger.info("(item "+item.getId()+") with padding = "+(normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING));
+			Logger.info("(item "+item.getId()+") calculated catNumInDouble = "+(double)(1.0 + (normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING) / divide_value));
+			Logger.info("(item "+item.getId()+") calculated catNum="+catNum);
 			if (catNum < 1) {
 				catNum = 1;
 			} else if (BBItemAppendixSetting.CATEGORY_NAMES.length <= catNum) {

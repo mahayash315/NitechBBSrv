@@ -1,5 +1,6 @@
 package controllers.api;
 
+import models.entity.User;
 import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.request.api.bbanalyzer.BBReadHistoryRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
@@ -104,6 +105,7 @@ public class BBAnalyzer extends Controller {
 			String json = Json.stringify(jsonNode);
 			BBReadHistoryRequest request = GsonUtil.use().fromJson(json, BBReadHistoryRequest.class);
 			
+			// 閲覧履歴を保存
 			Ebean.beginTransaction();
 			try {
 				// リクエストを処理
@@ -125,8 +127,27 @@ public class BBAnalyzer extends Controller {
 				Ebean.endTransaction();
 			}
 			
-			// レスポンド
-			return ok(GsonUtil.use().toJson(response));
+			try {
+				// レスポンド
+				return ok(GsonUtil.use().toJson(response));
+			} finally {
+				// 後処理：計算
+				User user = new User(request.hashedNitechId).unique();
+				if (user != null) {
+					Ebean.beginTransaction();
+					try {
+						//閲覧履歴からカテゴリ決定
+						BBReadHistoryService.use().categorizeFromReadHistory(user);
+						
+						Ebean.commitTransaction();
+					} catch (Exception e) {
+						Ebean.rollbackTransaction();
+						e.printStackTrace();
+					} finally {
+						Ebean.endTransaction();
+					}
+				}
+			}
 		} catch (JsonSyntaxException e) {
 			// JSON パースエラー
 			response = new BBReadHistoryResponse(BBAnalyzerService.use().getBadRequestResponse());

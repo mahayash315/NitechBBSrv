@@ -38,7 +38,7 @@ public class BBItemAppendixService {
 		try {
 			return estimateCategoryUsingNaiveBayes(head);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -50,10 +50,13 @@ public class BBItemAppendixService {
 	private BBCategory estimateCategoryUsingNaiveBayes(BBItemHead head) throws Exception {
 		// アサート
 		if (head == null || head.getUser() == null || head.getTitle() == null) {
+			Logger.error("BBItemAppendixService#estimateCategoryUsingNaiveBayes(head): null head given, or head.getUser() == null, or head.getTitle() == null");
 			return null;
 		}
 		this.head = head;
 		this.user = head.getUser();
+		
+		Logger.info("BBItemAppendixService#estimateCategoryUsingNaiveBayes(head): 1");
 		
 		// 形態素解析器を初期化
 		Tokenizer tokenizer = Tokenizer.builder().build();
@@ -67,6 +70,7 @@ public class BBItemAppendixService {
 			}
 			categories.add(category);
 		}
+		Logger.info("BBItemAppendixService#estimateCategoryUsingNaiveBayes(head): 2");
 		
 		// 掲示タイトルを形態素解析
 		List<Token> tokens = tokenizer.tokenize(head.getTitle());
@@ -84,13 +88,16 @@ public class BBItemAppendixService {
 				}
 			}
 		}
+
+		Logger.info("BBItemAppendixService#estimateCategoryUsingNaiveBayes(head): 3");
 		
 		// ナイーブベイズ推定
 		BBCategory maxCategory = null;
 		double maxPcd = 0;
 		for(BBCategory category : categories) {
 			double Pcd = calcProbCGivenD(category, words);
-			if (maxPcd < Pcd) {
+			Logger.info("Pcd for category "+category.getName()+" = "+Pcd);
+			if (maxPcd <= Pcd) {
 				maxCategory = category;
 				maxPcd = Pcd;
 			}
@@ -121,7 +128,10 @@ public class BBItemAppendixService {
 			}
 			
 			Integer w = words.get(word);
-			P = P * calcProbWGivenC_Poisson(w.intValue(), param.getPoissonLambda(), Pc);
+			double d = calcProbWGivenC_Poisson(w.intValue(), param.getPoissonLambda(), Pc);
+			Logger.info("(category "+category.getName()+") calcProbWGivenC_Poisson("+w.intValue()+", "+param.getPoissonLambda()+", "+Pc);
+			P = P * d;
+			Logger.info("                     --> P = "+P);
 		}
 		P = P * Pc;
 		

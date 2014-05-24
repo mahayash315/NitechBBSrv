@@ -16,10 +16,12 @@ import models.setting.BBItemAppendixSetting;
 import org.atilika.kuromoji.Token;
 import org.atilika.kuromoji.Tokenizer;
 
+import play.Logger;
+
 public class BBNaiveBayesParamService {
 	
 	private static final double DEFAULT_GAUSS_MYU_VALUE = 0.0;
-	private static final double DEFAULT_POISSON_LAMBDA_VALUE = 0.0;
+	private static final double DEFAULT_POISSON_LAMBDA_VALUE = 10E-5;
 	
 	private Tokenizer tokenizer;
 	private User user;
@@ -151,13 +153,16 @@ public class BBNaiveBayesParamService {
 		
 		// 結果の保存
 		for(BBWord word : words.keySet()) {
+			Logger.info("updatin param for word "+word.getId()+", "+word.getSurface());
 			Double d = words.get(word);
-			BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).uniqueOrStore();
+			BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).unique();
 			if (param == null) {
-				throw new Exception("Failed to unique() or store() BBNaiveBayesParam for user "+user.toString()+", word "+word.toString()+", category "+category.toString());
+				throw new Exception("Missing BBNaiveBayesParam for user "+user.toString()+", word "+word.toString()+", category "+category.toString());
 			}
+			Logger.info(" --> found entry (id="+param.getId()+")");
 			param.setGaussMyu(d);
 			param.setPoissonLambda(d);
+			Logger.info(" --> updating");
 			param.store();
 		}
 	}
