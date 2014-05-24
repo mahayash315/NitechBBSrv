@@ -58,7 +58,6 @@ create table bb_read_history (
 create table bb_word (
   id                        bigint auto_increment not null,
   surface                   varchar(191),
-  json_features             longtext,
   is_known                  tinyint(1) default 0,
   constraint pk_bb_word primary key (id))
 ;

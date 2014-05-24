@@ -13,7 +13,6 @@ import javax.persistence.Version;
 
 import models.service.BBNaiveBayesParam.BBNaiveBayesParamModelService;
 import models.service.BBNaiveBayesParam.BBNaiveBayesParamService;
-import play.Logger;
 import play.db.ebean.Model;
 
 @Entity
@@ -47,8 +46,8 @@ public class BBNaiveBayesParam extends Model {
 	double poissonLambda;
 	
 	@Version
-	@Column(name="OPTLOCK")
-	int versionNum;
+	@Column(name = "OPTLOCK")
+	int optlock;
 	
 	
 	@Transient
@@ -85,16 +84,13 @@ public class BBNaiveBayesParam extends Model {
 	/* インスタンスメソッド */
 	
 	public BBNaiveBayesParam store() {
-		Logger.info("store(): id="+id);
 		BBNaiveBayesParam o = unique();
 		if (o == null) {
-			Logger.info("store(): saving");
 			return bbNaiveBayesParamModelService.save(this);
 		}
 		if (id == null) {
 			id = o.getId();
 		}
-		Logger.info("store(): found id="+o.getId()+", updating");
 		return bbNaiveBayesParamModelService.update(this, o.getId());
 	}
 	
@@ -164,6 +160,10 @@ public class BBNaiveBayesParam extends Model {
 
 	public void setPoissonLambda(double poissonLambda) {
 		this.poissonLambda = poissonLambda;
+	}
+	
+	public int getOptLock() {
+		return optlock;
 	}
 
 }

@@ -38,23 +38,23 @@ public class BBNaiveBayesParamService {
 	public void calcParam(User user) throws Exception {
 		this.user = user;
 		
-		// パラメータ初期化
-		initParamsForUser();
-
-		// カテゴリ一覧取得
+		// 全カテゴリ取得
 		categories = new HashSet<BBCategory>();
 		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
-			BBCategory category = new BBCategory(user, catName).unique();
-			if (category == null) {
-				throw new Exception("Missing category "+catName+" for user "+user.toString());
-			}
-			categories.add(category);
+			categories.add(new BBCategory(user, catName).uniqueOrStore());
 		}
 		
+		// パラメータ初期化
+		Logger.info("BBNaiveBayesParamService#calcParam(): ----------------- initParamForUser(): began -----------------");
+		initParamsForUser();
+		Logger.info("BBNaiveBayesParamService#calcParam(): ----------------- initParamForUser(): done  -----------------");
+
 		// 各カテゴリで NaiveBayes パラメータを計算する
 		for(BBCategory category : categories) {
 			Set<BBItemHead> itemsInCategory = new BBItemHead().findSetByUserCategory(user, category);
+			Logger.info("BBNaiveBayesParamService#calcParam(): ----------------- calcParamPerCategory(): began -----------------");
 			calcParamPerCategory(category, itemsInCategory);
+			Logger.info("BBNaiveBayesParamService#calcParam(): ----------------- calcParamPerCategory(): done  -----------------");
 		}
 	}
 	
@@ -69,37 +69,52 @@ public class BBNaiveBayesParamService {
 			return;
 		}
 		
+		Map<String, Token> allTokens = new HashMap<String, Token>();
+		
 		// 全記事取得
 		List<BBItemHead> items = new BBItemHead().findListForUser(user);
 		if (items == null) {
 			return;
 		}
 		
-		// 全カテゴリ取得
-		Set<BBCategory> categories = new HashSet<BBCategory>();
-		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
-			categories.add(new BBCategory(user, catName).uniqueOrStore());
-		}
-		
-		// パラメータを初期化
+		// トークンを抽出
 		Set<BBWord> words = new HashSet<BBWord>();
 		for(BBItemHead item : items) {
 			String title = item.getTitle();
+			Logger.info("BBNaiveBayesParamService#initParamsForUser(): title = "+title);
 			if (title == null || title.isEmpty()) {
 				continue;
 			}
 			
 			List<Token> tokens = tokenizer.tokenize(title);
 			for(Token token : tokens) {
-				BBWord word = new BBWord(token.getSurfaceForm(), token.getAllFeaturesArray(), token.isKnown()).uniqueOrStore();
-				if (word == null) {
-					throw new Exception("Failed to unique() or store() word "+word.toString()+" for user "+user.toString());
+				if (isNounOrVerbAndNotNumber(token) && !allTokens.containsKey(token.getSurfaceForm())) {
+					allTokens.put(token.getSurfaceForm(), token);
 				}
-				
-				for(BBCategory category : categories) {
-					BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category, DEFAULT_GAUSS_MYU_VALUE, DEFAULT_POISSON_LAMBDA_VALUE);
-					param.store();
-				}
+			}
+		}
+		
+		for(String surface : allTokens.keySet()) {
+			Token token = allTokens.get(surface);
+			Logger.info("surface = "+token.getSurfaceForm()+", features = "+token.getAllFeatures());
+		}
+		
+		// パラメータ初期化
+		for(String surface : allTokens.keySet()) {
+			Token token = allTokens.get(surface);
+			BBWord word = new BBWord(token.getSurfaceForm(), token.isKnown()).uniqueOrStore();
+			if (word == null) {
+				throw new Exception("Failed to unique() or store() word "+word.toString()+" for user "+user.toString());
+			}
+
+			Logger.info("BBNaiveBayesParamService#initParamsForUser(): word = "+word.getSurface());
+			for(BBCategory category : categories) {
+				Logger.info("BBNaiveBayesParamService#initParamsForUser():  category="+category.getName());
+				BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).uniqueOrStore();
+				param.setGaussMyu(DEFAULT_GAUSS_MYU_VALUE);
+				param.setPoissonLambda(DEFAULT_POISSON_LAMBDA_VALUE);
+				param = param.store();
+				Logger.info("BBNaiveBayesParamService#initParamsForUser(): done, param.OPTLOCK="+param.getOptLock());
 			}
 		}
 	}
@@ -112,7 +127,7 @@ public class BBNaiveBayesParamService {
 	 */
 	private void calcParamPerCategory(BBCategory category, Set<BBItemHead> items) throws Exception {
 		// Map 初期化
-		Map<BBWord, Double> words = new HashMap<BBWord, Double>();
+		Map<String, Double> wordCounts = new HashMap<String, Double>();
 		
 		double total_item_num = (double) items.size();
 		
@@ -121,55 +136,52 @@ public class BBNaiveBayesParamService {
 			// 掲示タイトルを形態素解析
 			List<Token> tokens = tokenizer.tokenize(item.getTitle());
 
-			Map<BBWord, Integer> wordsPerItem = new HashMap<BBWord, Integer>();
+			Map<String, Integer> wordsPerItem = new HashMap<String, Integer>();
 			// List<Token> から Map<BBWord, Integer> に変換, およびパラメータの取得
 			for(Token token : tokens) {
-				if (isNounOrVerb(token)) {
-					BBWord word = new BBWord(token.getSurfaceForm()).unique();
-					if (word == null) {
-						throw new Exception("Missing param for "+token.getSurfaceForm()+", user "+user.toString());
+				if (isNounOrVerbAndNotNumber(token)) {
+					String surface = token.getSurfaceForm();
+					if (!wordsPerItem.containsKey(surface)) {
+						wordsPerItem.put(surface, Integer.valueOf(0));
 					}
-					if (!wordsPerItem.containsKey(word)) {
-						wordsPerItem.put(word, Integer.valueOf(0));
-					}
-					wordsPerItem.put(word, wordsPerItem.get(word) + 1);
+					wordsPerItem.put(surface, wordsPerItem.get(surface) + 1);
 				}
 			}
 
 			// 各単語の出現数の平均をパラメータとする
-			for(BBWord word : wordsPerItem.keySet()) {
-				Integer count = wordsPerItem.get(word);
+			for(String surface : wordsPerItem.keySet()) {
+				Integer count = wordsPerItem.get(surface);
 				if (count == null) {
 					count = Integer.valueOf(0);
 				}
-				if (!words.containsKey(word)) {
-					words.put(word, Double.valueOf(0.0));
+				if (!wordCounts.containsKey(surface)) {
+					wordCounts.put(surface, Double.valueOf(0.0));
 				}
-				Double d = words.get(word);
+				Double d = wordCounts.get(surface);
 				Double new_d = Double.valueOf(d.doubleValue() + (count.doubleValue() / total_item_num));
-				words.put(word, new_d);
+				wordCounts.put(surface, new_d);
 			}
 		}
 		
 		// 結果の保存
-		for(BBWord word : words.keySet()) {
-			Logger.info("updatin param for word "+word.getId()+", "+word.getSurface());
-			Double d = words.get(word);
+		for(String surface : wordCounts.keySet()) {
+			BBWord word = new BBWord(surface).unique();
 			BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).unique();
 			if (param == null) {
 				throw new Exception("Missing BBNaiveBayesParam for user "+user.toString()+", word "+word.toString()+", category "+category.toString());
 			}
-			Logger.info(" --> found entry (id="+param.getId()+")");
+			Logger.info("                   --> found entry (id="+param.getId()+", versionNum="+param.getOptLock()+")");
+			Double d = wordCounts.get(surface);
 			param.setGaussMyu(d);
 			param.setPoissonLambda(d);
-			Logger.info(" --> updating");
+			Logger.info("                   --> updating");
 			param.store();
 		}
 	}
 	
-	private boolean isNounOrVerb(Token t) {
+	private boolean isNounOrVerbAndNotNumber(Token t) {
 		String[] arr = t.getAllFeaturesArray();
-		return (arr[0].contains("名詞") || arr[0].equals("動詞"));
+		return ((arr[0].contains("名詞") || arr[0].equals("動詞")) && !arr[1].equals("数"));
 	}
 	
 	

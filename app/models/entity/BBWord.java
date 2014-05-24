@@ -1,12 +1,10 @@
 package models.entity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -26,9 +24,9 @@ public class BBWord extends Model {
 	@Transient
 	List<String> features;
 	
-	@Column(name="json_features")
-	@Lob
-	String jsonFeatures;
+//	@Column(name="json_features")
+//	@Lob
+//	String jsonFeatures;
 	
 	@Column(name = "is_known")
 	boolean isKnown;
@@ -53,15 +51,21 @@ public class BBWord extends Model {
 		this.surface = surface;
 	}
 	
-	public BBWord(String surface, String[] features, boolean isKnown) {
+	public BBWord(String surface, boolean isKnown) {
 		super();
 		this.surface = surface;
-		this.features = new ArrayList<String>();
-		for(String feature : features) {
-			this.features.add(feature);
-		}
 		this.isKnown = isKnown;
 	}
+	
+//	public BBWord(String surface, String[] features, boolean isKnown) {
+//		super();
+//		this.surface = surface;
+//		this.features = new ArrayList<String>();
+//		for(String feature : features) {
+//			this.features.add(feature);
+//		}
+//		this.isKnown = isKnown;
+//	}
 	
 	/* インスタンスメソッド */
 	
@@ -117,13 +121,13 @@ public class BBWord extends Model {
 		this.features = features;
 	}
 
-	public String getJsonFeatures() {
-		return jsonFeatures;
-	}
-
-	public void setJsonFeatures(String jsonFeatures) {
-		this.jsonFeatures = jsonFeatures;
-	}
+//	public String getJsonFeatures() {
+//		return jsonFeatures;
+//	}
+//
+//	public void setJsonFeatures(String jsonFeatures) {
+//		this.jsonFeatures = jsonFeatures;
+//	}
 
 	public boolean isKnown() {
 		return isKnown;

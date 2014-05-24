@@ -32,7 +32,6 @@ public class BBCategory extends Model {
 	@Column(name = "name", length = 171)
 	String name;
 	
-	
 	@Transient
 	BBCategoryService bbCategoryService = new BBCategoryService();
 	@Transient

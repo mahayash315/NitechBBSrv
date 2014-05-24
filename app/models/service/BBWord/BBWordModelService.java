@@ -23,7 +23,7 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 	public BBWord findById(Long id) {
 		if (id != null) {
 			BBWord o = BBWord.find.byId(id);
-			deserializeJson(o);
+//			deserializeJson(o);
 			return o;
 		}
 		return null;
@@ -32,7 +32,7 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 	@Override
 	public BBWord save(BBWord entry) {
 		if (entry != null) {
-			serializeJson(entry);
+//			serializeJson(entry);
 			entry.save();
 			if (entry.getId() != null) {
 				return entry;
@@ -44,7 +44,7 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 	@Override
 	public BBWord update(BBWord entry) {
 		if (entry != null) {
-			serializeJson(entry);
+//			serializeJson(entry);
 			entry.update();
 			if (entry.getId() != null) {
 				return entry;
@@ -56,7 +56,7 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 	@Override
 	public BBWord update(BBWord entry, Long id) {
 		if (entry != null && id != null) {
-			serializeJson(entry);
+//			serializeJson(entry);
 			entry.update(id);
 			if (entry.getId().equals(id)) {
 				return entry;
@@ -81,7 +81,7 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 	public BBWord findBySurface(String surface) {
 		if (surface != null) {
 			BBWord o = BBWord.find.where().eq("surface", surface).findUnique();
-			deserializeJson(o);
+//			deserializeJson(o);
 			return o;
 		}
 		return null;
@@ -89,21 +89,21 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 	
 	
 	
-	private void deserializeJson(BBWord o) {
-		if (o != null) {
-			String jsonFeatures = o.getJsonFeatures();
-			if (jsonFeatures != null) {
-				List<String> features = gsonUtil.fromJson(jsonFeatures, GSON_TYPE_FEATURES);
-				o.setFeatures(features);
-			}
-		}
-	}
-	
-	private void serializeJson(BBWord o) {
-		if (o != null) {
-			String jsonFeatures = gsonUtil.toJson(o.getFeatures());
-			o.setJsonFeatures(jsonFeatures);
-		}
-	}
+//	private void deserializeJson(BBWord o) {
+//		if (o != null) {
+//			String jsonFeatures = o.getJsonFeatures();
+//			if (jsonFeatures != null) {
+//				List<String> features = gsonUtil.fromJson(jsonFeatures, GSON_TYPE_FEATURES);
+//				o.setFeatures(features);
+//			}
+//		}
+//	}
+//	
+//	private void serializeJson(BBWord o) {
+//		if (o != null) {
+//			String jsonFeatures = gsonUtil.toJson(o.getFeatures());
+//			o.setJsonFeatures(jsonFeatures);
+//		}
+//	}
 
 }

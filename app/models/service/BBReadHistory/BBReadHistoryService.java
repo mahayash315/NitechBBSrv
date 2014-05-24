@@ -123,16 +123,16 @@ public class BBReadHistoryService {
 			if (!params.containsKey(item)) {
 				params.put(item, new ParamHolder());
 			}
+			
+			ParamHolder param = params.get(item);
+			param.count = param.count + 1.0;
 		}
 		
 		Set<BBItemHead> items = params.keySet();
 		
-		// 各記事の閲覧回数を集計
-		for(BBReadHistory history : readHistories) {
-			BBItemHead item = history.getItem();
+		for(BBItemHead item : items) {
 			ParamHolder param = params.get(item);
-			
-			param.count = param.count + 1.0;
+			Logger.info("BBReadHistoryService#categorize...(): item = "+item.getId()+", "+item.getTitle()+", count="+param.count);
 		}
 		
 		// 記事閲覧回数の平均と分散を計算
@@ -151,10 +151,13 @@ public class BBReadHistoryService {
 			d_tmp = (param.count - count_average);
 			d_diff_from_average += d_tmp*d_tmp;
 		}
-		count_variance = d_diff_from_average / total_item_num;
+		count_variance = Math.sqrt(d_diff_from_average / (total_item_num - 1.0));
 		if (count_variance < MINIMUM_VARIANCE_VALUE) {
 			count_variance = MINIMUM_VARIANCE_VALUE;
 		}
+		
+		Logger.info("count_average = "+count_average);
+		Logger.info("count_variance = "+count_variance);
 		
 		double total_category_num = (double) BBItemAppendixSetting.CATEGORY_NAMES.length;
 		double divide_value = STANDARD_NORMAL_DISTRIBUTION_MAXIMUM / total_category_num;
