@@ -30,7 +30,7 @@ public class BBAnalyzerTaskActorBase {
 	
 	public void start() throws ParseException {
 		// 定期実行の日付・時刻を設定する
-		Time.CronExpression cron = new Time.CronExpression("0 0 4,11,18 * * * *");
+		Time.CronExpression cron = new Time.CronExpression("0 0 4,11,18 * * ? *");
 //		[ Cron Expression ]
 //		Field Name	 	Allowed Values	 	Allowed Special Characters
 //		Seconds	 	0-59	 	, - * /
