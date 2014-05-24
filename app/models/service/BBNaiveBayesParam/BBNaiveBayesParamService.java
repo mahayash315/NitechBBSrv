@@ -40,6 +40,10 @@ public class BBNaiveBayesParamService {
 	public void calcParam(User user) throws Exception {
 		this.user = user;
 		
+		// パラメータ初期化
+		initParamsForUser();
+		
+		
 		// 表示履歴を取得
 		Long minOpenTime = Long.valueOf(System.currentTimeMillis() - DEFAULT_FETCH_OPENTIME_SPAN);
 		List<BBReadHistory> readHistories = new BBReadHistory().findListForUser(user, minOpenTime, null);
