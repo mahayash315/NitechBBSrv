@@ -1,7 +1,9 @@
 package models.service.BBItemHead;
 
 import java.util.List;
+import java.util.Set;
 
+import models.entity.BBCategory;
 import models.entity.BBItemHead;
 import models.entity.User;
 import models.service.Model.ModelService;
@@ -101,6 +103,17 @@ public class BBItemHeadModelService implements ModelService<Long, BBItemHead> {
 						.where()
 							.eq("user", user)
 						.findList();
+		}
+		return null;
+	}
+	
+	public Set<BBItemHead> findSetByUserCategory(User user, BBCategory category) {
+		if (user != null && category != null) {
+			return BBItemHead.find
+						.where()
+							.eq("user", user)
+							.eq("appendix.category", category)
+						.findSet();
 		}
 		return null;
 	}

@@ -2,7 +2,9 @@ package models.entity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -61,7 +63,7 @@ public class BBItemHead extends Model {
 	@Column(name = "last_update")
 	Date lastUpdate;
 	
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "bb_item_appendix_id")
 	BBItemAppendix appendix;
 	
@@ -149,6 +151,10 @@ public class BBItemHead extends Model {
 	 */
 	public List<BBItemHead> findListForUser(User user) {
 		return bbItemHeadModelService.findListForUser(user);
+	}
+	
+	public Set<BBItemHead> findSetByUserCategory(User user, BBCategory category) {
+		return bbItemHeadModelService.findSetByUserCategory(user, category);
 	}
 	
 	
