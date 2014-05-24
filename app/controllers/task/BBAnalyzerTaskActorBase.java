@@ -29,7 +29,7 @@ public class BBAnalyzerTaskActorBase {
 	}
 	
 	public void start() throws ParseException {
-		Time.CronExpression cron = new Time.CronExpression("1 * * * * ?");
+		Time.CronExpression cron = new Time.CronExpression("0 4,11,18 * * * ?");
 		Date nextValidTimeAfter = cron.getNextValidTimeAfter(new Date());
 		FiniteDuration finiteDuraion = Duration.create(
 				nextValidTimeAfter.getTime() - System.currentTimeMillis(),

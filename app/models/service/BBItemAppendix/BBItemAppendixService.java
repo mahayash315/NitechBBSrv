@@ -56,8 +56,6 @@ public class BBItemAppendixService {
 		this.head = head;
 		this.user = head.getUser();
 		
-		Logger.info("BBItemAppendixService#estimateCategoryUsingNaiveBayes(head): 1");
-		
 		// 形態素解析器を初期化
 		Tokenizer tokenizer = Tokenizer.builder().build();
 		
@@ -70,7 +68,6 @@ public class BBItemAppendixService {
 			}
 			categories.add(category);
 		}
-		Logger.info("BBItemAppendixService#estimateCategoryUsingNaiveBayes(head): 2");
 		
 		// 掲示タイトルを形態素解析
 		List<Token> tokens = tokenizer.tokenize(head.getTitle());
@@ -89,8 +86,6 @@ public class BBItemAppendixService {
 			}
 		}
 
-		Logger.info("BBItemAppendixService#estimateCategoryUsingNaiveBayes(head): 3");
-		
 		// ナイーブベイズ推定
 		BBCategory maxCategory = null;
 		double maxPcd = 0;

@@ -52,9 +52,9 @@ public class BBNaiveBayesParamService {
 		// 各カテゴリで NaiveBayes パラメータを計算する
 		for(BBCategory category : categories) {
 			Set<BBItemHead> itemsInCategory = new BBItemHead().findSetByUserCategory(user, category);
-			Logger.info("BBNaiveBayesParamService#calcParam(): ----------------- calcParamPerCategory(): began -----------------");
+			Logger.info("BBNaiveBayesParamService#calcParam(): began (category = "+category.getName()+")");
 			calcParamPerCategory(category, itemsInCategory);
-			Logger.info("BBNaiveBayesParamService#calcParam(): ----------------- calcParamPerCategory(): done  -----------------");
+			Logger.info("BBNaiveBayesParamService#calcParam(): end");
 		}
 	}
 	
@@ -81,7 +81,6 @@ public class BBNaiveBayesParamService {
 		Set<BBWord> words = new HashSet<BBWord>();
 		for(BBItemHead item : items) {
 			String title = item.getTitle();
-			Logger.info("BBNaiveBayesParamService#initParamsForUser(): title = "+title);
 			if (title == null || title.isEmpty()) {
 				continue;
 			}
@@ -107,14 +106,11 @@ public class BBNaiveBayesParamService {
 				throw new Exception("Failed to unique() or store() word "+word.toString()+" for user "+user.toString());
 			}
 
-			Logger.info("BBNaiveBayesParamService#initParamsForUser(): word = "+word.getSurface());
 			for(BBCategory category : categories) {
-				Logger.info("BBNaiveBayesParamService#initParamsForUser():  category="+category.getName());
 				BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).uniqueOrStore();
 				param.setGaussMyu(DEFAULT_GAUSS_MYU_VALUE);
 				param.setPoissonLambda(DEFAULT_POISSON_LAMBDA_VALUE);
 				param = param.store();
-				Logger.info("BBNaiveBayesParamService#initParamsForUser(): done, param.OPTLOCK="+param.getOptLock());
 			}
 		}
 	}
@@ -170,11 +166,9 @@ public class BBNaiveBayesParamService {
 			if (param == null) {
 				throw new Exception("Missing BBNaiveBayesParam for user "+user.toString()+", word "+word.toString()+", category "+category.toString());
 			}
-			Logger.info("                   --> found entry (id="+param.getId()+", versionNum="+param.getOptLock()+")");
 			Double d = wordCounts.get(surface);
 			param.setGaussMyu(d);
 			param.setPoissonLambda(d);
-			Logger.info("                   --> updating");
 			param.store();
 		}
 	}

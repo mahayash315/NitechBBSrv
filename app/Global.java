@@ -1,4 +1,5 @@
 import java.lang.reflect.Method;
+import java.text.ParseException;
 
 import play.Application;
 import play.GlobalSettings;
@@ -17,11 +18,11 @@ public class Global extends GlobalSettings {
 		super.onStart(arg0);
 		
 		// バッチ処理のスケジュール設定
-//		try {
-//			BBAnalyzerTaskActorBase.getInstance().start();
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			BBAnalyzerTaskActorBase.getInstance().start();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

@@ -1,9 +1,12 @@
 package controllers.task;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import models.entity.User;
 import models.service.BBNaiveBayesParam.BBNaiveBayesParamService;
+import play.Logger;
 import akka.actor.UntypedActor;
 
 import com.avaje.ebean.Ebean;
@@ -17,7 +20,13 @@ public class BBAnalyzerTaskActor extends UntypedActor {
 		if (message.equals("Call")) {
 			// バッチ処理を行う
 			
-			calcNaiveBayesParams();
+			Map<User, Exception> errors = calcNaiveBayesParams();
+			if (0 <= errors.size()) {
+				Logger.error("BBAnalyzerTaskActor#onReceive(): errors occurred while executing the task");
+				for(User user : errors.keySet()) {
+					Logger.error("user = "+user.toString()+", exeption = "+errors.get(user).getLocalizedMessage());
+				}
+			}
 			
 		} else {
 			unhandled(message);
@@ -28,10 +37,12 @@ public class BBAnalyzerTaskActor extends UntypedActor {
 	
 	
 	
-	private void calcNaiveBayesParams() throws Exception {
+	private Map<User, Exception> calcNaiveBayesParams() throws Exception {
 
 		// ユーザ一覧を取得
 		Set<User> users = new User().findSet();
+		
+		Map<User, Exception> errors = new HashMap<User, Exception>();
 		
 		// 各ユーザのパラメータを計算
 		for(User user : users) {
@@ -43,10 +54,12 @@ public class BBAnalyzerTaskActor extends UntypedActor {
 				Ebean.commitTransaction();
 			} catch (Exception e) {
 				Ebean.rollbackTransaction();
-				throw e;
+				errors.put(user, e);
 			} finally {
 				Ebean.endTransaction();
 			}
 		}
+		
+		return errors;
 	}
 }
