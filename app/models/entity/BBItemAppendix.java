@@ -19,8 +19,7 @@ public class BBItemAppendix extends Model {
 	@Id
 	Long id;
 	
-	@OneToOne
-	@JoinColumn(name = "bb_item_head_id")
+	@OneToOne(mappedBy = "appendix")
 	BBItemHead head;
 	
 	@ManyToOne

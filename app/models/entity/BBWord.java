@@ -83,6 +83,14 @@ public class BBWord extends Model {
 		return null;
 	}
 	
+	public BBWord uniqueOrStore() {
+		BBWord o = unique();
+		if (o == null) {
+			o = bbWordModelService.save(this);
+		}
+		return o;
+	}
+	
 	/* getter, setter */
 
 	public Long getId() {

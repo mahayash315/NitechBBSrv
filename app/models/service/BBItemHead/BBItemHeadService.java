@@ -9,6 +9,7 @@ import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
 import models.service.BBItemAppendix.BBItemAppendixService;
 import models.service.User.UserModelService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
+import play.Logger;
 
 public class BBItemHeadService {
 	
@@ -40,6 +41,7 @@ public class BBItemHeadService {
 			}
 		}
 		
+		int c = 0;
 		// 各 BBItemHead に関して
 		for (models.request.api.bbanalyzer.BBItemHead itemHead : request.list) {
 			BBItemHead item = BBItemHeadModelService.use().findByUserDateIndex(user, itemHead.getIdDate(), itemHead.getIdIndex());
@@ -71,8 +73,15 @@ public class BBItemHeadService {
 			// カテゴリ推定
 			BBCategory category = bbItemAppendixService.estimateCategory(item);
 			if (category != null) {
-				BBItemAppendix appendix = new BBItemAppendix(item, category);
-				item.setAppendix(appendix);
+				++c;
+				BBItemAppendix appendix = item.getAppendix();
+				if (appendix == null) {
+					appendix = new BBItemAppendix(item, category);
+					item.setAppendix(appendix);
+				} else {
+					appendix.setCategory(category);
+				}
+				appendix.store();
 			}
 			
 			if (item.store() == null) {
@@ -80,6 +89,7 @@ public class BBItemHeadService {
 				return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
+		Logger.info("ESTIMATED "+c+" ITEMS");
 		
 		// 成功
 		BBNewItemHeadsResponse response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getOKResponse());

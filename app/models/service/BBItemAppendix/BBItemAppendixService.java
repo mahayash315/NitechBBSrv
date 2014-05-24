@@ -15,6 +15,7 @@ import models.setting.BBItemAppendixSetting;
 import org.atilika.kuromoji.Token;
 import org.atilika.kuromoji.Tokenizer;
 
+import play.Logger;
 import utils.bbanalyzer.MathUtil;
 
 public class BBItemAppendixService {
@@ -37,7 +38,7 @@ public class BBItemAppendixService {
 		try {
 			return estimateCategoryUsingNaiveBayes(head);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return null;
 	}
@@ -94,6 +95,8 @@ public class BBItemAppendixService {
 				maxPcd = Pcd;
 			}
 		}
+		
+		Logger.info("estimated as category "+maxCategory.getName()+" with its probability "+maxPcd);
 		
 		return maxCategory;
 	}

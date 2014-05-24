@@ -73,6 +73,14 @@ public class BBCategory extends Model {
 		return null;
 	}
 	
+	public BBCategory uniqueOrStore() {
+		BBCategory o = unique();
+		if (o == null) {
+			o = bbCategoryModelService.save(this);
+		}
+		return o;
+	}
+	
 	/* getter, setter */
 
 	public Long getId() {

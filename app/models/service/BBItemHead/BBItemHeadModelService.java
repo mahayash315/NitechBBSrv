@@ -1,5 +1,7 @@
 package models.service.BBItemHead;
 
+import java.util.List;
+
 import models.entity.BBItemHead;
 import models.entity.User;
 import models.service.Model.ModelService;
@@ -84,6 +86,21 @@ public class BBItemHeadModelService implements ModelService<Long, BBItemHead> {
 	public BBItemHead findByUserDateIndex(BBItemHead entry) {
 		if (entry != null) {
 			return findByUserDateIndex(entry.getUser(), entry.getIdDate(), entry.getIdIndex());
+		}
+		return null;
+	}
+	
+	/**
+	 * user に対するエントリ一覧を取得する
+	 * @param user
+	 * @return
+	 */
+	public List<BBItemHead> findListForUser(User user) {
+		if (user != null) {
+			return BBItemHead.find
+						.where()
+							.eq("user", user)
+						.findList();
 		}
 		return null;
 	}

@@ -1,6 +1,7 @@
 package models.entity;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -60,7 +61,8 @@ public class BBItemHead extends Model {
 	@Column(name = "last_update")
 	Date lastUpdate;
 	
-	@OneToOne(mappedBy = "head", fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "bb_item_appendix_id")
 	BBItemAppendix appendix;
 	
 //	@Version
@@ -138,6 +140,15 @@ public class BBItemHead extends Model {
 		if (id != null) {
 			bbItemHeadModelService.delete(this);
 		}
+	}
+	
+	/**
+	 * ユーザに対するエントリ一覧を取得する
+	 * @param user
+	 * @return
+	 */
+	public List<BBItemHead> findListForUser(User user) {
+		return bbItemHeadModelService.findListForUser(user);
 	}
 	
 	

@@ -23,12 +23,18 @@ import play.Logger;
 public class BBNaiveBayesParamService {
 	
 	private static final long DEFAULT_FETCH_OPENTIME_SPAN = 30L * 24L * 60L * 60L * 1000L;
-	private static final double PARAM_CATEGORIZE_SPAN = 0.5;
+	private static final double DEFAULT_GAUSS_MYU_VALUE = 0.0;
+	private static final double DEFAULT_POISSON_LAMBDA_VALUE = 0.0;
 	
+	private Tokenizer tokenizer;
 	private User user;
 
 	public static BBNaiveBayesParamService use() {
 		return new BBNaiveBayesParamService();
+	}
+	
+	public BBNaiveBayesParamService() {
+		tokenizer = Tokenizer.builder().build();
 	}
 	
 	public void calcParam(User user) throws Exception {
@@ -51,6 +57,52 @@ public class BBNaiveBayesParamService {
 				BBItemAppendix appendix = new BBItemAppendix(item, category);
 				item.setAppendix(appendix);
 				item.store();
+			}
+		}
+	}
+	
+	/**
+	 * ユーザに対する推定に使用するパラメータを初期化する。
+	 * 現在取得済みの BBItemHead すべてに含まれる単語に関して
+	 * 重みを初期化する
+	 * @throws Exception 
+	 */
+	public void initParamsForUser() throws Exception {
+		if (user == null) {
+			return;
+		}
+		
+		// 全記事取得
+		List<BBItemHead> items = new BBItemHead().findListForUser(user);
+		if (items == null) {
+			return;
+		}
+		
+		// 全カテゴリ取得
+		Set<BBCategory> categories = new HashSet<BBCategory>();
+		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
+			categories.add(new BBCategory(user, catName).uniqueOrStore());
+		}
+		
+		// パラメータを初期化
+		Set<BBWord> words = new HashSet<BBWord>();
+		for(BBItemHead item : items) {
+			String title = item.getTitle();
+			if (title == null || title.isEmpty()) {
+				continue;
+			}
+			
+			List<Token> tokens = tokenizer.tokenize(title);
+			for(Token token : tokens) {
+				BBWord word = new BBWord(token.getSurfaceForm(), token.getAllFeaturesArray(), token.isKnown()).uniqueOrStore();
+				if (word == null) {
+					throw new Exception("Failed to unique() or store() word "+word.toString()+" for user "+user.toString());
+				}
+				
+				for(BBCategory category : categories) {
+					BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category, DEFAULT_GAUSS_MYU_VALUE, DEFAULT_POISSON_LAMBDA_VALUE);
+					param.store();
+				}
 			}
 		}
 	}
@@ -96,7 +148,7 @@ public class BBNaiveBayesParamService {
 		double d_diff_from_average = 0.0;
 		double count_average = 0.0;
 		double count_variance = 0.0;
-		double pow_count_variance = 0.0;
+		//double pow_count_variance = 0.0;
 		double total_item_num = (double) items.size();
 		double normalized_value = 0.0;
 		for(BBItemHead item : items) {
@@ -106,10 +158,10 @@ public class BBNaiveBayesParamService {
 		for(BBItemHead item : items) {
 			ParamHolder param = params.get(item);
 			d_tmp = (param.count - count_average);
-			d_diff_from_average = d_tmp*d_tmp;
+			d_diff_from_average += d_tmp*d_tmp;
 		}
 		count_variance = d_diff_from_average / total_item_num;
-		pow_count_variance = count_variance * count_variance;
+		//pow_count_variance = count_variance * count_variance;
 		Logger.info("BBNaiveBayesParam#categorize(List<BBReadHistory): 3");
 		
 		double total_category_num = (double) BBItemAppendixSetting.CATEGORY_NAMES.length;
@@ -119,11 +171,16 @@ public class BBNaiveBayesParamService {
 			ParamHolder param = params.get(item);
 			
 			// 標準化
-			normalized_value = (param.count - count_average) / pow_count_variance;
+			normalized_value = (param.count - count_average) / count_variance;
 			
 			// カテゴリ分類
-			int catNum = (int) ((normalized_value + half_category_num) / (total_category_num-1.0));
+			int catNum = (int) ((normalized_value / total_category_num) + half_category_num);
 			catNum = catNum + 1;
+			Logger.info("normalized_value=="+normalized_value);
+			Logger.info("half_category_num="+half_category_num);
+			Logger.info("total_category_num="+total_category_num);
+			Logger.info("calculated catNum="+catNum);
+			Logger.info("calculated catNumInDouble = "+(double)((normalized_value / total_category_num) + half_category_num));
 			if (catNum < 1) {
 				catNum = 1;
 			} else if (BBItemAppendixSetting.CATEGORY_NAMES.length <= catNum) {
@@ -158,9 +215,6 @@ public class BBNaiveBayesParamService {
 	 * @throws Exception 
 	 */
 	private void calcParamPerCategory(BBCategory category, Set<BBItemHead> items) throws Exception {
-		// 形態素解析器を初期化
-		Tokenizer tokenizer = Tokenizer.builder().build();
-
 		// Map 初期化
 		Map<BBWord, Double> words = new HashMap<BBWord, Double>();
 		
@@ -177,8 +231,9 @@ public class BBNaiveBayesParamService {
 				if (isNounOrVerb(token)) {
 					BBWord word = new BBWord(token.getSurfaceForm()).unique();
 					if (word == null) {
-						word = new BBWord(token.getSurfaceForm(), token.getAllFeaturesArray(), token.isKnown());
-						word.store();
+//						word = new BBWord(token.getSurfaceForm(), token.getAllFeaturesArray(), token.isKnown());
+//						word.store();
+						throw new Exception("Missing param for "+word.toString()+", user "+user.toString());
 					}
 					if (!wordsPerItem.containsKey(word)) {
 						wordsPerItem.put(word, Integer.valueOf(0));

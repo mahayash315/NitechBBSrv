@@ -8,6 +8,7 @@ import models.service.BBItemHead.BBItemHeadService;
 import models.service.BBReadHistory.BBReadHistoryService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.setting.api.bbanalyzer.BBAnalyzerStatusSetting;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
@@ -51,8 +52,10 @@ public class BBAnalyzer extends Controller {
 
 				// OK の場合のみ commit する
 				if (response.getCode().equals(BBAnalyzerStatusSetting.OK.getCode())) {
+					Logger.info("COMMIT");
 					Ebean.commitTransaction();
 				} else {
+					Logger.info("ROLLBACK");
 					Ebean.rollbackTransaction();
 				}
 			} catch (Exception e0) {

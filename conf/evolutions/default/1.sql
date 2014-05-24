@@ -13,7 +13,6 @@ create table bb_category (
 
 create table bb_item_appendix (
   id                        bigint auto_increment not null,
-  bb_item_head_id           bigint,
   bb_category_id            bigint,
   constraint pk_bb_item_appendix primary key (id))
 ;
@@ -28,6 +27,7 @@ create table bb_item_head (
   author                    longtext,
   title                     longtext,
   last_update               datetime,
+  bb_item_appendix_id       bigint,
   constraint uq_bb_item_head_1 unique (user_id,id_date,id_index),
   constraint pk_bb_item_head primary key (id))
 ;
@@ -83,12 +83,12 @@ create table user (
 
 alter table bb_category add constraint fk_bb_category_user_1 foreign key (user_id) references user (id) on delete restrict on update restrict;
 create index ix_bb_category_user_1 on bb_category (user_id);
-alter table bb_item_appendix add constraint fk_bb_item_appendix_head_2 foreign key (bb_item_head_id) references bb_item_head (id) on delete restrict on update restrict;
-create index ix_bb_item_appendix_head_2 on bb_item_appendix (bb_item_head_id);
-alter table bb_item_appendix add constraint fk_bb_item_appendix_category_3 foreign key (bb_category_id) references bb_category (id) on delete restrict on update restrict;
-create index ix_bb_item_appendix_category_3 on bb_item_appendix (bb_category_id);
-alter table bb_item_head add constraint fk_bb_item_head_user_4 foreign key (user_id) references user (id) on delete restrict on update restrict;
-create index ix_bb_item_head_user_4 on bb_item_head (user_id);
+alter table bb_item_appendix add constraint fk_bb_item_appendix_category_2 foreign key (bb_category_id) references bb_category (id) on delete restrict on update restrict;
+create index ix_bb_item_appendix_category_2 on bb_item_appendix (bb_category_id);
+alter table bb_item_head add constraint fk_bb_item_head_user_3 foreign key (user_id) references user (id) on delete restrict on update restrict;
+create index ix_bb_item_head_user_3 on bb_item_head (user_id);
+alter table bb_item_head add constraint fk_bb_item_head_appendix_4 foreign key (bb_item_appendix_id) references bb_item_appendix (id) on delete restrict on update restrict;
+create index ix_bb_item_head_appendix_4 on bb_item_head (bb_item_appendix_id);
 alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_user_5 foreign key (user_id) references user (id) on delete restrict on update restrict;
 create index ix_bb_naive_bayes_param_user_5 on bb_naive_bayes_param (user_id);
 alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_word_6 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
