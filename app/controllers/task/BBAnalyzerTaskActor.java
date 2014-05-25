@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import models.entity.User;
-import models.service.BBNaiveBayesParam.BBNaiveBayesParamService;
+import models.service.BBAnalyzer.BBAnalyzerService;
 import play.Logger;
 import akka.actor.UntypedActor;
 
@@ -13,7 +13,7 @@ import com.avaje.ebean.Ebean;
 
 public class BBAnalyzerTaskActor extends UntypedActor {
 	
-	private BBNaiveBayesParamService bbNaiveBayesParamService = new BBNaiveBayesParamService();
+	private BBAnalyzerService bbAnalyzerService = new BBAnalyzerService();
 
 	@Override
 	public void onReceive(Object message) throws Exception {
@@ -49,7 +49,7 @@ public class BBAnalyzerTaskActor extends UntypedActor {
 			Ebean.beginTransaction();
 			try {
 				// ベイズ推定用パラメータの設定
-				bbNaiveBayesParamService.calcParam(user);
+				bbAnalyzerService.train(user);
 				
 				Ebean.commitTransaction();
 			} catch (Exception e) {

@@ -5,7 +5,7 @@ import java.util.Set;
 import models.entity.User;
 import models.request.bbanalyzer.BBAnalyzerRequest;
 import models.response.bbanalyzer.BBAnalyzerResult;
-import models.service.BBNaiveBayesParam.BBNaiveBayesParamService;
+import models.service.BBAnalyzer.BBAnalyzerService;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -87,7 +87,7 @@ public class BBAnalyzer extends Controller {
 			Ebean.beginTransaction();
 			try {
 				// ベイズ推定用パラメータの設定
-				BBNaiveBayesParamService.use().calcParam(user);
+				BBAnalyzerService.use().train(user);
 				
 				Ebean.commitTransaction();
 			} catch (Exception e) {
