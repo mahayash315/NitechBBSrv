@@ -6,14 +6,13 @@ import models.entity.BBItemHead;
 import models.entity.User;
 import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
-import models.service.BBItemAppendix.BBItemAppendixService;
 import models.service.User.UserModelService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import play.Logger;
 
 public class BBItemHeadService {
 	
-	private BBItemAppendixService bbItemAppendixService = new BBItemAppendixService();
+	private models.service.BBAnalyzer.BBAnalyzerService bbAnalyzerService = new models.service.BBAnalyzer.BBAnalyzerService();
 
 	public static BBItemHeadService use() {
 		return new BBItemHeadService();
@@ -71,7 +70,7 @@ public class BBItemHeadService {
 			}
 			
 			// カテゴリ推定
-			BBCategory category = bbItemAppendixService.estimateCategory(item);
+			BBCategory category = bbAnalyzerService.estimate(user, item);
 			if (category != null) {
 				++c;
 				BBItemAppendix appendix = item.getAppendix();

@@ -263,7 +263,7 @@ public class BBAnalyzerService {
 		double maxPcd = 0;
 		for(BBCategory category : categories) {
 			double Pcd = calcProbCGivenD(category, wordCounter);
-			Logger.info("Pcd for category "+category.getName()+" = "+Pcd);
+			Logger.info("BBAnalyzerService#estimateCategoryUsingNaiveBayes(): Probability for this new item to be in the category "+category.getName()+" is "+Pcd);
 			if (maxPcd < Pcd) {
 				maxCategory = category;
 				maxPcd = Pcd;
