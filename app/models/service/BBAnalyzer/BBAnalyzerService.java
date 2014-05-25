@@ -61,7 +61,7 @@ public class BBAnalyzerService {
 		}
 
 		// 全記事取得
-		documents = new BBItemHead().findSetForUser(user);
+		documents = new BBItemHead().findSetForUserWithCategory(user);
 		if (documents == null) {
 			return;
 		}

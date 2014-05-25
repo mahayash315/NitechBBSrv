@@ -112,11 +112,13 @@ public class BBItemHeadModelService implements ModelService<Long, BBItemHead> {
 	 * @param user
 	 * @return
 	 */
-	public Set<BBItemHead> findSetForUser(User user) {
+	public Set<BBItemHead> findSetForUserWithCategory(User user) {
 		if (user != null) {
 			return BBItemHead.find
 						.where()
 							.eq("user", user)
+							.isNotNull("appendix")
+							.isNotNull("appendix.category")
 						.findSet();
 		}
 		return null;

@@ -155,8 +155,8 @@ public class BBItemHead extends Model {
 		return bbItemHeadModelService.findListForUser(user);
 	}
 	
-	public Set<BBItemHead> findSetForUser(User user) {
-		return bbItemHeadModelService.findSetForUser(user);
+	public Set<BBItemHead> findSetForUserWithCategory(User user) {
+		return bbItemHeadModelService.findSetForUserWithCategory(user);
 	}
 	
 	public Set<BBItemHead> findSetByUserCategory(User user, BBCategory category) {
