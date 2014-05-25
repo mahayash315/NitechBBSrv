@@ -33,6 +33,9 @@ public class BBCategory extends Model {
 	@Column(name = "name", length = 171)
 	String name;
 	
+	@Column(name = "word_count")
+	int wordCount;
+	
 	@Transient
 	BBCategoryService bbCategoryService = new BBCategoryService();
 	@Transient
@@ -106,5 +109,11 @@ public class BBCategory extends Model {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	public int getWordCount() {
+		return wordCount;
+	}
+	public void setWordCount(int wordCount) {
+		this.wordCount = wordCount;
 	}
 }

@@ -40,6 +40,9 @@ public class BBNaiveBayesParam extends Model {
 	@JoinColumn(name = "bb_category_id")
 	BBCategory category;
 	
+	@Column(name = "count")
+	int count;
+	
 	@Column(name = "gauss_myu")
 	double gaussMyu;
 	
@@ -73,11 +76,12 @@ public class BBNaiveBayesParam extends Model {
 		this.category = category;
 	}
 	
-	public BBNaiveBayesParam(User user, BBWord word, BBCategory category, double gaussMyu, double poissonLambda) {
+	public BBNaiveBayesParam(User user, BBWord word, BBCategory category, int count, double gaussMyu, double poissonLambda) {
 		super();
 		this.user = user;
 		this.word = word;
 		this.category = category;
+		this.count = count;
 		this.gaussMyu = gaussMyu;
 		this.poissonLambda = poissonLambda;
 	}
@@ -146,6 +150,14 @@ public class BBNaiveBayesParam extends Model {
 
 	public void setCategory(BBCategory category) {
 		this.category = category;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
 	}
 
 	public double getGaussMyu() {

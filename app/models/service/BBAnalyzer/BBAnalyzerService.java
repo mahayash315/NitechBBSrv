@@ -21,15 +21,19 @@ import play.Logger;
 import utils.bbanalyzer.MathUtil;
 
 public class BBAnalyzerService {
-	
+
+	private static final int DEFAULT_COUNT = 0;
 	private static final double DEFAULT_GAUSS_MYU_VALUE = 0.0;
 	private static final double DEFAULT_POISSON_LAMBDA_VALUE = 10E-4;
+	private static final double SMOOTHING_ALPHA = 1.0;
 	
 	private MathUtil mathUtil;
 	private Tokenizer tokenizer;
 	private User user;
 	private Map<BBCategory, Set<BBItemHead>> categorized;
+	private Map<BBCategory, Set<String>> wordsPerCategory;
 	private Set<String> surfaceSet;
+	private double smoothFactor = 0.0;
 	
 	public static BBAnalyzerService use() {
 		return new BBAnalyzerService();
@@ -47,14 +51,19 @@ public class BBAnalyzerService {
 		
 		// categorized 初期化
 		categorized = new HashMap<BBCategory, Set<BBItemHead>>();
+		wordsPerCategory = new HashMap<BBCategory, Set<String>>();
 		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
 			BBCategory category = new BBCategory(user, catName).uniqueOrStore();
 			categorized.put(category, new HashSet<BBItemHead>());
+			wordsPerCategory.put(category, new HashSet<String>());
 		}
 		
 		// パラメータ初期化
 		initParams();
 
+		// 単語数設定
+		setWordCounts();
+		
 		// 各カテゴリで NaiveBayes パラメータを計算する
 		for(BBCategory category : categorized.keySet()) {
 			Logger.info("BBNaiveBayesParamService#calcParam(): began (category = "+category.getName()+")");
@@ -93,43 +102,66 @@ public class BBAnalyzerService {
 		
 		surfaceSet = new HashSet<String>();
 		
-		// トークンの抽出とカテゴリ分類
+		// カテゴリ分類とトークンの抽出
 		for(BBItemHead item : items) {
 			String title = item.getTitle();
 			if (title == null || title.isEmpty()) {
 				continue;
 			}
-			
-			List<Token> tokens = tokenizer.tokenize(title);
-			for(Token token : tokens) {
-				String surface = token.getSurfaceForm();
-				if (isNounOrVerbAndNotNumber(token) && !surfaceSet.contains(surface)) {
-					surfaceSet.add(token.getSurfaceForm());
-				}
-			}
-			
+
 			BBCategory category = item.getAppendix().getCategory();
 			if (category == null) {
 				throw new Exception("BBItem has null category");
 			}
 			categorized.get(category).add(item);
+			
+			List<Token> tokens = tokenizer.tokenize(title);
+			for(Token token : tokens) {
+				String surface = token.getSurfaceForm();
+				if (isNounOrVerbAndNotNumber(token)) {
+					if (!surfaceSet.contains(surface)) {
+						surfaceSet.add(surface);
+					}
+					Set<String> catWords = wordsPerCategory.get(category);
+					if (!catWords.contains(surface)) {
+						catWords.add(surface);
+					}
+				}
+			}
 		}
 		
-		// 初期化
+		// すでに登録されている値の初期化
 		for(String surface : surfaceSet) {
 			BBWord word = new BBWord(surface).uniqueOrStore();
 			
 			Logger.info("surface = "+surface);
 			
 			for(BBCategory category : categorized.keySet()) {
-				BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).uniqueOrStore();
-				param.setGaussMyu(DEFAULT_GAUSS_MYU_VALUE);
-				param.setPoissonLambda(DEFAULT_POISSON_LAMBDA_VALUE);
-				param.store();
+				BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).unique();
+				if (param != null) {
+					param.setCount(DEFAULT_COUNT);
+					param.setGaussMyu(DEFAULT_GAUSS_MYU_VALUE);
+					param.setPoissonLambda(DEFAULT_POISSON_LAMBDA_VALUE);
+					param.store();
+				}
 			}
 		}
+		
 	}
 	
+	/**
+	 * ユーザの既知総単語数、カテゴリ内の単語数を設定する
+	 */
+	private void setWordCounts() {
+		// ユーザの既知総単語数を設定する
+		user.setWordCount(surfaceSet.size());
+		user.store();
+		
+		// カテゴリ内の単語数を設定する
+		for(BBCategory category : wordsPerCategory.keySet()) {
+			category.setWordCount(wordsPerCategory.get(category).size());
+		}
+	}
 	
 	/**
 	 * NaiveBayes パラメータを計算する
@@ -139,7 +171,7 @@ public class BBAnalyzerService {
 	 */
 	private void calcParamPerCategory(BBCategory category) throws Exception {
 		// Map 初期化
-		Map<String, Double> averageCounter = new HashMap<String, Double>();
+		Map<String, TrainParamHolder> holder = new HashMap<String, TrainParamHolder>();
 
 		// 記事取得
 		Set<BBItemHead> items = categorized.get(category);
@@ -154,31 +186,33 @@ public class BBAnalyzerService {
 			for(Token token : tokens) {
 				if (isNounOrVerbAndNotNumber(token)) {
 					String surface = token.getSurfaceForm();
-					if (!averageCounter.containsKey(surface)) {
-						averageCounter.put(surface, Double.valueOf(0.0));
+					if (!holder.containsKey(surface)) {
+						holder.put(surface, new TrainParamHolder());
 					}
-					double d = averageCounter.get(surface).doubleValue();
-					d = d + weight_per_word;
-					averageCounter.put(surface, Double.valueOf(d));
+					TrainParamHolder trainParam = holder.get(surface);
+					trainParam.count += 1;
+					trainParam.average += weight_per_word;
+					holder.put(surface, trainParam);
 				}
 			}
 		}
 		
 		// 結果の保存
-		for(String surface : averageCounter.keySet()) {
+		for(String surface : holder.keySet()) {
 			// 平均の出現数を取得
-			Double avg = averageCounter.get(surface);
+			TrainParamHolder trainParam = holder.get(surface);
 
 			// オブジェクト取得
 			BBWord word = new BBWord(surface).unique();
-			BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).unique();
+			BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).uniqueOrStore();
 			if (param == null) {
-				throw new Exception("Missing BBNaiveBayesParam for user "+user.toString()+", word "+word.toString()+", category "+category.toString());
+				throw new Exception("Failed to uniqueOrStore() BBNaiveBayesParam for user "+user.toString()+", word "+word.toString()+", category "+category.toString());
 			}
 			
 			// 保存
-			param.setGaussMyu(avg);
-			param.setPoissonLambda(avg);
+			param.setCount(trainParam.count);
+			param.setGaussMyu(trainParam.average);
+			param.setPoissonLambda(trainParam.average);
 			param.store();
 		}
 	}
@@ -220,6 +254,9 @@ public class BBAnalyzerService {
 				wordCounter.put(surface, Integer.valueOf(wordCounter.get(surface).intValue() + 1));
 			}
 		}
+		
+		// 値の準備
+		smoothFactor = SMOOTHING_ALPHA * user.getWordCount();
 
 		// ナイーブベイズ推定
 		BBCategory maxCategory = null;
@@ -253,22 +290,11 @@ public class BBAnalyzerService {
 		double d = 0;
 		
 		for(String surface : words.keySet()) {
-			BBWord word = new BBWord(surface).unique();
-			if (word == null) {
-				Logger.info("(category "+category.getName()+") calcProbWGivenC_Poisson("+words.get(surface).intValue()+", DEFAULT, "+Pc+")");
-				d = DEFAULT_POISSON_LAMBDA_VALUE;
-			} else {
-				BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).unique();
-				if (param == null) {
-					throw new Exception("Missing param for user = "+user+", surface = "+surface+", category = "+category);
-				}
-				Logger.info("(category "+category.getName()+") calcProbWGivenC_Poisson("+words.get(surface).intValue()+", "+param.getPoissonLambda()+", "+Pc+")");
-				d = calcProbWGivenC_Poisson(words.get(surface).intValue(), param.getPoissonLambda(), Pc);
-			}
-			P = P * d;
+			d = calcProbWGivenC(words.get(surface).intValue(), surface, category, Pc);
+			P = P + Math.log(d);
 			Logger.info("                     --> P = "+P);
 		}
-		P = P * Pc;
+		P = P + Math.log(Pc);
 		
 		return P;
 	}
@@ -280,8 +306,18 @@ public class BBAnalyzerService {
 	 * @param Pc P_{C} (c) 事前確率
 	 * @return 条件付き確率 P_{W_i|C} (w_i | c)
 	 */
-	private double calcProbWGivenC_Poisson(int w, double poissonLambda, double Pc) {
-		return Math.pow(poissonLambda, (double)w) / mathUtil.factorial(w).doubleValue() * Math.exp(- poissonLambda);
+//	private double calcProbWGivenC_Poisson(int w, double poissonLambda, double Pc) {
+//		return Math.pow(poissonLambda, (double)w) / mathUtil.factorial(w).doubleValue() * Math.exp(- poissonLambda);
+//	}
+	private double calcProbWGivenC(int w, String surface, BBCategory category, double Pc) {
+		BBWord word = new BBWord(surface).unique();
+		if (word != null) {
+			BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).unique();
+			if (param != null) {
+				return (param.getCount() + SMOOTHING_ALPHA) / (category.getWordCount() + smoothFactor);
+			}
+		}
+		return (DEFAULT_COUNT + SMOOTHING_ALPHA) / (category.getWordCount() + smoothFactor);
 	}
 	
 	/**
@@ -298,5 +334,11 @@ public class BBAnalyzerService {
 	private boolean isNounOrVerbAndNotNumber(Token t) {
 		String[] arr = t.getAllFeaturesArray();
 		return ((arr[0].contains("名詞") || arr[0].equals("動詞")) && !arr[1].equals("数"));
+	}
+	
+	
+	private class TrainParamHolder {
+		int count = 0;
+		double average = 0.0;
 	}
 }

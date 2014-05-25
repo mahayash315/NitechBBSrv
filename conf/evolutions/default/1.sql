@@ -7,6 +7,7 @@ create table bb_category (
   id                        bigint auto_increment not null,
   user_id                   bigint,
   name                      varchar(171),
+  word_count                integer,
   constraint uq_bb_category_1 unique (user_id,name),
   constraint pk_bb_category primary key (id))
 ;
@@ -37,6 +38,7 @@ create table bb_naive_bayes_param (
   user_id                   bigint,
   bb_word_id                bigint,
   bb_category_id            bigint,
+  count                     integer,
   gauss_myu                 double,
   poisson_lambda            double,
   OPTLOCK                   integer not null,
@@ -79,6 +81,7 @@ create table mock_bb_item (
 create table user (
   id                        bigint auto_increment not null,
   hashed_nitech_id          varchar(191),
+  bb_analyzer_word_count    integer,
   constraint pk_user primary key (id))
 ;
 

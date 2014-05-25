@@ -32,6 +32,8 @@ public class User extends Model {
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
 	List<BBReadHistory> readHistories;
 	
+	@Column(name = "bb_analyzer_word_count")
+	int wordCount;
 	
 	@Transient
 	UserService userService = new UserService();
@@ -73,7 +75,7 @@ public class User extends Model {
 //			return userModelService.save(this);
 //		}
 //		return userModelService.update(this, o.getId());
-		return userModelService.update(this);
+		return userModelService.save(this);
 	}
 	
 	/**
@@ -140,5 +142,13 @@ public class User extends Model {
 
 	public void setReadHistory(List<BBReadHistory> readHistory) {
 		this.readHistories = readHistory;
+	}
+
+	public int getWordCount() {
+		return wordCount;
+	}
+
+	public void setWordCount(int wordCount) {
+		this.wordCount = wordCount;
 	}
 }
