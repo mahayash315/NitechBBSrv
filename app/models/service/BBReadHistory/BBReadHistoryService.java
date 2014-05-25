@@ -16,7 +16,7 @@ import models.response.api.bbanalyzer.BBReadHistoryResponse;
 import models.service.BBItemHead.BBItemHeadModelService;
 import models.service.User.UserModelService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
-import models.setting.BBItemAppendixSetting;
+import models.setting.BBAnalyzerSetting;
 import play.Logger;
 
 public class BBReadHistoryService {
@@ -104,7 +104,7 @@ public class BBReadHistoryService {
 		
 		// カテゴリ準備
 		Map<String, BBCategory> categories = new HashMap<String, BBCategory>();
-		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
+		for(String catName : BBAnalyzerSetting.CATEGORY_NAMES) {
 			BBCategory category = new BBCategory(user, catName).unique();
 			if (category == null) {
 				category = new BBCategory(user, catName).store();
@@ -159,7 +159,7 @@ public class BBReadHistoryService {
 		Logger.info("count_average = "+count_average);
 		Logger.info("count_variance = "+count_variance);
 		
-		double total_category_num = (double) BBItemAppendixSetting.CATEGORY_NAMES.length;
+		double total_category_num = (double) BBAnalyzerSetting.CATEGORY_NAMES.length;
 		double divide_value = STANDARD_NORMAL_DISTRIBUTION_MAXIMUM / total_category_num;
 		Logger.info("total_category_num = "+total_category_num);
 		Logger.info("divide_value = "+divide_value);
@@ -180,8 +180,8 @@ public class BBReadHistoryService {
 			Logger.info("(item "+item.getId()+") calculated catNum="+catNum);
 			if (catNum < 1) {
 				catNum = 1;
-			} else if (BBItemAppendixSetting.CATEGORY_NAMES.length <= catNum) {
-				catNum = BBItemAppendixSetting.CATEGORY_NAMES.length;
+			} else if (BBAnalyzerSetting.CATEGORY_NAMES.length <= catNum) {
+				catNum = BBAnalyzerSetting.CATEGORY_NAMES.length;
 			}
 
 			BBCategory category = categories.get(String.valueOf(catNum));

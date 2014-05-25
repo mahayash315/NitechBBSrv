@@ -12,7 +12,7 @@ import models.entity.BBItemHead;
 import models.entity.BBNaiveBayesParam;
 import models.entity.BBWord;
 import models.entity.User;
-import models.setting.BBItemAppendixSetting;
+import models.setting.BBAnalyzerSetting;
 
 import org.atilika.kuromoji.Token;
 import org.atilika.kuromoji.Tokenizer;
@@ -54,7 +54,7 @@ public class BBAnalyzerService {
 		// categorized 初期化
 		categorized = new HashMap<BBCategory, Set<BBItemHead>>();
 		wordsPerCategory = new HashMap<BBCategory, Set<String>>();
-		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
+		for(String catName : BBAnalyzerSetting.CATEGORY_NAMES) {
 			BBCategory category = new BBCategory(user, catName).uniqueOrStore();
 			categorized.put(category, new HashSet<BBItemHead>());
 			wordsPerCategory.put(category, new HashSet<String>());
@@ -70,7 +70,7 @@ public class BBAnalyzerService {
 		initParams();
 
 		// 単語数設定
-		setWordCounts();
+		setCounters();
 		
 		// 各カテゴリで NaiveBayes パラメータを計算する
 		for(BBCategory category : categorized.keySet()) {
@@ -87,7 +87,15 @@ public class BBAnalyzerService {
 	public BBCategory estimate(User user, BBItemHead item) throws Exception {
 		this.user = user;
 		
-		return estimateCategoryUsingNaiveBayes(item);
+		// しきい値との比較
+		if (user.getDocumentCount() < BBAnalyzerSetting.MINIMUM_USER_DOCUMENT_COUNT_TO_ESTIMATE) {
+			return null;
+		}
+		if (user.getWordCount() < BBAnalyzerSetting.MINIMUM_USER_WORD_COUNT_TO_ESTIMATE) {
+			return null;
+		}
+		
+		return estimateCategory(item);
 	}
 	
 	
@@ -154,7 +162,7 @@ public class BBAnalyzerService {
 	/**
 	 * ユーザの既知総単語数、カテゴリ内の単語数を設定する
 	 */
-	private void setWordCounts() {
+	private void setCounters() {
 		// ユーザの既知総単語数を設定する
 		user.setDocumentCount(documents.size());
 		user.setWordCount(surfaceSet.size());
@@ -228,16 +236,16 @@ public class BBAnalyzerService {
 	 * @return
 	 * @throws Exception
 	 */
-	private BBCategory estimateCategoryUsingNaiveBayes(BBItemHead item) throws Exception {
+	private BBCategory estimateCategory(BBItemHead item) throws Exception {
 		// アサート
 		if (item == null || item.getTitle() == null) {
-			Logger.error("BBAnalyzerService#estimateCategoryUsingNaiveBayes(item): null item given, or item.getTitle() == null");
+			Logger.error("BBAnalyzerService#estimateCategory(item): null item given, or item.getTitle() == null");
 			return null;
 		}
 		
 		// カテゴリ一覧を取得
 		List<BBCategory> categories = new ArrayList<BBCategory>();
-		for(String catName : BBItemAppendixSetting.CATEGORY_NAMES) {
+		for(String catName : BBAnalyzerSetting.CATEGORY_NAMES) {
 			BBCategory category = new BBCategory(user, catName).unique();
 			if (category == null) {
 				throw new Exception("Missing category "+catName+" for user "+user.toString());
@@ -264,12 +272,12 @@ public class BBAnalyzerService {
 		smoothFactor = SMOOTHING_ALPHA * user.getWordCount();
 
 		// ナイーブベイズ推定
-		Logger.info("BBAnalyzerService#estimateCategoryUsingNaiveBayes(): estimating "+item.getTitle());
+		Logger.info("BBAnalyzerService#estimateCategory(): estimating "+item.getTitle());
 		BBCategory maxCategory = null;
 		double maxPcd = - Integer.MAX_VALUE;
 		for(BBCategory category : categories) {
 			double Pcd = calcProbCGivenD(category, wordCounter);
-			Logger.info("BBAnalyzerService#estimateCategoryUsingNaiveBayes(): Prob (cat="+category.getName()+") = "+Pcd);
+			Logger.info("BBAnalyzerService#estimateCategory(): Prob (cat="+category.getName()+") = "+Pcd);
 			if (maxPcd < Pcd) {
 				maxCategory = category;
 				maxPcd = Pcd;
