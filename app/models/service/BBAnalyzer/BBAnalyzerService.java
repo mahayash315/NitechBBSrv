@@ -153,6 +153,7 @@ public class BBAnalyzerService {
 					param.setGaussMyu(DEFAULT_GAUSS_MYU_VALUE);
 					param.setPoissonLambda(DEFAULT_POISSON_LAMBDA_VALUE);
 					param.store();
+//					Logger.info("initialized param word = "+word.getSurface()+" .cat="+category.getName());
 				}
 			}
 		}
@@ -227,6 +228,7 @@ public class BBAnalyzerService {
 			param.setGaussMyu(trainParam.average);
 			param.setPoissonLambda(trainParam.average);
 			param.store();
+//			Logger.info("saved param word = "+word.getSurface()+" .cat="+category.getName()+", count="+trainParam.count);
 		}
 	}
 	
@@ -305,7 +307,9 @@ public class BBAnalyzerService {
 		
 		for(String surface : words.keySet()) {
 			d = calcProbWGivenC(words.get(surface).intValue(), surface, category, Pc);
-			P = P + Math.log(d);
+			d = Math.log(d);
+			P = P + d;
+			Logger.info("    "+P+"\t<--- ("+d+")\t"+surface);
 		}
 		P = P + Math.log(Pc);
 		
