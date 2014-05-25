@@ -83,11 +83,12 @@ public class MockBBItem extends Model {
 	/* メソッド */
 	
 	public MockBBItem store() {
-		MockBBItem o = unique();
-		if (o == null) {
-			return mockBBItemModelService.save(this);
-		}
-		return mockBBItemModelService.update(this, o.getId());
+//		MockBBItem o = unique();
+//		if (o == null) {
+//			return mockBBItemModelService.save(this);
+//		}
+//		return mockBBItemModelService.update(this, o.getId());
+		return mockBBItemModelService.save(this);
 	}
 	
 	public MockBBItem unique() {

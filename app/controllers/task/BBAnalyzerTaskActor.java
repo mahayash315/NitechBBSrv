@@ -21,7 +21,7 @@ public class BBAnalyzerTaskActor extends UntypedActor {
 			// バッチ処理を行う
 			
 			Map<User, Exception> errors = calcNaiveBayesParams();
-			if (0 <= errors.size()) {
+			if (0 < errors.size()) {
 				Logger.error("BBAnalyzerTaskActor#onReceive(): errors occurred while executing the task");
 				for(User user : errors.keySet()) {
 					Logger.error("user = "+user.toString()+", exeption = "+errors.get(user).getLocalizedMessage());

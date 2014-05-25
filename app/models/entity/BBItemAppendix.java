@@ -50,11 +50,12 @@ public class BBItemAppendix extends Model {
 	/* インスタンスメソッド */
 
 	public BBItemAppendix store() {
-		BBItemAppendix o = unique();
-		if (o == null) {
-			return bbItemAppendixModelService.save(this);
-		}
-		return bbItemAppendixModelService.update(this, o.getId());
+//		BBItemAppendix o = unique();
+//		if (o == null) {
+//			return bbItemAppendixModelService.save(this);
+//		}
+//		return bbItemAppendixModelService.update(this, o.getId());
+		return bbItemAppendixModelService.save(this);
 	}
 	
 	public BBItemAppendix unique() {

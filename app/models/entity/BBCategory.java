@@ -55,11 +55,12 @@ public class BBCategory extends Model {
 	/* インスタンスメソッド */
 	
 	public BBCategory store() {
-		BBCategory o = unique();
-		if (o == null) {
-			return bbCategoryModelService.save(this);
-		}
-		return bbCategoryModelService.update(this, o.getId());
+//		BBCategory o = unique();
+//		if (o == null) {
+//			return bbCategoryModelService.save(this);
+//		}
+//		return bbCategoryModelService.update(this, o.getId());
+		return bbCategoryModelService.save(this);
 	}
 	
 	public BBCategory unique() {

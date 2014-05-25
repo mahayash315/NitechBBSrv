@@ -70,11 +70,12 @@ public class BBWord extends Model {
 	/* インスタンスメソッド */
 	
 	public BBWord store() {
-		BBWord o = unique();
-		if (o == null) {
-			return bbWordModelService.save(this);
-		}
-		return bbWordModelService.update(this, o.getId());
+//		BBWord o = unique();
+//		if (o == null) {
+//			return bbWordModelService.save(this);
+//		}
+//		return bbWordModelService.update(this, o.getId());
+		return bbWordModelService.save(this);
 	}
 	
 	public BBWord unique() {

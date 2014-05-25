@@ -84,14 +84,15 @@ public class BBNaiveBayesParam extends Model {
 	/* インスタンスメソッド */
 	
 	public BBNaiveBayesParam store() {
-		BBNaiveBayesParam o = unique();
-		if (o == null) {
-			return bbNaiveBayesParamModelService.save(this);
-		}
-		if (id == null) {
-			id = o.getId();
-		}
-		return bbNaiveBayesParamModelService.update(this, o.getId());
+//		BBNaiveBayesParam o = unique();
+//		if (o == null) {
+//			return bbNaiveBayesParamModelService.save(this);
+//		}
+//		if (id == null) {
+//			id = o.getId();
+//		}
+//		return bbNaiveBayesParamModelService.update(this, o.getId());
+		return bbNaiveBayesParamModelService.save(this);
 	}
 	
 	public BBNaiveBayesParam unique() {
@@ -107,7 +108,7 @@ public class BBNaiveBayesParam extends Model {
 	public BBNaiveBayesParam uniqueOrStore() {
 		BBNaiveBayesParam o = unique();
 		if (o == null) {
-			o = bbNaiveBayesParamModelService.save(this);
+			o = store();
 		}
 		return o;
 	}

@@ -113,11 +113,13 @@ public class BBItemHead extends Model {
 	public BBItemHead store() {
 		lastUpdate = new Date();
 		
-		BBItemHead o = unique();
-		if (o == null) {
-			return bbItemHeadModelService.save(this);
-		}
-		return bbItemHeadModelService.update(this, o.getId());
+//		BBItemHead o = unique();
+//		if (o == null) {
+//			return bbItemHeadModelService.save(this);
+//		}
+//		return bbItemHeadModelService.update(this, o.getId());
+		
+		return bbItemHeadModelService.save(this);
 	}
 	
 	/**

@@ -124,7 +124,7 @@ public class BBItemAppendixService {
 			
 			Integer w = words.get(word);
 			double d = calcProbWGivenC_Poisson(w.intValue(), param.getPoissonLambda(), Pc);
-			Logger.info("(category "+category.getName()+") calcProbWGivenC_Poisson("+w.intValue()+", "+param.getPoissonLambda()+", "+Pc);
+			Logger.info("(category "+category.getName()+") calcProbWGivenC_Poisson("+w.intValue()+", "+param.getPoissonLambda()+", "+Pc+")");
 			P = P * d;
 			Logger.info("                     --> P = "+P);
 		}
