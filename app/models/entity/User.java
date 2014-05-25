@@ -32,6 +32,9 @@ public class User extends Model {
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
 	List<BBReadHistory> readHistories;
 	
+	@Column(name = "bb_analyzer_document_count")
+	int documentCount;
+	
 	@Column(name = "bb_analyzer_word_count")
 	int wordCount;
 	
@@ -142,6 +145,14 @@ public class User extends Model {
 
 	public void setReadHistory(List<BBReadHistory> readHistory) {
 		this.readHistories = readHistory;
+	}
+
+	public int getDocumentCount() {
+		return documentCount;
+	}
+
+	public void setDocumentCount(int documentCount) {
+		this.documentCount = documentCount;
 	}
 
 	public int getWordCount() {

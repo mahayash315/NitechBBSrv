@@ -3,7 +3,6 @@ package models.service.BBItemAppendix;
 import models.entity.BBItemAppendix;
 import models.entity.BBItemHead;
 import models.service.Model.ModelService;
-import play.Logger;
 
 public class BBItemAppendixModelService implements ModelService<Long, BBItemAppendix> {
 
@@ -22,11 +21,8 @@ public class BBItemAppendixModelService implements ModelService<Long, BBItemAppe
 	@Override
 	public BBItemAppendix save(BBItemAppendix entry) {
 		if (entry != null) {
-			Logger.info("BBItemAppendixModelService#save(entry): saving");
 			entry.save();
-			Logger.info("BBItemAppendixModelService#save(entry): done");
 			if (entry.getId() != null) {
-				Logger.info("BBItemAppendixModelService#save(entry): ok, id="+entry.getId());
 				return entry;
 			}
 		}
@@ -45,11 +41,8 @@ public class BBItemAppendixModelService implements ModelService<Long, BBItemAppe
 	@Override
 	public BBItemAppendix update(BBItemAppendix entry, Long id) {
 		if (entry != null && id != null) {
-			Logger.info("BBItemAppendixModelService#update(entry,id): updating id="+id);
 			entry.update(id);
-			Logger.info("BBItemAppendixModelService#update(entry,id): done");
 			if (entry.getId().equals(id)) {
-				Logger.info("BBItemAppendixModelService#update(entry,id): ok");
 				return entry;
 			}
 		}

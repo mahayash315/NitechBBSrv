@@ -32,6 +32,9 @@ public class BBCategory extends Model {
 	
 	@Column(name = "name", length = 171)
 	String name;
+
+	@Column(name = "document_count")
+	int documentCount;
 	
 	@Column(name = "word_count")
 	int wordCount;
@@ -110,9 +113,19 @@ public class BBCategory extends Model {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public int getDocumentCount() {
+		return documentCount;
+	}
+	
+	public void setDocumentCount(int documentCount) {
+		this.documentCount = documentCount;
+	}
+	
 	public int getWordCount() {
 		return wordCount;
 	}
+	
 	public void setWordCount(int wordCount) {
 		this.wordCount = wordCount;
 	}

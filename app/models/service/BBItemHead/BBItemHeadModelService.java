@@ -106,6 +106,21 @@ public class BBItemHeadModelService implements ModelService<Long, BBItemHead> {
 		}
 		return null;
 	}
+
+	/**
+	 * user に対するエントリ一覧を取得する
+	 * @param user
+	 * @return
+	 */
+	public Set<BBItemHead> findSetForUser(User user) {
+		if (user != null) {
+			return BBItemHead.find
+						.where()
+							.eq("user", user)
+						.findSet();
+		}
+		return null;
+	}
 	
 	public Set<BBItemHead> findSetByUserCategory(User user, BBCategory category) {
 		if (user != null && category != null) {

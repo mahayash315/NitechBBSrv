@@ -25,11 +25,13 @@ public class BBAnalyzerService {
 	private static final int DEFAULT_COUNT = 0;
 	private static final double DEFAULT_GAUSS_MYU_VALUE = 0.0;
 	private static final double DEFAULT_POISSON_LAMBDA_VALUE = 10E-4;
+	private static final double MINIMUM_PROB_C = 10E-4;
 	private static final double SMOOTHING_ALPHA = 1.0;
 	
 	private MathUtil mathUtil;
 	private Tokenizer tokenizer;
 	private User user;
+	private Set<BBItemHead> documents;
 	private Map<BBCategory, Set<BBItemHead>> categorized;
 	private Map<BBCategory, Set<String>> wordsPerCategory;
 	private Set<String> surfaceSet;
@@ -56,6 +58,12 @@ public class BBAnalyzerService {
 			BBCategory category = new BBCategory(user, catName).uniqueOrStore();
 			categorized.put(category, new HashSet<BBItemHead>());
 			wordsPerCategory.put(category, new HashSet<String>());
+		}
+
+		// 全記事取得
+		documents = new BBItemHead().findSetForUser(user);
+		if (documents == null) {
+			return;
 		}
 		
 		// パラメータ初期化
@@ -94,16 +102,10 @@ public class BBAnalyzerService {
 			return;
 		}
 		
-		// 全記事取得
-		List<BBItemHead> items = new BBItemHead().findListForUser(user);
-		if (items == null) {
-			return;
-		}
-		
 		surfaceSet = new HashSet<String>();
 		
 		// カテゴリ分類とトークンの抽出
-		for(BBItemHead item : items) {
+		for(BBItemHead item : documents) {
 			String title = item.getTitle();
 			if (title == null || title.isEmpty()) {
 				continue;
@@ -154,12 +156,15 @@ public class BBAnalyzerService {
 	 */
 	private void setWordCounts() {
 		// ユーザの既知総単語数を設定する
+		user.setDocumentCount(documents.size());
 		user.setWordCount(surfaceSet.size());
 		user.store();
 		
 		// カテゴリ内の単語数を設定する
 		for(BBCategory category : wordsPerCategory.keySet()) {
+			category.setDocumentCount(categorized.get(category).size());
 			category.setWordCount(wordsPerCategory.get(category).size());
+			category.store();
 		}
 	}
 	
@@ -259,18 +264,19 @@ public class BBAnalyzerService {
 		smoothFactor = SMOOTHING_ALPHA * user.getWordCount();
 
 		// ナイーブベイズ推定
+		Logger.info("BBAnalyzerService#estimateCategoryUsingNaiveBayes(): estimating "+item.getTitle());
 		BBCategory maxCategory = null;
-		double maxPcd = 0;
+		double maxPcd = - Integer.MAX_VALUE;
 		for(BBCategory category : categories) {
 			double Pcd = calcProbCGivenD(category, wordCounter);
-			Logger.info("BBAnalyzerService#estimateCategoryUsingNaiveBayes(): Probability for this new item to be in the category "+category.getName()+" is "+Pcd);
+			Logger.info("BBAnalyzerService#estimateCategoryUsingNaiveBayes(): Prob (cat="+category.getName()+") = "+Pcd);
 			if (maxPcd < Pcd) {
 				maxCategory = category;
 				maxPcd = Pcd;
 			}
 		}
 		
-		Logger.info("estimated as category "+maxCategory.getName()+" with its probability "+maxPcd);
+		Logger.info("estimated as category "+((maxCategory != null) ? maxCategory.getName() : "(null)")+", Prob = "+maxPcd);
 		
 		return maxCategory;
 	}
@@ -292,7 +298,6 @@ public class BBAnalyzerService {
 		for(String surface : words.keySet()) {
 			d = calcProbWGivenC(words.get(surface).intValue(), surface, category, Pc);
 			P = P + Math.log(d);
-			Logger.info("                     --> P = "+P);
 		}
 		P = P + Math.log(Pc);
 		
@@ -326,8 +331,14 @@ public class BBAnalyzerService {
 	 * @return
 	 */
 	private double getProbC(BBCategory category) {
-		// TODO
-		return (1.0 / BBItemAppendixSetting.CATEGORY_NAMES.length);
+		double d = MINIMUM_PROB_C;
+		if (0 < user.getDocumentCount()) {
+			d = (category.getDocumentCount() / user.getDocumentCount());
+		}
+		if (d < MINIMUM_PROB_C) {
+			d = MINIMUM_PROB_C;
+		}
+		return d;
 	}
 	
 	
