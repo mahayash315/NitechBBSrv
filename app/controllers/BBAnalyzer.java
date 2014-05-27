@@ -10,6 +10,7 @@ import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.bbanalyzer.BBAnalyzerUtil;
+import utils.bbanalyzer.LogUtil;
 
 import com.avaje.ebean.Ebean;
 
@@ -92,7 +93,7 @@ public class BBAnalyzer extends Controller {
 				Ebean.commitTransaction();
 			} catch (Exception e) {
 				Ebean.rollbackTransaction();
-				e.printStackTrace();
+				LogUtil.error("Exception@#BBAnalyzer#calcNaiveBayesParams()", e);
 				return internalServerError();
 			} finally {
 				Ebean.endTransaction();

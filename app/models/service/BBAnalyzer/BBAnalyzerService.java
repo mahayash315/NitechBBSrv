@@ -17,7 +17,7 @@ import models.setting.BBAnalyzerSetting;
 import org.atilika.kuromoji.Token;
 import org.atilika.kuromoji.Tokenizer;
 
-import play.Logger;
+import utils.api.bbanalyzer.LogUtil;
 import utils.bbanalyzer.MathUtil;
 
 public class BBAnalyzerService {
@@ -71,9 +71,9 @@ public class BBAnalyzerService {
 		
 		// 各カテゴリで NaiveBayes パラメータを計算する
 		for(BBCategory category : categorized.keySet()) {
-			Logger.info("BBNaiveBayesParamService#calcParam(): began (category = "+category.getName()+")");
+			LogUtil.info("BBNaiveBayesParamService#calcParam(): began (category = "+category.getName()+")");
 			calcParamPerCategory(category);
-			Logger.info("BBNaiveBayesParamService#calcParam(): end");
+			LogUtil.info("BBNaiveBayesParamService#calcParam(): end");
 		}
 		
 		surfaceSet = null;
@@ -164,7 +164,7 @@ public class BBAnalyzerService {
 		for(String surface : surfaceSet) {
 			BBWord word = new BBWord(surface).uniqueOrStore();
 			
-			Logger.info("surface = "+surface);
+			LogUtil.info("surface = "+surface);
 			
 			for(BBCategory category : categorized.keySet()) {
 				BBNaiveBayesParam param = new BBNaiveBayesParam(user, word, category).unique();
@@ -261,7 +261,7 @@ public class BBAnalyzerService {
 	private BBCategory estimateCategory(BBItemHead item) throws Exception {
 		// アサート
 		if (item == null || item.getTitle() == null) {
-			Logger.error("BBAnalyzerService#estimateCategory(item): null item given, or item.getTitle() == null");
+			LogUtil.error("BBAnalyzerService#estimateCategory(item): null item given, or item.getTitle() == null");
 			return null;
 		}
 		
@@ -294,19 +294,21 @@ public class BBAnalyzerService {
 		smoothFactor = SMOOTHING_ALPHA * user.getWordCount();
 
 		// ナイーブベイズ推定
-		Logger.info("BBAnalyzerService#estimateCategory(): estimating "+item.getTitle());
+		LogUtil.info("BBAnalyzerService#estimateCategory(): estimating "+item.getTitle());
 		BBCategory maxCategory = null;
 		double maxPcd = - Integer.MAX_VALUE;
+		StringBuilder sb = new StringBuilder();
 		for(BBCategory category : categories) {
-			double Pcd = calcProbCGivenD(category, wordCounter);
-			Logger.info("BBAnalyzerService#estimateCategory(): Prob (cat="+category.getName()+") = "+Pcd);
+			double Pcd = calcProbCGivenD(category, wordCounter, sb);
+			sb.append("BBAnalyzerService#estimateCategory(): Prob (cat="+category.getName()+") = "+Pcd);
+			sb.append("\n");
 			if (maxPcd < Pcd) {
 				maxCategory = category;
 				maxPcd = Pcd;
 			}
 		}
-		
-		Logger.info("estimated as category "+((maxCategory != null) ? maxCategory.getName() : "(null)")+", Prob = "+maxPcd);
+		LogUtil.info(sb.toString());
+		LogUtil.info("estimated as category "+((maxCategory != null) ? maxCategory.getName() : "(null)")+", Prob = "+maxPcd);
 		
 		return maxCategory;
 	}
@@ -320,7 +322,7 @@ public class BBAnalyzerService {
 	 * @return 事後確率 P_{C|D} (c | d), D=[W_1, W_2, ..., W_D]
 	 * @throws Exception 
 	 */
-	private double calcProbCGivenD(BBCategory category, Map<String, Integer> words) throws Exception {
+	private double calcProbCGivenD(BBCategory category, Map<String, Integer> words, StringBuilder sb) throws Exception {
 		double P = 1;
 		double Pc = getProbC(category);
 		double d = 0;
@@ -329,7 +331,7 @@ public class BBAnalyzerService {
 			d = calcProbWGivenC(words.get(surface).intValue(), surface, category, Pc);
 			d = Math.log(d);
 			P = P + d;
-			Logger.info("    "+P+"\t<--- ("+d+")\t"+surface);
+			sb.append("    "+P+"\t<--- ("+d+")\t"+surface);
 		}
 		P = P + Math.log(Pc);
 		

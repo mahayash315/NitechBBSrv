@@ -9,12 +9,12 @@ import models.service.BBItemHead.BBItemHeadService;
 import models.service.BBReadHistory.BBReadHistoryService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.setting.api.bbanalyzer.BBAnalyzerStatusSetting;
-import play.Logger;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.api.bbanalyzer.GsonUtil;
+import utils.api.bbanalyzer.LogUtil;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.annotation.Transactional;
@@ -53,18 +53,16 @@ public class BBAnalyzer extends Controller {
 
 				// OK の場合のみ commit する
 				if (response.getCode().equals(BBAnalyzerStatusSetting.OK.getCode())) {
-					Logger.info("COMMIT");
 					Ebean.commitTransaction();
 				} else {
-					Logger.info("ROLLBACK");
 					Ebean.rollbackTransaction();
 				}
 			} catch (Exception e0) {
-				e0.printStackTrace();
+				Ebean.rollbackTransaction();
+				
+				LogUtil.error("Exception@BBAnalyzer#postNewItemHeads()", e0);
 				response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 				response.setMessage(e0.getLocalizedMessage());
-				
-				Ebean.rollbackTransaction();
 			} finally {
 				Ebean.endTransaction();
 			}
@@ -75,6 +73,7 @@ public class BBAnalyzer extends Controller {
 			return ok(GsonUtil.use().toJson(response));
 		} catch (JsonSyntaxException e) {
 			// JSON パースエラー
+			LogUtil.error("Exception@BBAnalyzer#postNewItemHeads()", e);
 			response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getBadRequestResponse());
 			response.setMessage("Parse error. Invalid JSON sent.");
 			return badRequest(Json.toJson(response));
@@ -118,11 +117,11 @@ public class BBAnalyzer extends Controller {
 					Ebean.rollbackTransaction();
 				}
 			} catch (Exception e0) {
-				e0.printStackTrace();
+				Ebean.rollbackTransaction();
+				
+				LogUtil.error("Exception@BBAnalyzer#postNewItemHeads()", e0);
 				response = new BBReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
 				response.setMessage(e0.getLocalizedMessage());
-
-				Ebean.rollbackTransaction();
 			} finally {
 				Ebean.endTransaction();
 			}
@@ -142,7 +141,7 @@ public class BBAnalyzer extends Controller {
 						Ebean.commitTransaction();
 					} catch (Exception e) {
 						Ebean.rollbackTransaction();
-						e.printStackTrace();
+						LogUtil.error("Exception@BBAnalyzer#postNewItemHeads()", e);
 					} finally {
 						Ebean.endTransaction();
 					}
@@ -150,6 +149,7 @@ public class BBAnalyzer extends Controller {
 			}
 		} catch (JsonSyntaxException e) {
 			// JSON パースエラー
+			LogUtil.error("Exception@BBAnalyzer#postNewItemHeads()", e);
 			response = new BBReadHistoryResponse(BBAnalyzerService.use().getBadRequestResponse());
 			response.setMessage("Parse error. Invalid JSON sent.");
 			return badRequest(Json.toJson(response));

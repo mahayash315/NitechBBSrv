@@ -6,7 +6,7 @@ import java.util.Set;
 
 import models.entity.User;
 import models.service.BBAnalyzer.BBAnalyzerService;
-import play.Logger;
+import utils.api.bbanalyzer.LogUtil;
 import akka.actor.UntypedActor;
 
 import com.avaje.ebean.Ebean;
@@ -22,9 +22,9 @@ public class BBAnalyzerTaskActor extends UntypedActor {
 			
 			Map<User, Exception> errors = calcNaiveBayesParams();
 			if (0 < errors.size()) {
-				Logger.error("BBAnalyzerTaskActor#onReceive(): errors occurred while executing the task");
+				LogUtil.error("BBAnalyzerTaskActor#onReceive(): errors occurred while executing the task");
 				for(User user : errors.keySet()) {
-					Logger.error("user = "+user.toString()+", exeption = "+errors.get(user).getLocalizedMessage());
+					LogUtil.error("user = "+user.toString()+", exeption = "+errors.get(user).getLocalizedMessage());
 				}
 			}
 			

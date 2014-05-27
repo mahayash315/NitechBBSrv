@@ -17,7 +17,7 @@ import models.service.BBItemHead.BBItemHeadModelService;
 import models.service.User.UserModelService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.setting.BBAnalyzerSetting;
-import play.Logger;
+import utils.api.bbanalyzer.LogUtil;
 
 public class BBReadHistoryService {
 
@@ -132,7 +132,7 @@ public class BBReadHistoryService {
 		
 		for(BBItemHead item : items) {
 			ParamHolder param = params.get(item);
-			Logger.info("BBReadHistoryService#categorize...(): item = "+item.getId()+", "+item.getTitle()+", count="+param.count);
+			LogUtil.info("BBReadHistoryService#categorize...(): item = "+item.getId()+", "+item.getTitle()+", count="+param.count);
 		}
 		
 		// 記事閲覧回数の平均と分散を計算
@@ -156,17 +156,19 @@ public class BBReadHistoryService {
 			count_variance = MINIMUM_VARIANCE_VALUE;
 		}
 		
-		Logger.info("count_average = "+count_average);
-		Logger.info("count_variance = "+count_variance);
+		LogUtil.info("count_average = "+count_average);
+		LogUtil.info("count_variance = "+count_variance);
 		
 		double total_category_num = (double) BBAnalyzerSetting.CATEGORY_NAMES.length;
 		double divide_value = STANDARD_NORMAL_DISTRIBUTION_MAXIMUM / total_category_num;
-		Logger.info("total_category_num = "+total_category_num);
-		Logger.info("divide_value = "+divide_value);
+		LogUtil.info("total_category_num = "+total_category_num);
+		LogUtil.info("divide_value = "+divide_value);
 		
 		// 集計結果から各記事をカテゴリ分け
 		for(BBItemHead item : items) {
+			StringBuilder sb = new StringBuilder();
 			ParamHolder param = params.get(item);
+			long itemId = item.getId().longValue();
 			
 			// 標準化
 			normalized_value = (param.count - count_average) / count_variance;
@@ -174,10 +176,15 @@ public class BBReadHistoryService {
 			// カテゴリ分類
 			int catNum = (int) ((normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING) / divide_value);
 			catNum = catNum + 1;
-			Logger.info("(item "+item.getId()+") normalized_value = "+normalized_value);
-			Logger.info("(item "+item.getId()+") with padding = "+(normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING));
-			Logger.info("(item "+item.getId()+") calculated catNumInDouble = "+(double)(1.0 + (normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING) / divide_value));
-			Logger.info("(item "+item.getId()+") calculated catNum="+catNum);
+			sb.append("(item "+itemId+") normalized_value = "+normalized_value);
+			sb.append("\n");
+			sb.append("(item "+itemId+") with padding = "+(normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING));
+			sb.append("\n");
+			sb.append("(item "+itemId+") calculated catNumInDouble = "+(double)(1.0 + (normalized_value + STANDARD_NORMAL_DISTRIBUTION_PADDING) / divide_value));
+			sb.append("\n");
+			sb.append("(item "+itemId+") calculated catNum="+catNum);
+			sb.append("\n");
+			LogUtil.info(sb.toString());
 			if (catNum < 1) {
 				catNum = 1;
 			} else if (BBAnalyzerSetting.CATEGORY_NAMES.length <= catNum) {

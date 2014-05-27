@@ -8,7 +8,7 @@ import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
 import models.service.User.UserModelService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
-import play.Logger;
+import utils.api.bbanalyzer.LogUtil;
 
 public class BBItemHeadService {
 	
@@ -88,7 +88,7 @@ public class BBItemHeadService {
 				return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
-		Logger.info("ESTIMATED "+c+" ITEMS");
+		LogUtil.info("ESTIMATED "+c+" ITEMS");
 		
 		// 成功
 		BBNewItemHeadsResponse response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getOKResponse());
