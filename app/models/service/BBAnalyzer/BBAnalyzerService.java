@@ -95,6 +95,10 @@ public class BBAnalyzerService {
 		return estimateCategory(item);
 	}
 	
+	/**
+	 * ユーザの持つ全記事をメンバ documents に入れ、
+	 * それらからトークンを documents に入れる
+	 */
 	private void tokenize() {
 		documents = new HashMap<BBItemHead, List<Token>>();
 		

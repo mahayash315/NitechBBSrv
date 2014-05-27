@@ -4,6 +4,7 @@ import java.text.ParseException;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
+import play.Logger.ALogger;
 import play.api.mvc.Handler;
 import play.mvc.Action;
 import play.mvc.Http.Request;
@@ -12,7 +13,11 @@ import controllers.task.BBAnalyzerTaskActorBase;
 
 
 public class Global extends GlobalSettings {
+	
+	private static ALogger accessLog = Logger.of("accesslog");
 
+	private static final String DEFAULT_ACCESS_LOG_USER_AGENT = "Unknown";
+	
 	@Override
 	public void onStart(Application arg0) {
 		super.onStart(arg0);
@@ -28,6 +33,14 @@ public class Global extends GlobalSettings {
 	@Override
 	public Action onRequest(Request request, Method actionMethod) {
 		
+		// アクセスログ出力
+		String userAgent = request.getHeader("User-Agent");
+		if (userAgent == null) {
+			userAgent = DEFAULT_ACCESS_LOG_USER_AGENT;
+		}
+		accessLog.info(request.host() + " " + actionMethod.getName() + " " + request.uri() + " [" + userAgent + "]");
+
+		// デバッグログ出力
 		Debugger.callOnRequest(request);
 		
 		return super.onRequest(request, actionMethod);
