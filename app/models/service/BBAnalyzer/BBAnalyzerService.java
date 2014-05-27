@@ -332,6 +332,7 @@ public class BBAnalyzerService {
 			d = Math.log(d);
 			P = P + d;
 			sb.append("    "+P+"\t<--- ("+d+")\t"+surface);
+			sb.append("\n");
 		}
 		P = P + Math.log(Pc);
 		
