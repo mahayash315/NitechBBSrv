@@ -31,7 +31,7 @@ public class BBAnalyzerService {
 	private MathUtil mathUtil;
 	private Tokenizer tokenizer;
 	private User user;
-	private Set<BBItemHead> documents;
+	private Map<BBItemHead, List<Token>> documents;
 	private Map<BBCategory, Set<BBItemHead>> categorized;
 	private Map<BBCategory, Set<String>> wordsPerCategory;
 	private Set<String> surfaceSet;
@@ -59,12 +59,9 @@ public class BBAnalyzerService {
 			categorized.put(category, new HashSet<BBItemHead>());
 			wordsPerCategory.put(category, new HashSet<String>());
 		}
-
-		// 全記事取得
-		documents = new BBItemHead().findSetForUserWithCategory(user);
-		if (documents == null) {
-			return;
-		}
+		
+		// 掲示取得とトークン抽出
+		tokenize();
 		
 		// パラメータ初期化
 		initParams();
@@ -98,6 +95,25 @@ public class BBAnalyzerService {
 		return estimateCategory(item);
 	}
 	
+	private void tokenize() {
+		documents = new HashMap<BBItemHead, List<Token>>();
+		
+		// 全記事取得
+		Set<BBItemHead> items = new BBItemHead().findSetForUserWithCategory(user);
+		if (items == null) {
+			return;
+		}
+		
+		for(BBItemHead item : items) {
+			String title = item.getTitle();
+			if (title == null || title.isEmpty()) {
+				continue;
+			}
+			List<Token> tokens = tokenizer.tokenize(title);
+			documents.put(item, tokens);
+		}
+	}
+	
 	
 	/**
 	 * 解析の準備
@@ -113,7 +129,7 @@ public class BBAnalyzerService {
 		surfaceSet = new HashSet<String>();
 		
 		// カテゴリ分類とトークンの抽出
-		for(BBItemHead item : documents) {
+		for(BBItemHead item : documents.keySet()) {
 			String title = item.getTitle();
 			if (title == null || title.isEmpty()) {
 				continue;
@@ -125,7 +141,7 @@ public class BBAnalyzerService {
 			}
 			categorized.get(category).add(item);
 			
-			List<Token> tokens = tokenizer.tokenize(title);
+			List<Token> tokens = documents.get(item);
 			for(Token token : tokens) {
 				String surface = token.getSurfaceForm();
 				if (isNounOrVerbAndNotNumber(token)) {
@@ -195,7 +211,7 @@ public class BBAnalyzerService {
 		// 各掲示から単語を集計
 		for(BBItemHead item : items) {
 			// 掲示タイトルを形態素解析
-			List<Token> tokens = tokenizer.tokenize(item.getTitle());
+			List<Token> tokens = documents.get(item);
 
 			for(Token token : tokens) {
 				if (isNounOrVerbAndNotNumber(token)) {
