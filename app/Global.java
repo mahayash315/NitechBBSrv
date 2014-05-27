@@ -38,7 +38,7 @@ public class Global extends GlobalSettings {
 		if (userAgent == null) {
 			userAgent = DEFAULT_ACCESS_LOG_USER_AGENT;
 		}
-		accessLog.info(request.host() + " (" + actionMethod.getName() + ") " + request.method() + " " + request.uri() + " [" + userAgent + "]");
+		accessLog.info(request.remoteAddress() + " (" + actionMethod.getName() + ") " + request.method() + " " + request.uri() + " [" + userAgent + "]");
 
 		// デバッグログ出力
 		Debugger.callOnRequest(request);
