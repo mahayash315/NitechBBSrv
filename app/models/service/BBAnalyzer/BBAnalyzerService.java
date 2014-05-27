@@ -294,21 +294,24 @@ public class BBAnalyzerService {
 		smoothFactor = SMOOTHING_ALPHA * user.getWordCount();
 
 		// ナイーブベイズ推定
-		LogUtil.info("BBAnalyzerService#estimateCategory(): estimating "+item.getTitle());
+		StringBuilder sb = new StringBuilder();
+		sb.append("BBAnalyzerService#estimateCategory(): estimating "+item.getTitle());
+		sb.append("\n");
 		BBCategory maxCategory = null;
 		double maxPcd = - Integer.MAX_VALUE;
-		StringBuilder sb = new StringBuilder();
 		for(BBCategory category : categories) {
 			double Pcd = calcProbCGivenD(category, wordCounter, sb);
 			sb.append("BBAnalyzerService#estimateCategory(): Prob (cat="+category.getName()+") = "+Pcd);
+			sb.append("\n");
 			sb.append("\n");
 			if (maxPcd < Pcd) {
 				maxCategory = category;
 				maxPcd = Pcd;
 			}
 		}
+		sb.append("estimated as category "+((maxCategory != null) ? maxCategory.getName() : "(null)")+", Prob = "+maxPcd);
+		sb.append("\n");
 		LogUtil.info(sb.toString());
-		LogUtil.info("estimated as category "+((maxCategory != null) ? maxCategory.getName() : "(null)")+", Prob = "+maxPcd);
 		
 		return maxCategory;
 	}
