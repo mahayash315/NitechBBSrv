@@ -1,0 +1,35 @@
+@(id: models.entity.MockBBItem.MockBBItemPK, editForm: Form[models.request.mockbb.admin.EditItemRequest])
+@import helper.twitterBootstrap._
+@import helper._
+
+@main("掲示編集") {
+
+    <div id="description">
+		<h2>掲示の編集</h2>
+	</div>
+
+	@form(controllers.mockbb.routes.Admin.edit(id)) {
+		<fieldset>
+			@inputDate(editForm("dateShow"), '_label -> "掲示開始日")
+			@inputDate(editForm("dateExec"), '_label -> "実施開始日")
+			@inputText(editForm("author"), '_label -> "掲示者")
+			@inputText(editForm("title"), '_label -> "件名")
+			@checkbox(editForm("isRead"), '_label -> "既読")
+			@checkbox(editForm("isFlagged"), '_label -> "強調")
+			@checkbox(editForm("isReference"), '_label -> "参考")
+			
+			@textarea(editForm("body"))
+		</fieldset>
+
+		<div class="actions">
+			<input type="submit" value="Apply" class="btn primary"> or
+			<a href="@controllers.mockbb.routes.Admin.manage()" class="btn">Cancel</a>
+	}
+	
+	<div class="topRight">
+		@form(controllers.mockbb.routes.Admin.delete(id)) {
+			<input type="submit" value="delete" class="btn danger">
+		}
+	</div>
+	
+}
