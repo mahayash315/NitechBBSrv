@@ -21,6 +21,8 @@ public class UserClassifier {
 	public static final int CLUSTER_DEPTH = 2;				// クラスタの階層数 D
 	public static final int[] CLUSTER_SIZES = {5, 1};		// 各階層のクラスタの数 K
 	
+	private static final double MAX_DISTANCE = 2.0;
+	
 	private static class SQL_BBITEM {
 		static final String SQL_SELECT_LENGTH_ID = "select length("+BBItem.PROPERTY.ID+") from "+BBItem.ENTITY;
 		
@@ -188,9 +190,12 @@ public class UserClassifier {
 		Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
 		int size = CLUSTER_SIZES[depth-1];
 		UserCluster clusters[] = new UserCluster[size];
+		UserCluster furthestCluster = null;
+		double furthestDistance = 0;
 		
 		// クラスタ中心を1つ決める
 		clusters[0] = children.iterator().next();
+		parents.add(clusters[0]);
 		
 		// size 個のクラスタ中心まで増やす
 		for(int i = 1; i < size; ++i) {
@@ -205,8 +210,26 @@ public class UserClassifier {
 			// その中心との距離を計算する
 			calcDistances(depth, cluster);
 			
-			// TODO implement here
-			// 遠いクラスタを次のクラスタ中心 cluster[i] とする
+			// どの親クラスタからも一番遠い子クラスタを見つける
+			// for each cluster in children
+			for(UserCluster child : children) {
+				Map<UserCluster, Double> dists = distances.get(child);
+				// calculate the distance from the nearest parent cluster
+				double minimumDistance = MAX_DISTANCE;
+				for(UserCluster parent : parents) {
+					double d = dists.get(parent).doubleValue();
+					if (d < minimumDistance) {
+						minimumDistance = d;
+					}
+				}
+				if (furthestDistance < minimumDistance) {
+					furthestCluster = child;
+				}
+			}
+			
+			// furthestCluster を次のクラスタ中心 cluster[i] とする
+			clusters[i] = furthestCluster;
+			parents.add(clusters[i]);
 		}
 	}
 	
@@ -221,7 +244,8 @@ public class UserClassifier {
 		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 		
 		for(UserCluster child : children) {
-			double distance = vectorMultiply(child.vector, parent.vector) / (vectorSize(child.vector) * vectorSize(parent.vector));
+			double cosin = vectorMultiply(child.vector, parent.vector) / (vectorSize(child.vector) * vectorSize(parent.vector));
+			double distance = 1.0 - cosin;
 			
 			if (!distances.containsKey(child)) {
 				distances.put(child, new HashMap<UserCluster, Double>());
