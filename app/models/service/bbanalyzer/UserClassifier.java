@@ -208,6 +208,7 @@ public class UserClassifier {
 					prevClusters.put(child, minimumCluster);
 				}
 			} while (changed <= MAX_KMEANS_CHANGE || count < MAX_KMEANS_COUNT);
+			
 			// clusterMap に追加
 			clusterMap.put(Integer.valueOf(depth), parents);
 		}
