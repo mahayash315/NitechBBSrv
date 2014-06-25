@@ -73,7 +73,7 @@ public class UserClassifier {
 			// ユーザをアトムクラスタに入れる
 			initAtomCluster();
 			
-			// アトムクラスタをクラスタ分割
+			// 全層をクラスタ分割
 			doClassify();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -174,7 +174,6 @@ public class UserClassifier {
 				parent.children = new HashMap<UserCluster, Double>();
 			}
 			
-			// TODO implement here
 			// for i=1,2,...,n
 			// 		for each cluster in children
 			// 			insert this to the closest parent cluster
@@ -186,8 +185,12 @@ public class UserClassifier {
 			int count = 0;
 			int changed = 0;
 			do {
-				for(UserCluster parent : parents) {
-					parent.children.clear();
+				if (0 < count) {
+					// 各 parent クラスタのクラスタ中心を更新
+					for(UserCluster parent : parents) {
+						updateCenterVector(parent);
+						parent.children.clear();
+					}
 				}
 				
 				for(UserCluster child : children) {
@@ -207,6 +210,8 @@ public class UserClassifier {
 					}
 					prevClusters.put(child, minimumCluster);
 				}
+				
+				++count;
 			} while (changed <= MAX_KMEANS_CHANGE || count < MAX_KMEANS_COUNT);
 			
 			// clusterMap に追加
@@ -287,18 +292,46 @@ public class UserClassifier {
 		}
 	}
 	
-	private int vectorMultiply(int[] v1, int[] v2) throws IllegalArgumentException {
+	/**
+	 * parent クラスタのクラスタ中心ベクトルを更新
+	 * @param cluster
+	 */
+	private void updateCenterVector(UserCluster cluster) {
+		double vector[] = new double[userVectorSize];
+		for(UserCluster child : cluster.children.keySet()) {
+			vectorAdd(vector, child.vector);
+		}
+		vectorDivide(vector, Double.valueOf(cluster.children.size()));
+		cluster.vector = vector;
+	}
+	
+	private void vectorAdd(double[] dst, double[] v) throws IllegalArgumentException {
+		if (dst.length != v.length) {
+			throw new IllegalArgumentException("v1.length != v2.length");
+		}
+		for(int i = 0; i < dst.length; ++i) {
+			dst[i] = dst[i] + v[i];
+		}
+	}
+	
+	private double vectorMultiply(double[] v1, double[] v2) throws IllegalArgumentException {
 		if (v1.length != v2.length) {
 			throw new IllegalArgumentException("v1.length != v2.length");
 		}
-		int res = 0;
+		double res = 0;
 		for(int i = 0; i < v1.length; ++i) {
 			res = res + (v1[i] * v2[i]);
 		}
 		return res;
 	}
 	
-	private double vectorSize(int[] v) {
+	private void vectorDivide(double[] dst, double div) {
+		for(int i = 0; i < dst.length; ++i) {
+			dst[i] = dst[i] / div;
+		}
+	}
+	
+	private double vectorSize(double[] v) {
 		double sum = 0;
 		for(int i = 0; i < v.length; ++i) {
 			sum = sum + (v[i] * v[i]);

@@ -40,8 +40,8 @@ public class UserService {
 	 * @return
 	 * @throws SQLException
 	 */
-	public int[] getUserVector(User user, int size) throws SQLException {
-		int[] vector = new int[size];
+	public double[] getUserVector(User user, int size) throws SQLException {
+		double[] vector = new double[size];
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		
@@ -53,7 +53,7 @@ public class UserService {
 				int index = (int) rs.getLong(1) - 1;
 				int count = rs.getInt(2);
 				if (index < size) {
-					vector[index] = count;
+					vector[index] = Double.valueOf(count);
 				}
 			}
 		} catch (SQLException e) {

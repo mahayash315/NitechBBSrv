@@ -117,7 +117,7 @@ public class User extends Model {
 	 * ユーザベクトルを取得する
 	 * @return
 	 */
-	public int[] getUserVector(int size) throws SQLException {
+	public double[] getUserVector(int size) throws SQLException {
 		return userService.getUserVector(this, size);
 	}
 	
