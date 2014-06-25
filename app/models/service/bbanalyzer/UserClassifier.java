@@ -159,6 +159,20 @@ public class UserClassifier {
 			// 			calculate distance (cosin) from parent
 			//			merge the clusters which are the closest to the clusters in parents
 			
+			// depth 層のクラスタリング
+			
+			// 初期クラスタ中心を定める
+			initKMeans(depth);
+			
+			// TODO implement here
+			// for i=1,2,...,n
+			// 		for each cluster in children
+			// 			insert this to the closest parent cluster
+			//		if (i<n)
+			//			for each cluster in parents
+			//				update its center vector so that it refers to
+			//				the average vector of its child clusters
+			
 			// clusterMap に追加
 			clusterMap.put(Integer.valueOf(depth), parents);
 		}
