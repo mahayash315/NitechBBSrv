@@ -6,9 +6,11 @@ import models.entity.User;
 
 public class UserCluster {
 
-	public User centerUser;
+	// クラスタの位置ベクトル
 	public int[] vector;
-	public Map<UserCluster, Float> children;
+	
+	// クラスタの一つ下の層にあるクラスタ
+	public Map<UserCluster, Double> children;
 	
 	public UserCluster() {
 	}
