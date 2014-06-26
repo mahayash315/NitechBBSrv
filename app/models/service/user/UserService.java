@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import models.entity.BBReadHistory;
 import models.entity.User;
+import play.Logger;
 import play.db.DB;
 
 import com.avaje.ebean.Ebean;
@@ -17,7 +18,7 @@ public class UserService {
 	private Connection conn;
 	
 	private static class SQL_BB_READ_HISTORY {
-		static final String SQL_SELECT_USER_VECTOR = "select "+BBReadHistory.PROPERTY.ITEM+", length("+BBReadHistory.PROPERTY.ID+")"
+		static final String SQL_SELECT_USER_VECTOR = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
 				+ " from "+BBReadHistory.ENTITY+" where "+BBReadHistory.PROPERTY.USER+"=? group by "+BBReadHistory.PROPERTY.ITEM;
 		
 		private static class STATEMENT {
@@ -46,7 +47,7 @@ public class UserService {
 		ResultSet rs = null;
 		
 		try {
-			st = SQL_BB_READ_HISTORY.STATEMENT.selectUserVector(conn, user);
+			st = SQL_BB_READ_HISTORY.STATEMENT.selectUserVector(getConnection(), user);
 			rs = st.executeQuery();
 			
 			while(rs.next()) {
@@ -66,6 +67,7 @@ public class UserService {
 			if (rs != null) {
 				rs.close();
 			}
+			closeConnection();
 		}
 		
 		return vector;
@@ -75,8 +77,8 @@ public class UserService {
 	
 	
 	
-	private UserService useConnection() {
-		if (conn != null) {
+	private Connection getConnection() {
+		if (conn == null) {
 			Transaction t = Ebean.currentTransaction();
 			if (t != null) {
 				conn = t.getConnection();
@@ -84,6 +86,14 @@ public class UserService {
 				conn = DB.getConnection();
 			}
 		}
-		return this;
+		return conn;
+	}
+	
+	private void closeConnection() throws SQLException {
+		if (conn != null) {
+			if (Ebean.currentTransaction() == null) {
+				conn.close();
+			}
+		}
 	}
 }

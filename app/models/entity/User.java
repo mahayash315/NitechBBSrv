@@ -121,6 +121,12 @@ public class User extends Model {
 		return userService.getUserVector(this, size);
 	}
 	
+	/* toString */
+	@Override
+	public String toString() {
+		return "nitechId="+hashedNitechId;
+	}
+	
 	/* getter, setter */
 	public Long getId() {
 		return id;

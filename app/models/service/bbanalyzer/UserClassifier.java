@@ -11,7 +11,9 @@ import java.util.Set;
 
 import models.entity.BBItem;
 import models.entity.User;
+import play.Logger;
 import play.db.DB;
+import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class UserClassifier {
 
@@ -23,10 +25,10 @@ public class UserClassifier {
 	
 	private static final double MAX_DISTANCE = 2.0;
 	private static final int MAX_KMEANS_COUNT = 10;
-	private static final int MAX_KMEANS_CHANGE = 0;
+	private static final int MIN_KMEANS_CHANGE = 0;
 	
 	private static class SQL_BBITEM {
-		static final String SQL_SELECT_LENGTH_ID = "select length("+BBItem.PROPERTY.ID+") from "+BBItem.ENTITY;
+		static final String SQL_SELECT_LENGTH_ID = "select count("+BBItem.PROPERTY.ID+") from "+BBItem.ENTITY;
 		
 		private static class STATEMENT {
 			static PreparedStatement selectIdLength(Connection conn) throws SQLException {
@@ -42,6 +44,10 @@ public class UserClassifier {
 	Set<UserCluster> atomClusters;
 	
 	// 各層におけるクラスタの集合を格納する
+	//   0 層 : アトムクラスタ
+	//   1 層 : 最初のクラスタリング
+	//   ...
+	// (CLUSTER_DEPTH)層 : 最後のクラスタリング
 	Map<Integer, Set<UserCluster>> clusterMap;
 	
 	// 各層における、その層のクラスタと一つ下の層のクラスタとの距離を格納する
@@ -59,8 +65,9 @@ public class UserClassifier {
 	/* インスタンスメソッド */
 	/**
 	 * classify
+	 * @throws SQLException 
 	 */
-	public void classify() {
+	public void classify() throws SQLException {
 		conn = DB.getConnection();
 		
 		// 初期化
@@ -77,7 +84,22 @@ public class UserClassifier {
 			doClassify();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw e;
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				throw e;
+			}
 		}
+	}
+	
+	public Set<UserCluster> getTopCluster() {
+		if (clusterMap != null && clusterMap.containsKey(CLUSTER_DEPTH)) {
+			return clusterMap.get(CLUSTER_DEPTH);
+		}
+		return null;
 	}
 	
 	/**
@@ -88,7 +110,7 @@ public class UserClassifier {
 		clusterMap = new HashMap<Integer, Set<UserCluster>>();
 		distanceMap = new HashMap<Integer, Map<UserCluster, Map<UserCluster, Double>>>();
 		
-		for(int i = 0; i < CLUSTER_DEPTH; ++i) {
+		for(int i = 0; i <= CLUSTER_DEPTH; ++i) {
 			clusterMap.put(Integer.valueOf(i), new HashSet<UserCluster>());
 			distanceMap.put(Integer.valueOf(i), new HashMap<UserCluster, Map<UserCluster, Double>>());
 		}
@@ -106,7 +128,11 @@ public class UserClassifier {
 			st = SQL_BBITEM.STATEMENT.selectIdLength(conn);
 			rs = st.executeQuery();
 			
-			userVectorSize = rs.getInt(0);
+			if (rs.next()) {
+				userVectorSize = rs.getInt(1);
+			} else {
+				userVectorSize = 0;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw e;
@@ -152,7 +178,8 @@ public class UserClassifier {
 		// 1 層 - (CLUSTER_DEPTH) 層
 		for(int depth = 1; depth <= CLUSTER_DEPTH; ++depth) {
 			// TODO 階層 depth において、一つ下の階層 (depth-1) のクラスタをクラスタリングする
-			Set<UserCluster> parents = new HashSet<UserCluster>();
+			Logger.info("UserClassifier#doClassify(): classifying depth = "+depth);
+			Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth));
 			Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 			Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
 			Map<UserCluster, UserCluster> prevClusters = new HashMap<UserCluster, UserCluster>();
@@ -168,6 +195,7 @@ public class UserClassifier {
 			
 			// 初期クラスタ中心を定める
 			initKMeans(depth);
+			Logger.info("UserClassifier#doClassify(): selected "+parents.size()+" parents");
 			
 			// 変数初期化
 			for(UserCluster parent : parents) {
@@ -185,6 +213,8 @@ public class UserClassifier {
 			int count = 0;
 			int changed = 0;
 			do {
+				Logger.info("UserClassifier#doClassify():   trial "+count);
+				changed = 0;
 				if (0 < count) {
 					// 各 parent クラスタのクラスタ中心を更新
 					for(UserCluster parent : parents) {
@@ -194,28 +224,32 @@ public class UserClassifier {
 				}
 				
 				for(UserCluster child : children) {
+					Logger.info("UserClassifier#doClassify():    child cluster "+child.toString());
 					Map<UserCluster, Double> dists = distances.get(child);
 					double minimumDistance = MAX_DISTANCE;
 					UserCluster minimumCluster = null;
 					for(UserCluster parent : parents) {
+						Logger.info("UserClassifier#doClassify():      +parent "+parent.toString());
 						double d = dists.get(parent).doubleValue();
+						Logger.info("UserClassifier#doClassify():        +distance = "+d);
 						if (d < minimumDistance) {
 							minimumDistance = d;
 							minimumCluster = parent;
 						}
 					}
+					Logger.info("UserClassifier#doClassify():      --> nearest parent = "+minimumCluster.toString()+", distance="+minimumDistance);
 					minimumCluster.children.put(child, minimumDistance);
-					if (prevClusters.containsKey(child) || !prevClusters.get(child).equals(minimumCluster)) {
+					if (!prevClusters.containsKey(child) || !prevClusters.get(child).equals(minimumCluster)) {
 						++changed;
 					}
 					prevClusters.put(child, minimumCluster);
 				}
 				
 				++count;
-			} while (changed <= MAX_KMEANS_CHANGE || count < MAX_KMEANS_COUNT);
+			} while (MIN_KMEANS_CHANGE < changed && count < MAX_KMEANS_COUNT);
 			
-			// clusterMap に追加
-			clusterMap.put(Integer.valueOf(depth), parents);
+//			// clusterMap に追加
+//			clusterMap.put(Integer.valueOf(depth), parents);
 		}
 	}
 	
@@ -224,6 +258,7 @@ public class UserClassifier {
 	 * @param depth
 	 */
 	private void initKMeans(int depth) {
+		Logger.info("UserClassifier#initKMeans("+depth+"):");
 		Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth));
 		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 		Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
@@ -238,6 +273,7 @@ public class UserClassifier {
 		
 		// size 個のクラスタ中心まで増やす
 		for(int i = 1; i < size; ++i) {
+			Logger.info("UserClassifier#initKMeans("+depth+"): i = "+i);
 			// calculate distance between clusters[0] and all clusters in children
 			// insert them into distanceMap
 			// take the furthest (or close to the furthest) cluster form children
@@ -249,8 +285,14 @@ public class UserClassifier {
 			calcDistances(depth, cluster);
 			
 			// どの親クラスタからも一番遠い子クラスタを見つける
+			furthestCluster = null;
+			furthestDistance = 0;
 			// for each cluster in children
 			for(UserCluster child : children) {
+				// すでに親なら除外
+				if (parents.contains(child)) {
+					continue;
+				}
 				Map<UserCluster, Double> dists = distances.get(child);
 				// calculate the distance from the nearest parent cluster
 				double minimumDistance = MAX_DISTANCE;
@@ -260,7 +302,7 @@ public class UserClassifier {
 						minimumDistance = d;
 					}
 				}
-				if (furthestDistance < minimumDistance) {
+				if (furthestDistance <= minimumDistance) {
 					furthestCluster = child;
 				}
 			}
@@ -268,6 +310,7 @@ public class UserClassifier {
 			// furthestCluster を次のクラスタ中心 cluster[i] とする
 			clusters[i] = furthestCluster;
 			parents.add(clusters[i]);
+			Logger.info("UserClassifier#initKMeans("+depth+"): distance = "+furthestDistance+", selected "+clusters[i]);
 		}
 	}
 	
@@ -284,6 +327,11 @@ public class UserClassifier {
 		for(UserCluster child : children) {
 			double cosin = vectorMultiply(child.vector, parent.vector) / (vectorSize(child.vector) * vectorSize(parent.vector));
 			double distance = 1.0 - cosin;
+			if (distance <= 0.0) {
+				Logger.info("UserClassifier#calcDistances(): distance = 0.0");
+				Logger.info("UserClassifier#calcDistances():   <-- child.vec  = "+BBAnalyzerUtil.printVector(child.vector));
+				Logger.info("UserClassifier#calcDistances():   <-- parent.vec = "+BBAnalyzerUtil.printVector(parent.vector));
+			}
 			
 			if (!distances.containsKey(child)) {
 				distances.put(child, new HashMap<UserCluster, Double>());

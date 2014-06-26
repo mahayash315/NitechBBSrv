@@ -27,4 +27,16 @@ public class BBAnalyzerUtil {
 		
 		return result;
 	}
+	
+	
+	public static String printVector(double[] vector) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[ ");
+		for(double d : vector) {
+			sb.append(d);
+			sb.append(" ");
+		}
+		sb.append("]");
+		return sb.toString();
+	}
 }
