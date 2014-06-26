@@ -1,5 +1,7 @@
 package models.service.bbitem;
 
+import java.util.Set;
+
 import models.entity.BBItem;
 import models.service.model.ModelService;
 
@@ -86,5 +88,12 @@ public class BBItemModelService implements ModelService<Long, BBItem> {
 		return null;
 	}
 	
+	/**
+	 * 全エントリを返す 
+	 * @return
+	 */
+	public Set<BBItem> getAllItems() {
+		return BBItem.find.findSet();
+	}
 	
 }
