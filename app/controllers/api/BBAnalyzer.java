@@ -6,7 +6,7 @@ import models.request.api.bbanalyzer.BBReadHistoryRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
 import models.response.api.bbanalyzer.BBReadHistoryResponse;
 import models.service.api.bbanalyzer.BBAnalyzerService;
-import models.service.bbitemhead.BBItemHeadService;
+import models.service.bbitem.BBItemService;
 import models.service.bbreadhistory.BBReadHistoryService;
 import models.setting.api.bbanalyzer.BBAnalyzerStatusSetting;
 import play.libs.Json;
@@ -49,7 +49,8 @@ public class BBAnalyzer extends Controller {
 			Ebean.beginTransaction();
 			try {
 				// リクエストを処理
-				response = BBItemHeadService.use().storeBBNewItemHeads(request);
+//				response = BBItemHeadService.use().storeBBNewItemHeads(request);
+				response = BBItemService.use().storeBBNewItemHeads(request);
 
 				// OK の場合のみ commit する
 				if (response.getCode().equals(BBAnalyzerStatusSetting.OK.getCode())) {

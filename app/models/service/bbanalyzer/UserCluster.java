@@ -1,9 +1,12 @@
 package models.service.bbanalyzer;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import models.entity.BBReadHistory;
+import models.entity.User;
 import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class UserCluster {
@@ -14,6 +17,8 @@ public class UserCluster {
 	// クラスタの一つ下の層にあるクラスタ
 	public Map<UserCluster, Double> children;
 	
+	
+	/* コンストラクタ */
 	public UserCluster() {
 		children = new HashMap<UserCluster, Double>();
 	}
@@ -26,6 +31,35 @@ public class UserCluster {
 		this();
 		this.children.putAll(children);
 		updateVector();
+	}
+	
+	
+	/* インスタンスメソッド */
+	/**
+	 * クラスタ内に存在するすべてのユーザを取得する
+	 * @return
+	 */
+	public Set<User> getAllUsers() {
+		Set<User> users = new HashSet<User>();
+		if (children != null) {
+			for(UserCluster child : children.keySet()) {
+				users.addAll(child.getAllUsers());
+			}
+		}
+		return users;
+	}
+	
+	/**
+	 * クラスタ内に存在するすべてのユーザの掲示閲覧履歴を取得する
+	 * @param minOpenTime 最小の openTime, 指定しない場合 null
+	 * @return
+	 */
+	public Set<BBReadHistory> getAllReadHistories(Long minOpenTime) {
+		Set<BBReadHistory> histories = new HashSet<BBReadHistory>();
+		for(User user : getAllUsers()) {
+			histories.addAll(new BBReadHistory().findSetForUser(user, minOpenTime));
+		}
+		return histories;
 	}
 	
 	/**

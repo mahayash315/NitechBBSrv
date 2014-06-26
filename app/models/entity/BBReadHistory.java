@@ -1,6 +1,7 @@
 package models.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -112,7 +113,7 @@ public class BBReadHistory extends Model {
 	}
 	
 	/**
-	 * User に対する ReadHistory の一覧を取得する
+	 * User に対する ReadHistory の一覧を List で取得する
 	 * @param user ユーザ, null の場合 this.user が入る
 	 * @param minOpenTime 最小の openTime, 指定しない場合 null
 	 * @param orderByClause 出力順の指定文, 指定しない場合 null
@@ -123,6 +124,20 @@ public class BBReadHistory extends Model {
 			user = this.user;
 		}
 		return bbReadHistoryModelService.findListForUser(user, minOpenTime, orderByClause);
+	}
+	
+	/**
+	 * User に対する ReadHistory の一覧を Set で取得する
+	 * @param user ユーザ, null の場合 this.user が入る
+	 * @param minOpenTime 最小の openTime, 指定しない場合 null
+	 * @param orderByClause 出力順の指定文, 指定しない場合 null
+	 * @return
+	 */
+	public Set<BBReadHistory> findSetForUser(User user, Long minOpenTime) {
+		if (user == null) {
+			user = this.user;
+		}
+		return bbReadHistoryModelService.findSetForUser(user, minOpenTime);
 	}
 	
 	/* getter, setter */

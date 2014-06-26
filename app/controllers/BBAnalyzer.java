@@ -37,7 +37,7 @@ public class BBAnalyzer extends Controller {
 		}
 		
 		// 処理
-		BBAnalyzerResult result = BBAnalyzerUtil.analyzeText(form.get().getBody());
+		BBAnalyzerResult result = BBAnalyzerUtil.use().analyzeText(form.get().getBody());
 		
 		return ok(views.html.bbanalyzer.kuromoji.render(form, result));
 	}

@@ -1,6 +1,7 @@
 package models.service.bbreadhistory;
 
 import java.util.List;
+import java.util.Set;
 
 import models.entity.BBItem;
 import models.entity.BBReadHistory;
@@ -82,7 +83,7 @@ public class BBReadHistoryModelService implements ModelService<Long, BBReadHisto
 	}
 	
 	/**
-	 * User に対するエントリの一覧を取得する
+	 * User に対するエントリの一覧を List で取得する
 	 * @param user ユーザ
 	 * @param minOpenTime 最小の openTime, 指定しない場合は null
 	 * @param orderByClause 出力順の指定文, 指定しない場合は null
@@ -102,6 +103,26 @@ public class BBReadHistoryModelService implements ModelService<Long, BBReadHisto
 							.ge("openTime", minOpenTime)
 						.order(orderByClause)
 						.findList();
+		}
+		return null;
+	}
+	
+	/**
+	 * User に対するエントリの一覧を Set で取得する
+	 * @param user ユーザ
+	 * @param minOpenTime 最小の openTime, 指定しない場合は null
+	 * @return
+	 */
+	public Set<BBReadHistory> findSetForUser(User user, Long minOpenTime) {
+		if (user != null) {
+			if (minOpenTime == null) {
+				minOpenTime = Long.valueOf(0L);
+			}
+			return BBReadHistory.find
+						.where()
+							.eq("user", user)
+							.ge("openTime", minOpenTime)
+						.findSet();
 		}
 		return null;
 	}
