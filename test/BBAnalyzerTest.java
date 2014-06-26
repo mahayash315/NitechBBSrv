@@ -37,28 +37,9 @@ public class BBAnalyzerTest {
 				
 				Map<UserCluster, Double> clusters = new HashMap<UserCluster, Double>();
 				for(UserCluster cluster : topClusters) {
-					clusters.put(cluster, Double.valueOf(0));
+					Logger.info("BBAnalyzerTest: "+cluster);
 				}
-				StringBuilder sb = new StringBuilder();
-				printClusters(0, sb, clusters);
 			}
 		});
-	}
-	
-	
-	
-	private void printClusters(int depth, StringBuilder sb, Map<UserCluster, Double> clusters) {
-		for(UserCluster cluster : clusters.keySet()) {
-			double distance = clusters.get(cluster).doubleValue();
-			for(int i = 0; i < depth; ++i) {
-				sb.append(" ");
-			}
-			sb.append(cluster.toString());
-			sb.append("("+distance+")");
-			sb.append("¥n");
-
-			Map<UserCluster, Double> children = cluster.children;
-			printClusters(depth+1, sb, children);
-		}
 	}
 }
