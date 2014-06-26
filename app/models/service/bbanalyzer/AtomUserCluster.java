@@ -12,6 +12,11 @@ public class AtomUserCluster extends UserCluster {
 		// do nothing
 	}
 	
+	@Override
+	public double getWeight() {
+		return 1.0;
+	}
+	
 	/* toString() */
 	@Override
 	public String toString() {

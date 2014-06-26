@@ -54,6 +54,15 @@ public class BBAnalyzerUtil {
 		}
 	}
 	
+	public static void vectorMultiplyAndAdd(double[] dst, double[] v, double factor) throws IllegalArgumentException {
+		if (dst.length != v.length) {
+			throw new IllegalArgumentException("v1.length != v2.length");
+		}
+		for(int i = 0; i < dst.length; ++i) {
+			dst[i] = dst[i] + factor*v[i];
+		}
+	}
+	
 	public static double vectorSize(double[] v) {
 		double sum = 0;
 		for(int i = 0; i < v.length; ++i) {

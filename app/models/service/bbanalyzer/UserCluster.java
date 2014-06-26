@@ -29,6 +29,20 @@ public class UserCluster {
 	}
 	
 	/**
+	 * クラスタの重みを返す
+	 * @return
+	 */
+	public double getWeight() {
+		double weight = 0;
+		if (children != null) {
+			for(UserCluster child : children.keySet()) {
+				weight = weight + child.getWeight();
+			}
+		}
+		return weight;
+	}
+	
+	/**
 	 * クラスタのクラスタ中心ベクトルを子クラスタのベクトルの平均を取ることで更新
 	 */
 	public void updateVector() {
@@ -38,9 +52,9 @@ public class UserCluster {
 			if (childVector != null) {
 				vector = new double[childVector.length];
 				for(UserCluster child : keySet) {
-					BBAnalyzerUtil.vectorAdd(vector, child.vector);
+					BBAnalyzerUtil.vectorMultiplyAndAdd(vector, child.vector, child.getWeight());
 				}
-				BBAnalyzerUtil.vectorDivide(vector, Double.valueOf(children.size()));
+				BBAnalyzerUtil.vectorDivide(vector, getWeight());
 			}
 		}
 	}
