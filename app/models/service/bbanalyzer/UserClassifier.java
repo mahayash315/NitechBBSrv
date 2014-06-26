@@ -218,7 +218,7 @@ public class UserClassifier {
 				if (0 < count) {
 					// 各 parent クラスタのクラスタ中心を更新
 					for(UserCluster parent : parents) {
-						updateCenterVector(parent);
+						parent.updateVector();
 						parent.children.clear();
 					}
 				}
@@ -237,7 +237,7 @@ public class UserClassifier {
 							minimumCluster = parent;
 						}
 					}
-					Logger.info("UserClassifier#doClassify():      --> nearest parent = "+minimumCluster.toString()+", distance="+minimumDistance);
+					Logger.info("UserClassifier#doClassify():      --> nearest parent = "+minimumCluster+", distance="+minimumDistance);
 					minimumCluster.children.put(child, minimumDistance);
 					if (!prevClusters.containsKey(child) || !prevClusters.get(child).equals(minimumCluster)) {
 						++changed;
@@ -328,8 +328,12 @@ public class UserClassifier {
 		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 		
 		for(UserCluster child : children) {
-			double cosin = vectorMultiply(child.vector, parent.vector) / (vectorSize(child.vector) * vectorSize(parent.vector));
-			double distance = 1.0 - cosin;
+			double len1 = BBAnalyzerUtil.vectorSize(child.vector), len2 = BBAnalyzerUtil.vectorSize(parent.vector);
+			double distance = 0;
+			if (len1 != 0.0 && len2 != 0.0) {
+				double cosin = BBAnalyzerUtil.vectorMultiply(child.vector, parent.vector) / (len1 * len2);
+				distance = 1.0 - cosin;
+			}
 			if (distance <= 0.0) {
 				Logger.info("UserClassifier#calcDistances(): distance = 0.0");
 				Logger.info("UserClassifier#calcDistances():   <-- child.vec  = "+BBAnalyzerUtil.printVector(child.vector));
@@ -343,50 +347,4 @@ public class UserClassifier {
 		}
 	}
 	
-	/**
-	 * parent クラスタのクラスタ中心ベクトルを更新
-	 * @param cluster
-	 */
-	private void updateCenterVector(UserCluster cluster) {
-		double vector[] = new double[userVectorSize];
-		for(UserCluster child : cluster.children.keySet()) {
-			vectorAdd(vector, child.vector);
-		}
-		vectorDivide(vector, Double.valueOf(cluster.children.size()));
-		cluster.vector = vector;
-	}
-	
-	private void vectorAdd(double[] dst, double[] v) throws IllegalArgumentException {
-		if (dst.length != v.length) {
-			throw new IllegalArgumentException("v1.length != v2.length");
-		}
-		for(int i = 0; i < dst.length; ++i) {
-			dst[i] = dst[i] + v[i];
-		}
-	}
-	
-	private double vectorMultiply(double[] v1, double[] v2) throws IllegalArgumentException {
-		if (v1.length != v2.length) {
-			throw new IllegalArgumentException("v1.length != v2.length");
-		}
-		double res = 0;
-		for(int i = 0; i < v1.length; ++i) {
-			res = res + (v1[i] * v2[i]);
-		}
-		return res;
-	}
-	
-	private void vectorDivide(double[] dst, double div) {
-		for(int i = 0; i < dst.length; ++i) {
-			dst[i] = dst[i] / div;
-		}
-	}
-	
-	private double vectorSize(double[] v) {
-		double sum = 0;
-		for(int i = 0; i < v.length; ++i) {
-			sum = sum + (v[i] * v[i]);
-		}
-		return Math.sqrt(sum);
-	}
 }

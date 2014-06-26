@@ -7,6 +7,11 @@ public class AtomUserCluster extends UserCluster {
 
 	public User user;
 	
+	@Override
+	public void updateVector() {
+		// do nothing
+	}
+	
 	/* toString() */
 	@Override
 	public String toString() {

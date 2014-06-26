@@ -15,6 +15,18 @@ public class UserCluster {
 	public UserCluster() {
 	}
 	
+	/**
+	 * クラスタのクラスタ中心ベクトルを子クラスタのベクトルの平均を取ることで更新
+	 */
+	public void updateVector() {
+		double vector[] = new double[this.vector.length];
+		for(UserCluster child : children.keySet()) {
+			BBAnalyzerUtil.vectorAdd(vector, child.vector);
+		}
+		BBAnalyzerUtil.vectorDivide(vector, Double.valueOf(children.size()));
+		this.vector = vector;
+	}
+	
 	/* toString() */
 	@Override
 	public String toString() {
