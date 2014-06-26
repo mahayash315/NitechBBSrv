@@ -312,6 +312,9 @@ public class UserClassifier {
 			parents.add(clusters[i]);
 			Logger.info("UserClassifier#initKMeans("+depth+"): distance = "+furthestDistance+", selected "+clusters[i]);
 		}
+		
+		// 最後に決めたクラスタ cluster[size-1] との距離も計算する
+		calcDistances(depth, clusters[size-1]);
 	}
 	
 	/**
