@@ -1,7 +1,9 @@
 package models.service.bbitemappendix;
 
+import models.service.AbstractService;
 
-public class BBItemAppendixService {
+
+public class BBItemAppendixService extends AbstractService {
 	
 //	private MathUtil mathUtil = new MathUtil();
 //	private BBItemHead head;

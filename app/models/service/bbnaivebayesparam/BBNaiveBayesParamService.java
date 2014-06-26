@@ -1,7 +1,9 @@
 package models.service.bbnaivebayesparam;
 
+import models.service.AbstractService;
 
-public class BBNaiveBayesParamService {
+
+public class BBNaiveBayesParamService extends AbstractService {
 	
 //	private static final double DEFAULT_GAUSS_MYU_VALUE = 0.0;
 //	private static final double DEFAULT_POISSON_LAMBDA_VALUE = 10E-5;

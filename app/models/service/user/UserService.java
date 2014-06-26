@@ -7,16 +7,10 @@ import java.sql.SQLException;
 
 import models.entity.BBReadHistory;
 import models.entity.User;
-import play.Logger;
-import play.db.DB;
+import models.service.AbstractService;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Transaction;
+public class UserService extends AbstractService {
 
-public class UserService {
-
-	private Connection conn;
-	
 	private static class SQL_BB_READ_HISTORY {
 		static final String SQL_SELECT_USER_VECTOR = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
 				+ " from "+BBReadHistory.ENTITY+" where "+BBReadHistory.PROPERTY.USER+"=? group by "+BBReadHistory.PROPERTY.ITEM;
@@ -73,27 +67,4 @@ public class UserService {
 		return vector;
 	}
 	
-	
-	
-	
-	
-	private Connection getConnection() {
-		if (conn == null) {
-			Transaction t = Ebean.currentTransaction();
-			if (t != null) {
-				conn = t.getConnection();
-			} else {
-				conn = DB.getConnection();
-			}
-		}
-		return conn;
-	}
-	
-	private void closeConnection() throws SQLException {
-		if (conn != null) {
-			if (Ebean.currentTransaction() == null) {
-				conn.close();
-			}
-		}
-	}
 }

@@ -9,12 +9,13 @@ import models.entity.BBWord;
 import models.entity.User;
 import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
+import models.service.AbstractService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.service.user.UserModelService;
 import utils.api.bbanalyzer.LogUtil;
 import utils.bbanalyzer.BBAnalyzerUtil;
 
-public class BBItemService {
+public class BBItemService extends AbstractService {
 	
 	private BBAnalyzerService bbAnalyzerService = new BBAnalyzerService();
 

@@ -6,13 +6,14 @@ import models.request.mockbb.GetDetailRequest;
 import models.request.mockbb.GetListRequest;
 import models.request.mockbb.admin.CreateItemRequest;
 import models.request.mockbb.admin.EditItemRequest;
+import models.service.AbstractService;
 import models.view.mockbb.GetDetailDto;
 import models.view.mockbb.GetListDto;
 import models.view.mockbb.admin.ManageDto;
 
 import com.avaje.ebean.Page;
 
-public class MockBBItemService {
+public class MockBBItemService extends AbstractService {
 
 	public static MockBBItemService use() {
 		return new MockBBItemService();

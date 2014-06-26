@@ -12,6 +12,7 @@ import models.entity.BBItemHead;
 import models.entity.BBNaiveBayesParam;
 import models.entity.BBWord;
 import models.entity.User;
+import models.service.AbstractService;
 import models.setting.BBAnalyzerSetting;
 
 import org.atilika.kuromoji.Token;
@@ -20,7 +21,7 @@ import org.atilika.kuromoji.Tokenizer;
 import utils.api.bbanalyzer.LogUtil;
 import utils.bbanalyzer.MathUtil;
 
-public class BBAnalyzerService {
+public class BBAnalyzerService extends AbstractService {
 
 	private static final int DEFAULT_COUNT = 0;
 	private static final double DEFAULT_GAUSS_MYU_VALUE = 0.0;

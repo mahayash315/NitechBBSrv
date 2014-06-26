@@ -11,11 +11,11 @@ import java.util.Set;
 
 import models.entity.BBItem;
 import models.entity.User;
+import models.service.AbstractService;
 import play.Logger;
-import play.db.DB;
 import utils.bbanalyzer.BBAnalyzerUtil;
 
-public class UserClassifier {
+public class UserClassifier extends AbstractService {
 
 	// TODO ユーザをクラスタに分類させるクラスタ分析器を作る
 	
@@ -54,8 +54,6 @@ public class UserClassifier {
 	//depth -> cluster(children) -> cluster(parent) -> distance
 	Map<Integer, Map<UserCluster, Map<UserCluster, Double>>> distanceMap;
 	
-
-	Connection conn;
 	
 	/* コンストラクタ */
 	public UserClassifier() {
@@ -68,8 +66,6 @@ public class UserClassifier {
 	 * @throws SQLException 
 	 */
 	public void classify() throws SQLException {
-		conn = DB.getConnection();
-		
 		// 初期化
 		init();
 		
@@ -87,7 +83,7 @@ public class UserClassifier {
 			throw e;
 		} finally {
 			try {
-				conn.close();
+				closeConnection();
 			} catch (SQLException e) {
 				e.printStackTrace();
 				throw e;
@@ -125,7 +121,7 @@ public class UserClassifier {
 		ResultSet rs = null;
 		
 		try {
-			st = SQL_BBITEM.STATEMENT.selectIdLength(conn);
+			st = SQL_BBITEM.STATEMENT.selectIdLength(getConnection());
 			rs = st.executeQuery();
 			
 			if (rs.next()) {

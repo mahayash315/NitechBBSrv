@@ -1,6 +1,8 @@
 package models.service.bbword;
 
-public class BBWordService {
+import models.service.AbstractService;
+
+public class BBWordService extends AbstractService {
 
 	public static BBWordService use() {
 		return new BBWordService();

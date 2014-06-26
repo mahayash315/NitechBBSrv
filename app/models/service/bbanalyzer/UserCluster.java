@@ -51,15 +51,24 @@ public class UserCluster {
 	
 	/**
 	 * クラスタ内に存在するすべてのユーザの掲示閲覧履歴を取得する
+	 * @param users
+	 * @param minOpenTime 最小の openTime, 指定しない場合 null
+	 * @return
+	 */
+	public Set<BBReadHistory> getAllReadHistories(Set<User> users, Long minOpenTime) {
+		Set<BBReadHistory> histories = new HashSet<BBReadHistory>();
+		for(User user : users) {
+			histories.addAll(new BBReadHistory().findSetForUser(user, minOpenTime));
+		}
+		return histories;
+	}
+	/**
+	 * クラスタ内に存在するすべてのユーザの掲示閲覧履歴を取得する
 	 * @param minOpenTime 最小の openTime, 指定しない場合 null
 	 * @return
 	 */
 	public Set<BBReadHistory> getAllReadHistories(Long minOpenTime) {
-		Set<BBReadHistory> histories = new HashSet<BBReadHistory>();
-		for(User user : getAllUsers()) {
-			histories.addAll(new BBReadHistory().findSetForUser(user, minOpenTime));
-		}
-		return histories;
+		return getAllReadHistories(getAllUsers(), minOpenTime);
 	}
 	
 	/**

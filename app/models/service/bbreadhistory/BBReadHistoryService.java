@@ -6,10 +6,11 @@ import models.entity.User;
 import models.request.api.bbanalyzer.BBReadHistoryItem;
 import models.request.api.bbanalyzer.BBReadHistoryRequest;
 import models.response.api.bbanalyzer.BBReadHistoryResponse;
+import models.service.AbstractService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.service.user.UserModelService;
 
-public class BBReadHistoryService {
+public class BBReadHistoryService extends AbstractService {
 
 	private static final long DEFAULT_FETCH_OPENTIME_SPAN = 30L * 24L * 60L * 60L * 1000L;
 	private static final double MINIMUM_VARIANCE_VALUE = 10E-5;

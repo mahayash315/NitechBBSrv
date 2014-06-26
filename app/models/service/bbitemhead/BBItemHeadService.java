@@ -6,11 +6,12 @@ import models.entity.BBItemHead;
 import models.entity.User;
 import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
+import models.service.AbstractService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.service.user.UserModelService;
 import utils.api.bbanalyzer.LogUtil;
 
-public class BBItemHeadService {
+public class BBItemHeadService extends AbstractService {
 	
 	private models.service.bbanalyzer.BBAnalyzerService bbAnalyzerService = new models.service.bbanalyzer.BBAnalyzerService();
 

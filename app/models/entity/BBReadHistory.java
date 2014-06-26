@@ -190,5 +190,6 @@ public class BBReadHistory extends Model {
 		public static final String ID = "id";
 		public static final String USER = "user_id";
 		public static final String ITEM = "bb_item_id";
+		public static final String OPEN_TIME = "open_time";
 	}
 }
