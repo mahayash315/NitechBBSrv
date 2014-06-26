@@ -95,7 +95,7 @@ public class UserClassifier {
 		}
 	}
 	
-	public Set<UserCluster> getTopCluster() {
+	public Set<UserCluster> getTopClusters() {
 		if (clusterMap != null && clusterMap.containsKey(CLUSTER_DEPTH)) {
 			return clusterMap.get(CLUSTER_DEPTH);
 		}
@@ -197,10 +197,10 @@ public class UserClassifier {
 			initKMeans(depth);
 			Logger.info("UserClassifier#doClassify(): selected "+parents.size()+" parents");
 			
-			// 変数初期化
-			for(UserCluster parent : parents) {
-				parent.children = new HashMap<UserCluster, Double>();
-			}
+//			// 変数初期化
+//			for(UserCluster parent : parents) {
+//				parent.children = new HashMap<UserCluster, Double>();
+//			}
 			
 			// for i=1,2,...,n
 			// 		for each cluster in children
@@ -262,27 +262,25 @@ public class UserClassifier {
 		Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth));
 		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 		Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
-		int size = CLUSTER_SIZES[depth-1];
-		UserCluster clusters[] = new UserCluster[size];
+		int num = CLUSTER_SIZES[depth-1];
+		UserCluster clusters[] = new UserCluster[num];
 		UserCluster furthestCluster = null;
 		double furthestDistance = 0;
 		
 		// クラスタ中心を1つ決める
-		clusters[0] = children.iterator().next();
+		clusters[0] = new UserCluster(children.iterator().next());
 		parents.add(clusters[0]);
 		
-		// size 個のクラスタ中心まで増やす
-		for(int i = 1; i < size; ++i) {
+		// num 個のクラスタ中心まで増やす
+		for(int i = 1; i < num; ++i) {
 			Logger.info("UserClassifier#initKMeans("+depth+"): i = "+i);
 			// calculate distance between clusters[0] and all clusters in children
 			// insert them into distanceMap
 			// take the furthest (or close to the furthest) cluster form children
 			//   as next center cluster (cluster[i])
 			
-			// 一つ前のクラスタ
-			UserCluster cluster = clusters[i-1];
-			// その中心との距離を計算する
-			calcDistances(depth, cluster);
+			// 一つ前のクラスタとの距離を計算する
+			calcDistances(depth, clusters[i-1]);
 			
 			// どの親クラスタからも一番遠い子クラスタを見つける
 			furthestCluster = null;
@@ -308,13 +306,13 @@ public class UserClassifier {
 			}
 			
 			// furthestCluster を次のクラスタ中心 cluster[i] とする
-			clusters[i] = furthestCluster;
+			clusters[i] = new UserCluster(furthestCluster);
 			parents.add(clusters[i]);
 			Logger.info("UserClassifier#initKMeans("+depth+"): distance = "+furthestDistance+", selected "+clusters[i]);
 		}
 		
 		// 最後に決めたクラスタ cluster[size-1] との距離も計算する
-		calcDistances(depth, clusters[size-1]);
+		calcDistances(depth, clusters[num-1]);
 	}
 	
 	/**

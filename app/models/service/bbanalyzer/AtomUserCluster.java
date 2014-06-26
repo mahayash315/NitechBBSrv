@@ -1,7 +1,7 @@
 package models.service.bbanalyzer;
 
-import utils.bbanalyzer.BBAnalyzerUtil;
 import models.entity.User;
+import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class AtomUserCluster extends UserCluster {
 
@@ -16,9 +16,10 @@ public class AtomUserCluster extends UserCluster {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(BBAnalyzerUtil.printVector(vector));
-		sb.append(", user=");
+		sb.append("user=");
 		sb.append(user);
+		sb.append(", ");
+		sb.append(BBAnalyzerUtil.printVector(vector));
 		return sb.toString();
 	}
 }

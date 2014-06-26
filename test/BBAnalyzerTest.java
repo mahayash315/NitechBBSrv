@@ -32,7 +32,7 @@ public class BBAnalyzerTest {
 					e.printStackTrace();
 				}
 				
-				Set<UserCluster> topClusters = classifier.getTopCluster();
+				Set<UserCluster> topClusters = classifier.getTopClusters();
 				assertThat(topClusters).isNotNull();
 				
 				Map<UserCluster, Double> clusters = new HashMap<UserCluster, Double>();

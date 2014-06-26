@@ -1,6 +1,8 @@
 package models.service.bbanalyzer;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import utils.bbanalyzer.BBAnalyzerUtil;
 
@@ -13,18 +15,34 @@ public class UserCluster {
 	public Map<UserCluster, Double> children;
 	
 	public UserCluster() {
+		children = new HashMap<UserCluster, Double>();
+	}
+	public UserCluster(UserCluster baseCluster) {
+		this();
+		children.put(baseCluster, Double.valueOf(0.0));
+		updateVector();
+	}
+	public UserCluster(Map<UserCluster, Double> children) {
+		this();
+		this.children.putAll(children);
+		updateVector();
 	}
 	
 	/**
 	 * クラスタのクラスタ中心ベクトルを子クラスタのベクトルの平均を取ることで更新
 	 */
 	public void updateVector() {
-		double vector[] = new double[this.vector.length];
-		for(UserCluster child : children.keySet()) {
-			BBAnalyzerUtil.vectorAdd(vector, child.vector);
+		if (children != null && 0 < children.size()) {
+			Set<UserCluster> keySet = children.keySet();
+			double childVector[] = keySet.iterator().next().vector;
+			if (childVector != null) {
+				vector = new double[childVector.length];
+				for(UserCluster child : keySet) {
+					BBAnalyzerUtil.vectorAdd(vector, child.vector);
+				}
+				BBAnalyzerUtil.vectorDivide(vector, Double.valueOf(children.size()));
+			}
 		}
-		BBAnalyzerUtil.vectorDivide(vector, Double.valueOf(children.size()));
-		this.vector = vector;
 	}
 	
 	/* toString() */
@@ -32,14 +50,19 @@ public class UserCluster {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(BBAnalyzerUtil.printVector(vector));
-		sb.append(", users=[");
 		if (children != null) {
-			for(UserCluster child : children.keySet()) {
-				sb.append(child);
-				sb.append(",");
+			sb.append(", users=[");
+			if (0 < children.size()) {
+				for(UserCluster child : children.keySet()) {
+					sb.append(" ");
+					sb.append(child);
+					sb.append(",");
+				}
+				sb.deleteCharAt(sb.length()-1);
+				sb.append(" ");
 			}
+			sb.append("]");
 		}
-		sb.append("]");
 		return sb.toString();
 	}
 	
