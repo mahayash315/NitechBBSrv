@@ -224,7 +224,7 @@ public class UserClassifier extends AbstractService {
 					for(UserCluster parent : parents) {
 //						LogUtil.info("UserClassifier#doClassify():      +parent "+parent);
 						double d = dists.get(parent).doubleValue();
-						LogUtil.info("UserClassifier#doClassify():        +distance = "+d);
+//						LogUtil.info("UserClassifier#doClassify():        +distance = "+d);
 						if (d < minimumDistance) {
 							minimumDistance = d;
 							minimumCluster = parent;
