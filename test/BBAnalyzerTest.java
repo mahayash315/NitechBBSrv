@@ -74,19 +74,33 @@ public class BBAnalyzerTest {
 					UserCluster topCluster = topClusters.iterator().next();
 					assertThat(topCluster).isNotNull();
 					
-					BBItemClassifier itemClassifier = topCluster.getItemClassifier();
-					itemClassifier.train();
+					Set<UserCluster> allUserClusters = topCluster.getAllClusters();
 					
 					BBItem item = new BBItem("2014-06-25", "4");
 					item.setAuthor("学生生活課（就職・キャリア支援係）");
 					item.setTitle("ジェネラルインターンシップ　第2次募集終了のお知らせ");
 					
-					itemClassifier.classify(item);
+					Map<UserCluster, Integer> classified = new HashMap<UserCluster, Integer>();
+					for(UserCluster userCluster : allUserClusters) {
+						BBItemClassifier itemClassifier = userCluster.getItemClassifier();
+						itemClassifier.train();
+						int classifiedTo = itemClassifier.classify(item);
+						classified.put(userCluster, Integer.valueOf(classifiedTo));
+					}
+					
+					for(UserCluster userCluster : classified.keySet()) {
+						Logger.info("BBAnalyzerTest#test2(): classified item to CLASS["+classified.get(userCluster)+"]");
+					}
+					
+					BBItemClassifier topItemClassifier = topCluster.getItemClassifier();
+					topItemClassifier.train();
+					int classifiedTo = topItemClassifier.classify(item);
+					Logger.info("BBAnalyzerTest#test2(): classified item to CLASS["+classifiedTo+"]");
 				} catch (SQLException e) {
 					// TODO 自動生成された catch ブロック
 					e.printStackTrace();
 				} finally {
-					Logger.info("BBAnalyzerTest#test1(): end");
+					Logger.info("BBAnalyzerTest#test2(): end");
 				}
 			}
 		});

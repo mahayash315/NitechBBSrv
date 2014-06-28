@@ -23,13 +23,15 @@ public class BBItemClassifier extends AbstractService {
 	/* 定数 */
 	public static final int NUM_CLASS = 3;
 	private static final double THRESHOLDS[] = new double[]{-0.1, 0.1};
+	private static final int DEFAULT_CLASSIFY_TO = -1;
+	private static final int MIN_TRAINIG_DATA_COUNT = 1;
 	
 	private static class SQL_BB_READ_HISTORY {
 		public static final int PARAM_SIZE = 100;
 		static final String PARAMS = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";;
 		
 		static final String SQL_SELECT_ITEM_COUNTS = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
-												  + " from "+BBReadHistory.ENTITY+" group by "+BBReadHistory.PROPERTY.ITEM;
+												   + " from "+BBReadHistory.ENTITY+" group by "+BBReadHistory.PROPERTY.ITEM;
 		static final String SQL_SELECT_ITEM_COUNTS_WITH_MIN_OPEN_TIME = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
 																	  + " from "+BBReadHistory.ENTITY+" where "+BBReadHistory.PROPERTY.OPEN_TIME+" >= ? group by "+BBReadHistory.PROPERTY.ITEM;
 		static final String SQL_SELECT_ITEM_COUNTS_FOR_USER = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
@@ -108,10 +110,17 @@ public class BBItemClassifier extends AbstractService {
 	// クラスごとの条件付き確率のパラメータ
 	Map<Integer, Map<BBWord, Double>> probConds;
 	
+	// 学習回数
+	int trainingCount;
+	
+	// 学習データの総数
+	int trainingDataCount;
+	
 	/* コンストラクタ */
 	private BBItemClassifier() {
 		loadProbPrior();
 		loadProbConds();
+		loadCounters();
 	}
 	public BBItemClassifier(UserCluster userCluster) {
 		this();
@@ -187,11 +196,14 @@ public class BBItemClassifier extends AbstractService {
 				}
 				
 				// 条件付き確率のパラメータを計算
-				double n = (double) totalReadCount;
-				for(BBWord word : totalWordCounts.keySet()) {
-					double count = totalWordCounts.get(word).doubleValue();
-					double prob = count / n;
-					probCond.put(word, Double.valueOf(prob));
+				if (0 < totalReadCount) {
+					double n = (double) totalReadCount;
+					for(BBWord word : totalWordCounts.keySet()) {
+						double count = totalWordCounts.get(word).doubleValue();
+						double prob = count / n;
+						probCond.put(word, Double.valueOf(prob));
+						LogUtil.info("BBItemClassifier#train(): CLASS["+i+"] probCond("+word+") = "+prob);
+					}
 				}
 				probConds.put(Integer.valueOf(i), probCond);
 			}
@@ -200,13 +212,19 @@ public class BBItemClassifier extends AbstractService {
 			// 事前確率の計算
 			double div = (double) totalItemCount;
 			for(int i = 0; i < NUM_CLASS; ++i) {
-				double d = (double) itemSets.get(Integer.valueOf(i)).size() / div;
-				probPrior.put(Integer.valueOf(i), Double.valueOf(d));
+				double prob = (double) itemSets.get(Integer.valueOf(i)).size() / div;
+				probPrior.put(Integer.valueOf(i), Double.valueOf(prob));
+				LogUtil.info("BBItemClassifier#train(): CLASS["+i+"] probPrior = "+prob);
 			}
+			
+			// カウンタ更新
+			++trainingCount;
+			trainingDataCount = trainingDataCount + countPerItems.size();
 			
 			// パラメータの保存
 			saveProbPrior();
 			saveProbConds();
+			saveCounters();
 		} catch (SQLException e) {
 			throw e;
 		} finally {
@@ -220,6 +238,12 @@ public class BBItemClassifier extends AbstractService {
 	 */
 	public int classify(BBItem item) {
 		// TODO test this method
+		
+		if (trainingDataCount < MIN_TRAINIG_DATA_COUNT) {
+			LogUtil.info("BBItemClassifier#classify(): not trained enough");
+			return DEFAULT_CLASSIFY_TO;
+		}
+
 		// クラスごとの事後確率の格納先
 		Map<Integer, Double> probs = new HashMap<Integer, Double>();
 		int maxClass = 0;
@@ -237,10 +261,10 @@ public class BBItemClassifier extends AbstractService {
 				double cond = probCond.get(word).doubleValue();
 				if (features.contains(word)) {
 					prob = prob + Math.log(1.0+cond);
-					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(1.0+cond)+" <- "+word);
+					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(1.0+cond)+" (cond="+cond+") <- "+word);
 				} else {
 					prob = prob + Math.log(2.0-cond);
-					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(2.0-cond)+" <- "+word);
+					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(2.0-cond)+" (cond="+cond+") <- "+word);
 				}
 			}
 			probs.put(Integer.valueOf(i), prob);
@@ -293,7 +317,7 @@ public class BBItemClassifier extends AbstractService {
 		// 標準化とクラス分類
 		for(BBItem item : standarized.keySet()) {
 			double d = (standarized.get(item) - mean) / var;
-			int classifiedTo = -1;
+			int classifiedTo = DEFAULT_CLASSIFY_TO;
 			standarized.put(item, Double.valueOf(d));
 			
 			if (d < THRESHOLDS[0]) {
@@ -361,16 +385,26 @@ public class BBItemClassifier extends AbstractService {
 		// TODO implement here
 	}
 	
+	private void saveProbPrior() {
+		// TODO implement here
+	}
+	
 	private void loadProbConds() {
 		probConds = new HashMap<Integer, Map<BBWord, Double>>();
 		// TODO implement here
 	}
 	
-	private void saveProbPrior() {
+	private void saveProbConds() {
 		// TODO implement here
 	}
 	
-	private void saveProbConds() {
+	private void loadCounters() {
+		trainingCount = 0;
+		trainingDataCount = 0;
+		// TODO implement here
+	}
+	
+	private void saveCounters() {
 		// TODO implement here
 	}
 }

@@ -9,7 +9,7 @@ import utils.bbanalyzer.MathUtil;
 public class AtomUserCluster extends UserCluster {
 
 	public User user;
-
+	
 	@Override
 	public Set<User> getAllUsers() {
 		return new HashSet<User>(){{ add(user); }};

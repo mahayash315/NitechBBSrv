@@ -99,6 +99,82 @@ public class BBItem extends Model {
 		return "("+getIdDate()+","+getIdIndex()+")"+getAuthor()+"-"+getTitle();
 	}
 	
+	/* hashCode, equals */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((author == null) ? 0 : author.hashCode());
+		result = prime * result + ((body == null) ? 0 : body.hashCode());
+		result = prime * result
+				+ ((dateExec == null) ? 0 : dateExec.hashCode());
+		result = prime * result
+				+ ((dateShow == null) ? 0 : dateShow.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((idDate == null) ? 0 : idDate.hashCode());
+		result = prime * result + ((idIndex == null) ? 0 : idIndex.hashCode());
+		result = prime * result
+				+ ((lastUpdate == null) ? 0 : lastUpdate.hashCode());
+		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BBItem other = (BBItem) obj;
+		if (author == null) {
+			if (other.author != null)
+				return false;
+		} else if (!author.equals(other.author))
+			return false;
+		if (body == null) {
+			if (other.body != null)
+				return false;
+		} else if (!body.equals(other.body))
+			return false;
+		if (dateExec == null) {
+			if (other.dateExec != null)
+				return false;
+		} else if (!dateExec.equals(other.dateExec))
+			return false;
+		if (dateShow == null) {
+			if (other.dateShow != null)
+				return false;
+		} else if (!dateShow.equals(other.dateShow))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (idDate == null) {
+			if (other.idDate != null)
+				return false;
+		} else if (!idDate.equals(other.idDate))
+			return false;
+		if (idIndex == null) {
+			if (other.idIndex != null)
+				return false;
+		} else if (!idIndex.equals(other.idIndex))
+			return false;
+		if (lastUpdate == null) {
+			if (other.lastUpdate != null)
+				return false;
+		} else if (!lastUpdate.equals(other.lastUpdate))
+			return false;
+		if (title == null) {
+			if (other.title != null)
+				return false;
+		} else if (!title.equals(other.title))
+			return false;
+		return true;
+	}
+	
 	/* getter, setter */
 	public Long getId() {
 		return id;
@@ -160,4 +236,5 @@ public class BBItem extends Model {
 	public static class PROPERTY {
 		public static final String ID = "id";
 	}
+
 }

@@ -14,7 +14,7 @@ public class UserCluster {
 	// クラスタの位置ベクトル
 	public double[] vector;
 	
-	// クラスタの一つ下の層にあるクラスタ
+	// クラスタの一つ下の層にあるクラスタとその距離
 	public Map<UserCluster, Double> children;
 	
 	// 識別器
@@ -73,6 +73,21 @@ public class UserCluster {
 	 */
 	public Set<BBReadHistory> getAllReadHistories(Long minOpenTime) {
 		return getAllReadHistories(getAllUsers(), minOpenTime);
+	}
+	
+	/**
+	 * 子クラスタ以下のすべてのクラスタを求める
+	 * @return
+	 */
+	public Set<UserCluster> getAllClusters() {
+		Set<UserCluster> clusters = new HashSet<UserCluster>();
+		if (children != null) {
+			for(UserCluster child : children.keySet()) {
+				clusters.add(child);
+				clusters.addAll(child.getAllClusters());
+			}
+		}
+		return clusters;
 	}
 	
 	/**
