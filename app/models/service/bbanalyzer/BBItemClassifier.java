@@ -15,6 +15,7 @@ import models.entity.BBReadHistory;
 import models.entity.BBWord;
 import models.entity.User;
 import models.service.AbstractService;
+import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class BBItemClassifier extends AbstractService {
 	
@@ -74,11 +75,15 @@ public class BBItemClassifier extends AbstractService {
 	// この識別器の取り付け先クラスタ
 	UserCluster userCluster;
 	
+	// 事前確率のパラメータ
+	Map<Integer, Double> probPrior;
+	
 	// クラスごとの条件付き確率のパラメータ
 	Map<Integer, Map<BBWord, Double>> probConds;
 	
 	/* コンストラクタ */
 	private BBItemClassifier() {
+		loadProbPrior();
 		loadProbConds();
 	}
 	public BBItemClassifier(UserCluster userCluster) {
@@ -92,30 +97,26 @@ public class BBItemClassifier extends AbstractService {
 	 * クラスタ内の全ユーザの掲示閲覧履歴を学習データとして、好みの掲示を学習する
 	 */
 	public void train() throws SQLException {
-		// TODO implement here
+		// TODO test this method
 		
 		if (userCluster == null) {
 			return ;
 		}
-		Set<User> users = userCluster.getAllUsers();
-		Set<BBReadHistory> histories = userCluster.getAllReadHistories(users, null);
 		
 		try {
+			Set<User> users = userCluster.getAllUsers();
+			Set<BBReadHistory> histories = userCluster.getAllReadHistories(users, null);
 			Map<BBWord, Integer> totalWordCounts = new HashMap<BBWord, Integer>();
+			int totalItemCount = 0;
 			
 			// 各記事が何度読まれたかをカウントする
 			Map<BBItem, Integer> countPerItems = countPerItems(getConnection(), null, users);
 			
 			// 掲示閲覧履歴から NUM_CLASS クラスへ分類
-			Set<BBItem>[] itemSets = classifyFromReadHistory(countPerItems);
-			// sets[0] : 興味なし
-			//  .
-			//  .
-			//  .
-			// sets[NUM_CLASS-1] : 興味あり
+			Set<BBItem>[] itemSets = classifyItemsFromReadHistory(countPerItems);
+			// sets[0](興味なし), ..., sets[NUM_CLASS-1](興味あり)
 			
 			// 記事が開かれた回数だけ、各単語についてカウントする
-			// TODO implement here: 興味(あり/なし)をまだ取り入れていない
 			// for 各クラス c について
 			// 		bag of words を用意する (Map<BBWord, Integer> bagOfWords)
 			// 		for クラスに属する掲示の閲覧履歴について
@@ -141,6 +142,8 @@ public class BBItemClassifier extends AbstractService {
 				
 				// クラスに属する各掲示について
 				for(BBItem item : itemSet) {
+					++totalItemCount;
+					
 					// 閲覧回数を取得
 					int readCount = (countPerItems.containsKey(item)) ? countPerItems.get(item) : 0;
 					totalReadCount = totalReadCount + readCount;
@@ -164,6 +167,18 @@ public class BBItemClassifier extends AbstractService {
 					probCond.put(word, Double.valueOf(prob));
 				}
 			}
+			
+			
+			// 事前確率の計算
+			double div = (double) totalItemCount;
+			for(int i = 0; i < NUM_CLASS; ++i) {
+				double d = (double) itemSets[i].size() / div;
+				probPrior.put(Integer.valueOf(i), div);
+			}
+			
+			// パラメータの保存
+			saveProbPrior();
+			saveProbConds();
 		} catch (SQLException e) {
 			throw e;
 		} finally {
@@ -175,8 +190,36 @@ public class BBItemClassifier extends AbstractService {
 	 * 掲示 item をクラス分類する
 	 * @param item
 	 */
-	public void classify(BBItem item) {
-		// TODO implement here
+	public int classify(BBItem item) {
+		// TODO test this method
+		// クラスごとの事後確率の格納先
+		Map<Integer, Double> probs = new HashMap<Integer, Double>();
+		int maxClass = 0;
+		double maxProb = 0;
+		
+		for(int i = 0; i < NUM_CLASS; ++i) {
+			double prior = probPrior.get(Integer.valueOf(i)).doubleValue();
+			Map<BBWord, Double> probCond = probConds.get(Integer.valueOf(i));
+			Set<BBWord> features = BBAnalyzerUtil.use().extractFeatures(item);
+			
+			double prob = prior;
+			for(BBWord word : probCond.keySet()) {
+				double cond = probCond.get(word).doubleValue();
+				if (features.contains(word)) {
+					prob = prob * cond;
+				} else {
+					prob = prob * (1.0 - cond);
+				}
+			}
+			probs.put(Integer.valueOf(i), prob);
+			
+			if (prob < maxProb) {
+				maxClass = i;
+				maxProb = prob;
+			}
+		}
+		
+		return maxClass;
 	}
 	
 	
@@ -188,7 +231,7 @@ public class BBItemClassifier extends AbstractService {
 	 * @param countPerItems
 	 * @return
 	 */
-	private Set<BBItem>[] classifyFromReadHistory(Map<BBItem, Integer> countPerItems) {
+	private Set<BBItem>[] classifyItemsFromReadHistory(Map<BBItem, Integer> countPerItems) {
 		Set<BBItem> sets[] = new Set[NUM_CLASS];
 		for(Set<BBItem> set : sets) {
 			set = new HashSet<BBItem>();
@@ -273,7 +316,21 @@ public class BBItemClassifier extends AbstractService {
 	
 	
 	
+	private void loadProbPrior() {
+		probPrior = new HashMap<Integer, Double>();
+		// TODO implement here
+	}
+	
 	private void loadProbConds() {
 		probConds = new HashMap<Integer, Map<BBWord, Double>>();
+		// TODO implement here
+	}
+	
+	private void saveProbPrior() {
+		// TODO implement here
+	}
+	
+	private void saveProbConds() {
+		// TODO implement here
 	}
 }

@@ -17,8 +17,6 @@ import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class UserClassifier extends AbstractService {
 
-	// TODO ユーザをクラスタに分類させるクラスタ分析器を作る
-	
 	/* 定数 */
 	public static final int CLUSTER_DEPTH = 2;				// クラスタの階層数 D
 	public static final int[] CLUSTER_SIZES = {5, 1};		// 各階層のクラスタの数 K
@@ -173,14 +171,12 @@ public class UserClassifier extends AbstractService {
 		
 		// 1 層 - (CLUSTER_DEPTH) 層
 		for(int depth = 1; depth <= CLUSTER_DEPTH; ++depth) {
-			// TODO 階層 depth において、一つ下の階層 (depth-1) のクラスタをクラスタリングする
 			Logger.info("UserClassifier#doClassify(): classifying depth = "+depth);
 			Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth));
 			Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 			Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
 			Map<UserCluster, UserCluster> prevClusters = new HashMap<UserCluster, UserCluster>();
 			
-			// TODO implement here
 			// make CLUSTER_SIZES[depth-1] clusters in parents
 			// for each cluster in parents
 			// 		for each cluster in children
