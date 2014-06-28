@@ -19,7 +19,8 @@ import models.service.AbstractService;
 public class BBItemClassifier extends AbstractService {
 	
 	/* 定数 */
-	private static final double THRESHOLD = 0.8;
+	public static final int NUM_CLASS = 3;
+	private static final double THRESHOLDS[] = new double[]{-1.0, 1.0};
 	
 	private static class SQL_BB_READ_HISTORY {
 		static final String SQL_SELECT_ITEM_COUNTS = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
@@ -73,9 +74,12 @@ public class BBItemClassifier extends AbstractService {
 	// この識別器の取り付け先クラスタ
 	UserCluster userCluster;
 	
+	// クラスごとの条件付き確率のパラメータ
+	Map<Integer, Map<BBWord, Double>> probConds;
 	
 	/* コンストラクタ */
 	private BBItemClassifier() {
+		loadProbConds();
 	}
 	public BBItemClassifier(UserCluster userCluster) {
 		this();
@@ -102,22 +106,62 @@ public class BBItemClassifier extends AbstractService {
 			// 各記事が何度読まれたかをカウントする
 			Map<BBItem, Integer> countPerItems = countPerItems(getConnection(), null, users);
 			
-			// 掲示閲覧履歴から 2 クラスへ分類
-			Set<BBItem>[] sets = classifyFromReadHistory(countPerItems, THRESHOLD);
+			// 掲示閲覧履歴から NUM_CLASS クラスへ分類
+			Set<BBItem>[] itemSets = classifyFromReadHistory(countPerItems);
 			// sets[0] : 興味なし
-			// sets[1] : 興味あり
+			//  .
+			//  .
+			//  .
+			// sets[NUM_CLASS-1] : 興味あり
 			
 			// 記事が開かれた回数だけ、各単語についてカウントする
 			// TODO implement here: 興味(あり/なし)をまだ取り入れていない
-			for(BBItem item : countPerItems.keySet()) {
-				int readCount = countPerItems.get(item);
-				Set<BBItemWordCount> WordCounts = new BBItemWordCount().findSetByItem(item);
-				for(BBItemWordCount wordCount : WordCounts) {
-					BBWord word = wordCount.getWord();
-					if (!totalWordCounts.containsKey(word)) {
-						totalWordCounts.put(word, Integer.valueOf(0));
+			// for 各クラス c について
+			// 		bag of words を用意する (Map<BBWord, Integer> bagOfWords)
+			// 		for クラスに属する掲示の閲覧履歴について
+			// 			for 掲示に含まれる各単語について
+			// 				bag of words のカウンタを 1 インクリメント
+			// 			end
+			// 		end
+			// 		@    p(word_k in {0,1} | class=c) = p_i^(word_k) * (1-p_i)^(1 - word_k)
+			// 		@ と置くと、
+			// 		@    p_i = (bagOfWords.containsKey(word)) ? (bagOfWords.get(word) / n) : 0;
+			// 		@    ( n : 学習データの総数 = 使った閲覧履歴の総数 )
+			// 		クラス c の確率パラメータ P (consists of p_i for all i) を更新
+			// end
+			// 各クラスについて
+			for(int i = 0; i < itemSets.length; ++i) {
+				Map<BBWord, Double> probCond = probConds.get(i);
+				if (probCond == null) {
+					probCond = new HashMap<BBWord, Double>();
+				}
+				Set<BBItem> itemSet = itemSets[i];
+				int totalReadCount = 0;
+				totalWordCounts.clear();
+				
+				// クラスに属する各掲示について
+				for(BBItem item : itemSet) {
+					// 閲覧回数を取得
+					int readCount = (countPerItems.containsKey(item)) ? countPerItems.get(item) : 0;
+					totalReadCount = totalReadCount + readCount;
+					
+					// 掲示に含まれる各単語について
+					Set<BBItemWordCount> itemWordCountSet = new BBItemWordCount().findSetByItem(item);
+					for(BBItemWordCount itemWordCount : itemWordCountSet) {
+						BBWord word = itemWordCount.getWord();
+						if (!totalWordCounts.containsKey(word)) {
+							totalWordCounts.put(word, Integer.valueOf(0));
+						}
+						totalWordCounts.put(word, Integer.valueOf(totalWordCounts.get(word)+readCount));
 					}
-					totalWordCounts.put(word, Integer.valueOf(totalWordCounts.get(word)+readCount));
+				}
+				
+				// 条件付き確率のパラメータを計算
+				double n = (double) totalReadCount;
+				for(BBWord word : totalWordCounts.keySet()) {
+					double count = totalWordCounts.get(word).doubleValue();
+					double prob = count / n;
+					probCond.put(word, Double.valueOf(prob));
 				}
 			}
 		} catch (SQLException e) {
@@ -140,12 +184,12 @@ public class BBItemClassifier extends AbstractService {
 	
 	
 	/**
-	 * 掲示閲覧履歴から各掲示を 2 クラス(興味あり、興味なし)に分類する
+	 * 掲示閲覧履歴から各掲示を CLASS_NUM クラス(興味なし～興味あり)に分類する
 	 * @param countPerItems
 	 * @return
 	 */
-	private Set<BBItem>[] classifyFromReadHistory(Map<BBItem, Integer> countPerItems, double threshold) {
-		Set<BBItem> sets[] = new Set[2];
+	private Set<BBItem>[] classifyFromReadHistory(Map<BBItem, Integer> countPerItems) {
+		Set<BBItem> sets[] = new Set[NUM_CLASS];
 		for(Set<BBItem> set : sets) {
 			set = new HashSet<BBItem>();
 		}
@@ -153,31 +197,37 @@ public class BBItemClassifier extends AbstractService {
 		// 全掲示取得
 		Set<BBItem> allItems = new BBItem().getAllItems();
 		
-		// 正規化されたカウントの格納先
-		Map<BBItem, Double> normalized = new HashMap<BBItem, Double>();
+		// 標準化されたカウントの格納先
+		Map<BBItem, Double> standarized = new HashMap<BBItem, Double>();
 		
 		// 全記事のカウントの平均と分散を計算
 		int sum = 0;
 		for(BBItem item : allItems) {
 			int count = countPerItems.containsKey(item) ? countPerItems.get(item) : 0;
-			normalized.put(item, Double.valueOf(count));
+			standarized.put(item, Double.valueOf(count));
 			sum = sum + count;
 		}
 		double mean = ((double) sum) / allItems.size();
 		double var = 0;
-		for(Double count : normalized.values()) {
+		for(Double count : standarized.values()) {
 			double d = count - mean;
 			var = var + d*d;
 		}
 		
-		// 正規化とクラス分類
-		for(BBItem item : normalized.keySet()) {
-			double d = (normalized.get(item) - mean) / var;
-			normalized.put(item, Double.valueOf(d));
-			if (d < threshold) {
-				sets[0].add(item);
-			} else {
-				sets[1].add(item);
+		// 標準化とクラス分類
+		for(BBItem item : standarized.keySet()) {
+			double d = (standarized.get(item) - mean) / var;
+			boolean isClassified = false;
+			standarized.put(item, Double.valueOf(d));
+			for(int i = 0; i < sets.length; ++i) {
+				if (THRESHOLDS[i] < d) {
+					sets[i].add(item);
+					isClassified = true;
+					break;
+				}
+			}
+			if (!isClassified) {
+				sets[(sets.length-1)].add(item);
 			}
 		}
 		
@@ -219,5 +269,11 @@ public class BBItemClassifier extends AbstractService {
 				rs.close();
 			}
 		}
+	}
+	
+	
+	
+	private void loadProbConds() {
+		probConds = new HashMap<Integer, Map<BBWord, Double>>();
 	}
 }
