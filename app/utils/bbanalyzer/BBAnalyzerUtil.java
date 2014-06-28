@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import models.entity.BBItem;
@@ -115,6 +116,50 @@ public class BBAnalyzerUtil {
 	
 	private boolean isNoun(Token token) {
 		return token.getAllFeaturesArray()[0].equals("名詞");
+	}
+	
+	
+	
+
+	// --------------------------------------------------------------------------------------
+	// feature
+	// --------------------------------------------------------------------------------------
+	public static double featureMultiply(Map<Long,Double> f1, Map<Long,Double> f2) {
+		double res = 0;
+		for(Long key : f1.keySet()) {
+			if (f2.containsKey(key)) {
+				res = res + (f1.get(key) * f2.get(key));
+			}
+		}
+		return res;
+	}
+	
+	public static double featureSize(Map<Long,Double> feature) {
+		double size = 0;
+		for(Entry<Long, Double> entry : feature.entrySet()) {
+			double d = entry.getValue();
+			size = size + d*d;
+		}
+		size = Math.sqrt(size);
+		return size;
+	}
+	
+	public static double featureDifference(Map<Long,Double> f1, Map<Long,Double> f2) {
+		double cosin = featureMultiply(f1, f2) / (featureSize(f1) * featureSize(f2));
+		return (1.0 - cosin);
+	}
+	
+	public static String printFeature(Map<Long,Double> feature) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("(");
+		for(Long key : feature.keySet()) {
+			sb.append("["+key+"]");
+			sb.append(feature.get(key));
+			sb.append(" ");
+		}
+		sb.deleteCharAt(sb.length()-1);
+		sb.append(")");
+		return sb.toString();
 	}
 	
 }

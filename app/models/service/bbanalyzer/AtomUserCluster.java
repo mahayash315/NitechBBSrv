@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import models.entity.User;
-import utils.bbanalyzer.MathUtil;
+import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class AtomUserCluster extends UserCluster {
 
@@ -20,8 +20,13 @@ public class AtomUserCluster extends UserCluster {
 		return 1.0;
 	}
 	
+//	@Override
+//	public void updateVector() {
+//		// do nothing
+//	}
+	
 	@Override
-	public void updateVector() {
+	public void updateFeature() {
 		// do nothing
 	}
 	
@@ -32,7 +37,7 @@ public class AtomUserCluster extends UserCluster {
 		sb.append("user=");
 		sb.append(user);
 		sb.append(", ");
-		sb.append(MathUtil.printVector(vector));
+		sb.append(BBAnalyzerUtil.printFeature(feature));
 		return sb.toString();
 	}
 }

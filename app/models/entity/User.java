@@ -2,6 +2,7 @@ package models.entity;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -117,8 +118,17 @@ public class User extends Model {
 	 * ユーザベクトルを取得する
 	 * @return
 	 */
-	public double[] getUserVector(int size) throws SQLException {
-		return userService.getUserVector(this, size);
+//	@Deprecated
+//	public double[] getUserVector(int size) throws SQLException {
+//		return userService.getUserVector(this, size);
+//	}
+	
+	/**
+	 * ユーザ特徴を取得する
+	 * @return
+	 */
+	public Map<Long, Double> getUserFeature() throws SQLException {
+		return userService.getUserFeature(this);
 	}
 	
 	/* toString */

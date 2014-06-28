@@ -13,7 +13,6 @@ import models.entity.BBItem;
 import models.entity.User;
 import models.service.AbstractService;
 import utils.bbanalyzer.LogUtil;
-import utils.bbanalyzer.MathUtil;
 
 public class UserClassifier extends AbstractService {
 
@@ -151,7 +150,8 @@ public class UserClassifier extends AbstractService {
 		for(User user : users) {
 			AtomUserCluster cluster = new AtomUserCluster();
 			cluster.user = user;
-			cluster.vector = user.getUserVector(userVectorSize);
+//			cluster.vector = user.getUserVector(userVectorSize);
+			cluster.feature = user.getUserFeature();
 			cluster.children = null;
 			atomClusters.add(cluster);
 		}
@@ -210,7 +210,8 @@ public class UserClassifier extends AbstractService {
 				if (0 < count) {
 					// 各 parent クラスタのクラスタ中心を更新
 					for(UserCluster parent : parents) {
-						parent.updateVector();
+//						parent.updateVector();
+						parent.updateFeature();
 						parent.children.clear();
 					}
 				}
@@ -262,6 +263,8 @@ public class UserClassifier extends AbstractService {
 		// クラスタ中心を1つ決める
 		clusters[0] = new UserCluster(children.iterator().next());
 		parents.add(clusters[0]);
+		LogUtil.info("UserClassifier#initKMeans("+depth+"): i = 0");
+		LogUtil.info("UserClassifier#initKMeans("+depth+"): selected "+clusters[0]);
 		
 		// num 個のクラスタ中心まで増やす
 		for(int i = 1; i < num; ++i) {
@@ -294,6 +297,7 @@ public class UserClassifier extends AbstractService {
 				}
 				if (furthestDistance <= minimumDistance) {
 					furthestCluster = child;
+					furthestDistance = minimumDistance;
 				}
 			}
 			
@@ -318,23 +322,32 @@ public class UserClassifier extends AbstractService {
 		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 		
 		for(UserCluster child : children) {
-			double len1 = MathUtil.vectorSize(child.vector), len2 = MathUtil.vectorSize(parent.vector);
-			double distance = 0;
-			if (len1 != 0.0 && len2 != 0.0) {
-				double cosin = MathUtil.vectorMultiply(child.vector, parent.vector) / (len1 * len2);
-				distance = 1.0 - cosin;
-			}
-			if (distance <= 0.0) {
-				LogUtil.info("UserClassifier#calcDistances(): distance = 0.0");
-				LogUtil.info("UserClassifier#calcDistances():   <-- child.vec  = "+MathUtil.printVector(child.vector));
-				LogUtil.info("UserClassifier#calcDistances():   <-- parent.vec = "+MathUtil.printVector(parent.vector));
-			}
+//			double len1 = MathUtil.vectorSize(child.vector), len2 = MathUtil.vectorSize(parent.vector);
+//			double distance = 0;
+//			if (len1 != 0.0 && len2 != 0.0) {
+//				double cosin = MathUtil.vectorMultiply(child.vector, parent.vector) / (len1 * len2);
+//				distance = 1.0 - cosin;
+//			}
+//			if (distance <= 0.0) {
+//				LogUtil.info("UserClassifier#calcDistances(): distance = 0.0");
+//				LogUtil.info("UserClassifier#calcDistances():   <-- child.vec  = "+MathUtil.printVector(child.vector));
+//				LogUtil.info("UserClassifier#calcDistances():   <-- parent.vec = "+MathUtil.printVector(parent.vector));
+//			}
+			double distance = parent.distance(child);
+//			LogUtil.info("UserClassifier#calcDistances(): distance "+BBAnalyzerUtil.printFeature(parent.feature)+", "+BBAnalyzerUtil.printFeature(child.feature)+" = "+distance);
 			
 			if (!distances.containsKey(child)) {
 				distances.put(child, new HashMap<UserCluster, Double>());
 			}
 			distances.get(child).put(parent, Double.valueOf(distance));
 		}
+	}
+	
+	
+	
+	
+	private void loadUserClusters(int depth) {
+		// TODO implement here
 	}
 	
 }

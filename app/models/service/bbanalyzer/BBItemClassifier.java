@@ -22,7 +22,7 @@ public class BBItemClassifier extends AbstractService {
 	
 	/* 定数 */
 	public static final int NUM_CLASS = 3;
-	private static final double THRESHOLDS[] = new double[]{-0.1, 0.1};
+	private static final double THRESHOLDS[] = new double[]{-1.0, 1.0};
 	private static final int DEFAULT_CLASSIFY_TO = -1;
 	private static final int MIN_TRAINIG_DATA_COUNT = 1;
 	

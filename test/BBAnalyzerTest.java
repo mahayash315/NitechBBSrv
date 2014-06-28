@@ -16,7 +16,7 @@ import models.service.bbanalyzer.UserCluster;
 import org.junit.Test;
 
 import play.Logger;
-import utils.bbanalyzer.MathUtil;
+import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class BBAnalyzerTest {
 
@@ -51,7 +51,7 @@ public class BBAnalyzerTest {
 	}
 	
 	
-	@Test
+//	@Test
 	public void test2() {
 		running(fakeApplication(), new Runnable() {
 			public void run() {
@@ -106,6 +106,36 @@ public class BBAnalyzerTest {
 		});
 	}
 	
+//	@Test
+	public void test3() {
+		running(fakeApplication(), new Runnable() {
+			public void run() {
+				Map<Long, Double> feature1 = new HashMap<Long,Double>(){{
+					put(Long.valueOf(3), Double.valueOf(1));
+				}};
+				Map<Long, Double> feature2 = new HashMap<Long,Double>(){{
+					put(Long.valueOf(1), Double.valueOf(5));
+					put(Long.valueOf(2), Double.valueOf(2));
+					put(Long.valueOf(3), Double.valueOf(3));
+				}};
+				AtomUserCluster u1 = new AtomUserCluster();
+				u1.feature = feature1;
+				AtomUserCluster u2 = new AtomUserCluster();
+				u2.feature = feature2;
+				UserCluster c1 = new UserCluster(u1);
+				UserCluster c2 = new UserCluster(u2);
+				Logger.info("u1.feature = "+BBAnalyzerUtil.printFeature(u1.feature));
+				Logger.info("c1.feature = "+BBAnalyzerUtil.printFeature(c1.feature));
+				Logger.info("u2.feature = "+BBAnalyzerUtil.printFeature(u2.feature));
+				Logger.info("c2.feature = "+BBAnalyzerUtil.printFeature(c2.feature));
+			}
+		});
+	}
+	
+	
+	
+	
+	
 	private void sprintClusters(StringBuilder sb, int reverseDepth, Map<UserCluster, Double> clusters) {
 		if (clusters == null) {
 			return;
@@ -124,7 +154,7 @@ public class BBAnalyzerTest {
 				sb.append(((AtomUserCluster) cluster).user);
 				sb.append(", ");
 			}
-			sb.append(MathUtil.printVector(cluster.vector));
+			sb.append(BBAnalyzerUtil.printFeature(cluster.feature));
 			sprintClusters(sb, reverseDepth+1, cluster.children);
 		}
 	}

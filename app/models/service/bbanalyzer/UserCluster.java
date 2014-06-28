@@ -7,12 +7,13 @@ import java.util.Set;
 
 import models.entity.BBReadHistory;
 import models.entity.User;
-import utils.bbanalyzer.MathUtil;
+import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class UserCluster {
 
 	// クラスタの位置ベクトル
 	public double[] vector;
+	public Map<Long,Double> feature;
 	
 	// クラスタの一つ下の層にあるクラスタとその距離
 	public Map<UserCluster, Double> children;
@@ -23,18 +24,21 @@ public class UserCluster {
 	
 	/* コンストラクタ */
 	public UserCluster() {
+		feature = new HashMap<Long,Double>();
 		children = new HashMap<UserCluster, Double>();
 		itemClassifier = new BBItemClassifier(this);
 	}
 	public UserCluster(UserCluster baseCluster) {
 		this();
 		children.put(baseCluster, Double.valueOf(0.0));
-		updateVector();
+//		updateVector();
+		updateFeature();
 	}
 	public UserCluster(Map<UserCluster, Double> children) {
 		this();
 		this.children.putAll(children);
-		updateVector();
+//		updateVector();
+		updateFeature();
 	}
 	
 	
@@ -105,18 +109,48 @@ public class UserCluster {
 	}
 	
 	/**
+	 * 自分と obj 間の距離(方向の差)を返す
+	 * @param obj
+	 * @return
+	 */
+	public double distance(UserCluster obj) {
+		return BBAnalyzerUtil.featureDifference(feature, obj.feature);
+	}
+	
+	/**
 	 * クラスタのクラスタ中心ベクトルを子クラスタのベクトルの平均を取ることで更新
 	 */
-	public void updateVector() {
+//	public void updateVector() {
+//		if (children != null && 0 < children.size()) {
+//			Set<UserCluster> keySet = children.keySet();
+//			double childVector[] = keySet.iterator().next().vector;
+//			if (childVector != null) {
+//				vector = new double[childVector.length];
+//				for(UserCluster child : keySet) {
+//					MathUtil.vectorMultiplyAndAdd(vector, child.vector, child.getWeight());
+//				}
+//				MathUtil.vectorDivide(vector, getWeight());
+//			}
+//		}
+//	}
+	
+	/**
+	 * クラスタのクラスタ中心ベクトルを子クラスタの特徴の平均を取ることで更新
+	 */
+	public void updateFeature() {
 		if (children != null && 0 < children.size()) {
-			Set<UserCluster> keySet = children.keySet();
-			double childVector[] = keySet.iterator().next().vector;
-			if (childVector != null) {
-				vector = new double[childVector.length];
-				for(UserCluster child : keySet) {
-					MathUtil.vectorMultiplyAndAdd(vector, child.vector, child.getWeight());
+			feature.clear();
+			for(UserCluster child : children.keySet()) {
+				for(Long key : child.feature.keySet()) {
+					if (!feature.containsKey(key)) {
+						feature.put(key, Double.valueOf(0));
+					}
+					feature.put(key, (feature.get(key) + (child.feature.get(key) * child.getWeight())));
 				}
-				MathUtil.vectorDivide(vector, getWeight());
+			}
+			double weight = getWeight();
+			for(Long key : feature.keySet()) {
+				feature.put(key, feature.get(key) / weight);
 			}
 		}
 	}
@@ -125,7 +159,7 @@ public class UserCluster {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(MathUtil.printVector(vector));
+		sb.append(BBAnalyzerUtil.printFeature(feature));
 		if (children != null) {
 			sb.append(", users=[");
 			if (0 < children.size()) {
