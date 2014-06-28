@@ -22,7 +22,7 @@ public class BBItemClassifier extends AbstractService {
 	
 	/* 定数 */
 	public static final int NUM_CLASS = 3;
-	private static final double THRESHOLDS[] = new double[]{-1.0, 1.0};
+	private static final double THRESHOLDS[] = new double[]{-0.1, 0.1};
 	
 	private static class SQL_BB_READ_HISTORY {
 		public static final int PARAM_SIZE = 100;
@@ -231,13 +231,16 @@ public class BBItemClassifier extends AbstractService {
 			double prior = probPrior.get(Integer.valueOf(i)).doubleValue();
 			Map<BBWord, Double> probCond = probConds.get(Integer.valueOf(i));
 			
-			double prob = Math.log(prior);
+			double prob = Math.log(1.0+prior);
+			Logger.info("BBItemClassifier#classify(): CLASS["+i+"] prob = "+Math.log(1.0+prior));
 			for(BBWord word : probCond.keySet()) {
 				double cond = probCond.get(word).doubleValue();
 				if (features.contains(word)) {
-					prob = prob + Math.log(cond);
+					prob = prob + Math.log(1.0+cond);
+					Logger.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(1.0+cond)+" <- "+word);
 				} else {
-					prob = prob + Math.log(1.0 - cond);
+					prob = prob + Math.log(2.0-cond);
+					Logger.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(2.0-cond)+" <- "+word);
 				}
 			}
 			probs.put(Integer.valueOf(i), prob);
@@ -246,7 +249,7 @@ public class BBItemClassifier extends AbstractService {
 				maxClass = i;
 				maxProb = prob;
 			}
-			Logger.info("BBItemClassifier#classify(): CLASS["+i+"] prob="+prob);
+			Logger.info("BBItemClassifier#classify(): CLASS["+i+"] calculated prob="+prob);
 		}
 		
 		return maxClass;

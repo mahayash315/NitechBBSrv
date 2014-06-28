@@ -97,6 +97,11 @@ public class BBWord extends Model {
 		return o;
 	}
 	
+	/* toString */
+	@Override
+	public String toString() {
+		return "("+getId()+")"+getSurface();
+	}
 	
 	/* hashCode, equals */
 	
