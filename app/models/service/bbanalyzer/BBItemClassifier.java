@@ -198,11 +198,12 @@ public class BBItemClassifier extends AbstractService {
 		Map<Integer, Double> probs = new HashMap<Integer, Double>();
 		int maxClass = 0;
 		double maxProb = 0;
+
+		Set<BBWord> features = BBAnalyzerUtil.use().extractFeatures(item);
 		
 		for(int i = 0; i < NUM_CLASS; ++i) {
 			double prior = probPrior.get(Integer.valueOf(i)).doubleValue();
 			Map<BBWord, Double> probCond = probConds.get(Integer.valueOf(i));
-			Set<BBWord> features = BBAnalyzerUtil.use().extractFeatures(item);
 			
 			double prob = Math.log(prior);
 			for(BBWord word : probCond.keySet()) {
@@ -215,7 +216,7 @@ public class BBItemClassifier extends AbstractService {
 			}
 			probs.put(Integer.valueOf(i), prob);
 			
-			if (prob < maxProb) {
+			if (maxProb < prob) {
 				maxClass = i;
 				maxProb = prob;
 			}

@@ -98,7 +98,7 @@ public class BBWord extends Model {
 	}
 	
 	
-	/* hasCode, equals */
+	/* hashCode, equals */
 	
 	@Override
 	public int hashCode() {

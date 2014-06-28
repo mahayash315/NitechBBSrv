@@ -2,7 +2,6 @@ package models.entity;
 
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -23,7 +22,7 @@ public class BBItemWordCount extends Model {
 	@Id
 	Long id;
 	
-	@OneToOne(cascade = {CascadeType.ALL})
+	@OneToOne(cascade = {})
 	@JoinColumn(name = "bb_item_id")
 	BBItem item;
 	

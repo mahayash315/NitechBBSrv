@@ -41,4 +41,8 @@ delete from `bb_item`;
 
 delete from `bb_read_history`;
 
+delete from `bb_word`;
+
+delete from `bb_item_word_count`;
+
 SET FOREIGN_KEY_CHECKS=1;
