@@ -1,6 +1,9 @@
 import java.lang.reflect.Method;
 import java.text.ParseException;
+import java.util.List;
 
+import models.entity.BBItem;
+import models.service.bbitemwordcount.BBItemWordCountService;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -28,6 +31,9 @@ public class Global extends GlobalSettings {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		
+		// initialize for debugging
+		initForDebug();
 	}
 
 	@Override
@@ -62,4 +68,18 @@ public class Global extends GlobalSettings {
 		BBAnalyzerTaskActorBase.getInstance().shutdown();
 	}
 	
+	
+	
+	
+	
+	
+	
+	private void initForDebug() {
+		// BBAnalyzer
+		BBItemWordCountService bbItemWordCountService = new BBItemWordCountService();
+		List<BBItem> items = new BBItem().find.all();
+		for(BBItem item : items) {
+			bbItemWordCountService.updateBBItemWordCount(item);
+		}
+	}
 }

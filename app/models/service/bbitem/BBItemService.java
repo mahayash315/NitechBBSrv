@@ -1,19 +1,14 @@
 package models.service.bbitem;
 
-import java.util.Map;
-import java.util.Set;
-
 import models.entity.BBItem;
-import models.entity.BBItemWordCount;
-import models.entity.BBWord;
 import models.entity.User;
 import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
 import models.service.AbstractService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
+import models.service.bbitemwordcount.BBItemWordCountService;
 import models.service.user.UserModelService;
 import utils.api.bbanalyzer.LogUtil;
-import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class BBItemService extends AbstractService {
 	
@@ -111,7 +106,8 @@ public class BBItemService extends AbstractService {
 			
 			if (isNew || isChanged) {
 				// 更新された場合は BBItemWordCount を更新
-				if (!updateBBItemWordCount(item)) {
+				boolean updated = BBItemWordCountService.use().updateBBItemWordCount(item);
+				if (!updated) {
 					return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 				}
 			}
@@ -125,28 +121,4 @@ public class BBItemService extends AbstractService {
 	}
 	
 	
-	
-	
-	
-	private boolean updateBBItemWordCount(BBItem item) {
-		if (item != null) {
-			// 既存の BBItemWordCount をすべて削除
-			Set<BBItemWordCount> wordCounts = new BBItemWordCount().findSetByItem(item);
-			for(BBItemWordCount wordCount : wordCounts) {
-				wordCount.remove();
-			}
-			
-			// 特徴形態素のみをカウントする
-			Map<BBWord, Integer> features = BBAnalyzerUtil.use().countFeatures(item);
-			for(BBWord bbWord : features.keySet()) {
-				int count = features.get(bbWord).intValue();
-				BBItemWordCount wordCount = new BBItemWordCount(item, bbWord);
-				wordCount.setCount(count);
-				if (wordCount.store() == null) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
 }

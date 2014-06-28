@@ -15,6 +15,7 @@ import play.db.ebean.Model;
 @Entity
 @Table(name = "bb_word")
 public class BBWord extends Model {
+
 	@Id
 	Long id;
 	
@@ -94,6 +95,50 @@ public class BBWord extends Model {
 			o = bbWordModelService.save(this);
 		}
 		return o;
+	}
+	
+	
+	/* hasCode, equals */
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((features == null) ? 0 : features.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + (isKnown ? 1231 : 1237);
+		result = prime * result + ((surface == null) ? 0 : surface.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BBWord other = (BBWord) obj;
+		if (features == null) {
+			if (other.features != null)
+				return false;
+		} else if (!features.equals(other.features))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (isKnown != other.isKnown)
+			return false;
+		if (surface == null) {
+			if (other.surface != null)
+				return false;
+		} else if (!surface.equals(other.surface))
+			return false;
+		return true;
 	}
 	
 	/* getter, setter */

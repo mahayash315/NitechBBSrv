@@ -48,6 +48,14 @@ create table bb_item_head (
   constraint pk_bb_item_head primary key (id))
 ;
 
+create table bb_item_word_count (
+  id                        bigint auto_increment not null,
+  bb_item_id                bigint,
+  bb_word_id                bigint,
+  count                     integer,
+  constraint pk_bb_item_word_count primary key (id))
+;
+
 create table bb_naive_bayes_param (
   id                        bigint auto_increment not null,
   user_id                   bigint,
@@ -117,20 +125,24 @@ alter table bb_item_head add constraint fk_bb_item_head_user_3 foreign key (user
 create index ix_bb_item_head_user_3 on bb_item_head (user_id);
 alter table bb_item_head add constraint fk_bb_item_head_appendix_4 foreign key (bb_item_appendix_id) references bb_item_appendix (id) on delete restrict on update restrict;
 create index ix_bb_item_head_appendix_4 on bb_item_head (bb_item_appendix_id);
-alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_user_5 foreign key (user_id) references user (id) on delete restrict on update restrict;
-create index ix_bb_naive_bayes_param_user_5 on bb_naive_bayes_param (user_id);
-alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_word_6 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
-create index ix_bb_naive_bayes_param_word_6 on bb_naive_bayes_param (bb_word_id);
-alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_category_7 foreign key (bb_category_id) references bb_category (id) on delete restrict on update restrict;
-create index ix_bb_naive_bayes_param_category_7 on bb_naive_bayes_param (bb_category_id);
-alter table bb_read_history add constraint fk_bb_read_history_user_8 foreign key (user_id) references user (id) on delete restrict on update restrict;
-create index ix_bb_read_history_user_8 on bb_read_history (user_id);
-alter table bb_read_history add constraint fk_bb_read_history_item_9 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
-create index ix_bb_read_history_item_9 on bb_read_history (bb_item_id);
-alter table bb_word_count add constraint fk_bb_word_count_item_10 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
-create index ix_bb_word_count_item_10 on bb_word_count (bb_item_id);
-alter table bb_word_count add constraint fk_bb_word_count_word_11 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
-create index ix_bb_word_count_word_11 on bb_word_count (bb_word_id);
+alter table bb_item_word_count add constraint fk_bb_item_word_count_item_5 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
+create index ix_bb_item_word_count_item_5 on bb_item_word_count (bb_item_id);
+alter table bb_item_word_count add constraint fk_bb_item_word_count_word_6 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
+create index ix_bb_item_word_count_word_6 on bb_item_word_count (bb_word_id);
+alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_user_7 foreign key (user_id) references user (id) on delete restrict on update restrict;
+create index ix_bb_naive_bayes_param_user_7 on bb_naive_bayes_param (user_id);
+alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_word_8 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
+create index ix_bb_naive_bayes_param_word_8 on bb_naive_bayes_param (bb_word_id);
+alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_category_9 foreign key (bb_category_id) references bb_category (id) on delete restrict on update restrict;
+create index ix_bb_naive_bayes_param_category_9 on bb_naive_bayes_param (bb_category_id);
+alter table bb_read_history add constraint fk_bb_read_history_user_10 foreign key (user_id) references user (id) on delete restrict on update restrict;
+create index ix_bb_read_history_user_10 on bb_read_history (user_id);
+alter table bb_read_history add constraint fk_bb_read_history_item_11 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
+create index ix_bb_read_history_item_11 on bb_read_history (bb_item_id);
+alter table bb_word_count add constraint fk_bb_word_count_item_12 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
+create index ix_bb_word_count_item_12 on bb_word_count (bb_item_id);
+alter table bb_word_count add constraint fk_bb_word_count_word_13 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
+create index ix_bb_word_count_word_13 on bb_word_count (bb_word_id);
 
 
 
@@ -145,6 +157,8 @@ drop table bb_item;
 drop table bb_item_appendix;
 
 drop table bb_item_head;
+
+drop table bb_item_word_count;
 
 drop table bb_naive_bayes_param;
 

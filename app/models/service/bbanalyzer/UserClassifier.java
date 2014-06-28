@@ -13,7 +13,7 @@ import models.entity.BBItem;
 import models.entity.User;
 import models.service.AbstractService;
 import play.Logger;
-import utils.bbanalyzer.BBAnalyzerUtil;
+import utils.bbanalyzer.MathUtil;
 
 public class UserClassifier extends AbstractService {
 
@@ -318,16 +318,16 @@ public class UserClassifier extends AbstractService {
 		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 		
 		for(UserCluster child : children) {
-			double len1 = BBAnalyzerUtil.vectorSize(child.vector), len2 = BBAnalyzerUtil.vectorSize(parent.vector);
+			double len1 = MathUtil.vectorSize(child.vector), len2 = MathUtil.vectorSize(parent.vector);
 			double distance = 0;
 			if (len1 != 0.0 && len2 != 0.0) {
-				double cosin = BBAnalyzerUtil.vectorMultiply(child.vector, parent.vector) / (len1 * len2);
+				double cosin = MathUtil.vectorMultiply(child.vector, parent.vector) / (len1 * len2);
 				distance = 1.0 - cosin;
 			}
 			if (distance <= 0.0) {
 				Logger.info("UserClassifier#calcDistances(): distance = 0.0");
-				Logger.info("UserClassifier#calcDistances():   <-- child.vec  = "+BBAnalyzerUtil.printVector(child.vector));
-				Logger.info("UserClassifier#calcDistances():   <-- parent.vec = "+BBAnalyzerUtil.printVector(parent.vector));
+				Logger.info("UserClassifier#calcDistances():   <-- child.vec  = "+MathUtil.printVector(child.vector));
+				Logger.info("UserClassifier#calcDistances():   <-- parent.vec = "+MathUtil.printVector(parent.vector));
 			}
 			
 			if (!distances.containsKey(child)) {

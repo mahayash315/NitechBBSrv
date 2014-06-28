@@ -15,6 +15,7 @@ import models.entity.BBReadHistory;
 import models.entity.BBWord;
 import models.entity.User;
 import models.service.AbstractService;
+import play.Logger;
 import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class BBItemClassifier extends AbstractService {
@@ -113,7 +114,7 @@ public class BBItemClassifier extends AbstractService {
 			Map<BBItem, Integer> countPerItems = countPerItems(getConnection(), null, users);
 			
 			// 掲示閲覧履歴から NUM_CLASS クラスへ分類
-			Set<BBItem>[] itemSets = classifyItemsFromReadHistory(countPerItems);
+			Map<Integer, Set<BBItem>> itemSets = classifyItemsFromReadHistory(countPerItems);
 			// sets[0](興味なし), ..., sets[NUM_CLASS-1](興味あり)
 			
 			// 記事が開かれた回数だけ、各単語についてカウントする
@@ -131,12 +132,12 @@ public class BBItemClassifier extends AbstractService {
 			// 		クラス c の確率パラメータ P (consists of p_i for all i) を更新
 			// end
 			// 各クラスについて
-			for(int i = 0; i < itemSets.length; ++i) {
+			for(int i = 0; i < NUM_CLASS; ++i) {
 				Map<BBWord, Double> probCond = probConds.get(i);
 				if (probCond == null) {
 					probCond = new HashMap<BBWord, Double>();
 				}
-				Set<BBItem> itemSet = itemSets[i];
+				Set<BBItem> itemSet = itemSets.get(Integer.valueOf(i));
 				int totalReadCount = 0;
 				totalWordCounts.clear();
 				
@@ -166,14 +167,15 @@ public class BBItemClassifier extends AbstractService {
 					double prob = count / n;
 					probCond.put(word, Double.valueOf(prob));
 				}
+				probConds.put(Integer.valueOf(i), probCond);
 			}
 			
 			
 			// 事前確率の計算
 			double div = (double) totalItemCount;
 			for(int i = 0; i < NUM_CLASS; ++i) {
-				double d = (double) itemSets[i].size() / div;
-				probPrior.put(Integer.valueOf(i), div);
+				double d = (double) itemSets.get(Integer.valueOf(i)).size() / div;
+				probPrior.put(Integer.valueOf(i), Double.valueOf(d));
 			}
 			
 			// パラメータの保存
@@ -202,13 +204,13 @@ public class BBItemClassifier extends AbstractService {
 			Map<BBWord, Double> probCond = probConds.get(Integer.valueOf(i));
 			Set<BBWord> features = BBAnalyzerUtil.use().extractFeatures(item);
 			
-			double prob = prior;
+			double prob = Math.log(prior);
 			for(BBWord word : probCond.keySet()) {
 				double cond = probCond.get(word).doubleValue();
 				if (features.contains(word)) {
-					prob = prob * cond;
+					prob = prob + Math.log(cond);
 				} else {
-					prob = prob * (1.0 - cond);
+					prob = prob + Math.log(1.0 - cond);
 				}
 			}
 			probs.put(Integer.valueOf(i), prob);
@@ -217,6 +219,7 @@ public class BBItemClassifier extends AbstractService {
 				maxClass = i;
 				maxProb = prob;
 			}
+			Logger.info("BBItemClassifier#classify(): CLASS["+i+"] prob="+prob);
 		}
 		
 		return maxClass;
@@ -231,10 +234,10 @@ public class BBItemClassifier extends AbstractService {
 	 * @param countPerItems
 	 * @return
 	 */
-	private Set<BBItem>[] classifyItemsFromReadHistory(Map<BBItem, Integer> countPerItems) {
-		Set<BBItem> sets[] = new Set[NUM_CLASS];
-		for(Set<BBItem> set : sets) {
-			set = new HashSet<BBItem>();
+	private Map<Integer, Set<BBItem>> classifyItemsFromReadHistory(Map<BBItem, Integer> countPerItems) {
+		Map<Integer, Set<BBItem>> sets = new HashMap<Integer, Set<BBItem>>();
+		for(int i = 0; i < NUM_CLASS; ++i) {
+			sets.put(Integer.valueOf(i), new HashSet<BBItem>());
 		}
 		
 		// 全掲示取得
@@ -262,15 +265,15 @@ public class BBItemClassifier extends AbstractService {
 			double d = (standarized.get(item) - mean) / var;
 			boolean isClassified = false;
 			standarized.put(item, Double.valueOf(d));
-			for(int i = 0; i < sets.length; ++i) {
+			for(int i = 0; i < NUM_CLASS-1; ++i) {
 				if (THRESHOLDS[i] < d) {
-					sets[i].add(item);
+					sets.get(Integer.valueOf(i)).add(item);
 					isClassified = true;
 					break;
 				}
 			}
 			if (!isClassified) {
-				sets[(sets.length-1)].add(item);
+				sets.get(Integer.valueOf(NUM_CLASS-1)).add(item);
 			}
 		}
 		

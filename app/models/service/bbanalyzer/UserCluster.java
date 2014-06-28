@@ -7,7 +7,7 @@ import java.util.Set;
 
 import models.entity.BBReadHistory;
 import models.entity.User;
-import utils.bbanalyzer.BBAnalyzerUtil;
+import utils.bbanalyzer.MathUtil;
 
 public class UserCluster {
 
@@ -17,10 +17,14 @@ public class UserCluster {
 	// クラスタの一つ下の層にあるクラスタ
 	public Map<UserCluster, Double> children;
 	
+	// 識別器
+	BBItemClassifier itemClassifier;
+	
 	
 	/* コンストラクタ */
 	public UserCluster() {
 		children = new HashMap<UserCluster, Double>();
+		itemClassifier = new BBItemClassifier(this);
 	}
 	public UserCluster(UserCluster baseCluster) {
 		this();
@@ -95,9 +99,9 @@ public class UserCluster {
 			if (childVector != null) {
 				vector = new double[childVector.length];
 				for(UserCluster child : keySet) {
-					BBAnalyzerUtil.vectorMultiplyAndAdd(vector, child.vector, child.getWeight());
+					MathUtil.vectorMultiplyAndAdd(vector, child.vector, child.getWeight());
 				}
-				BBAnalyzerUtil.vectorDivide(vector, getWeight());
+				MathUtil.vectorDivide(vector, getWeight());
 			}
 		}
 	}
@@ -106,7 +110,7 @@ public class UserCluster {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(BBAnalyzerUtil.printVector(vector));
+		sb.append(MathUtil.printVector(vector));
 		if (children != null) {
 			sb.append(", users=[");
 			if (0 < children.size()) {
@@ -123,4 +127,9 @@ public class UserCluster {
 		return sb.toString();
 	}
 	
+	
+	/* getter, setter */
+	public BBItemClassifier getItemClassifier() {
+		return itemClassifier;
+	}
 }
