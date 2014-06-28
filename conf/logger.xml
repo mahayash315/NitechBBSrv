@@ -30,6 +30,11 @@
 	</encoder>
   </appender>
   
+    <appender name="BB_ANALYZER_STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%coloredLevel - %message%n%xException{5}</pattern>
+    </encoder>
+  </appender>
   <appender name="BB_ANALYZER_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
   	<file>${application.home}/logs/application.bbanalyzer.log</file>
   	<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
@@ -50,6 +55,7 @@
   </logger>
   
   <logger name="bbanalyzer" level="INFO" additivity="false">
+  	<appender-ref ref="BB_ANALYZER_STDOUT" />
   	<appender-ref ref="BB_ANALYZER_FILE" />
   </logger>
   

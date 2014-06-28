@@ -15,8 +15,8 @@ import models.entity.BBReadHistory;
 import models.entity.BBWord;
 import models.entity.User;
 import models.service.AbstractService;
-import play.Logger;
 import utils.bbanalyzer.BBAnalyzerUtil;
+import utils.bbanalyzer.LogUtil;
 
 public class BBItemClassifier extends AbstractService {
 	
@@ -232,15 +232,15 @@ public class BBItemClassifier extends AbstractService {
 			Map<BBWord, Double> probCond = probConds.get(Integer.valueOf(i));
 			
 			double prob = Math.log(1.0+prior);
-			Logger.info("BBItemClassifier#classify(): CLASS["+i+"] prob = "+Math.log(1.0+prior));
+			LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = "+Math.log(1.0+prior));
 			for(BBWord word : probCond.keySet()) {
 				double cond = probCond.get(word).doubleValue();
 				if (features.contains(word)) {
 					prob = prob + Math.log(1.0+cond);
-					Logger.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(1.0+cond)+" <- "+word);
+					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(1.0+cond)+" <- "+word);
 				} else {
 					prob = prob + Math.log(2.0-cond);
-					Logger.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(2.0-cond)+" <- "+word);
+					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(2.0-cond)+" <- "+word);
 				}
 			}
 			probs.put(Integer.valueOf(i), prob);
@@ -249,7 +249,7 @@ public class BBItemClassifier extends AbstractService {
 				maxClass = i;
 				maxProb = prob;
 			}
-			Logger.info("BBItemClassifier#classify(): CLASS["+i+"] calculated prob="+prob);
+			LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] calculated prob="+prob);
 		}
 		
 		return maxClass;
@@ -311,7 +311,7 @@ public class BBItemClassifier extends AbstractService {
 					}
 				}
 			}
-			Logger.info("BBItemClassifier#classifyItemsFromReadHistory: classified item "+item+" to CLASS["+classifiedTo+"] with d="+d);
+			LogUtil.info("BBItemClassifier#classifyItemsFromReadHistory():\n classified to CLASS["+classifiedTo+"] with d="+d+", item "+item);
 		}
 		
 		return sets;

@@ -10,27 +10,28 @@ INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyze
 INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyzer_word_count) VALUES (8, 'user8', 0, 0);
 
 INSERT INTO `bb_item` (id,id_date,id_index,author,title) VALUES (1,'2014-06-25','1','学生生活課（就職・キャリア支援係）','ジェネラルインターンシップ　第2次募集開始について');
-INSERT INTO `bb_item` (id,id_date,id_index,author,title) VALUES (2,'2014-06-25','2','学生生活課（就職・キャリア支援係）','平成２６年度キャリア形成ガイダンス（第６回）のお知らせ ');
-INSERT INTO `bb_item` (id,id_date,id_index,author,title) VALUES (3,'2014-06-25','3','男女共同参画推進室','【男女共同・お知らせ】名工大の男女共同参画週間in附属図書館について ');
+INSERT INTO `bb_item` (id,id_date,id_index,author,title) VALUES (2,'2014-06-25','2','学生生活課（就職・キャリア支援係）','平成２６年度キャリア形成ガイダンス（第６回）のお知らせ');
+INSERT INTO `bb_item` (id,id_date,id_index,author,title) VALUES (3,'2014-06-25','3','学生生活課（就職・キャリア支援係）','平成２６年度キャリア形成ガイダンス（第７回）のお知らせ');
+INSERT INTO `bb_item` (id,id_date,id_index,author,title) VALUES (4,'2014-06-25','4','男女共同参画推進室','【男女共同・お知らせ】名工大の男女共同参画週間in附属図書館について ');
 
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (1,1,1,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (2,1,2,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (3,1,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (4,2,1,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (5,2,2,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (6,2,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (7,2,1,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (8,2,2,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (9,2,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (10,3,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (11,3,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (12,3,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (13,4,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (14,5,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (15,6,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (16,7,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (17,8,3,0,0,null,null);
-INSERT INTO `bb_read_history` (id,user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (18,8,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (1,1,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (1,2,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (1,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (2,1,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (2,2,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (2,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (2,1,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (2,2,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (2,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (3,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (3,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (3,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (4,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (5,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (6,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (7,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (8,3,0,0,null,null);
+INSERT INTO `bb_read_history` (user_id,bb_item_id,open_time,read_time_length,referer,filter) VALUES (8,3,0,0,null,null);
 
 # --- !Downs
 SET FOREIGN_KEY_CHECKS=0;

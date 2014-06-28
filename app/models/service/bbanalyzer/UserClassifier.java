@@ -12,7 +12,7 @@ import java.util.Set;
 import models.entity.BBItem;
 import models.entity.User;
 import models.service.AbstractService;
-import play.Logger;
+import utils.bbanalyzer.LogUtil;
 import utils.bbanalyzer.MathUtil;
 
 public class UserClassifier extends AbstractService {
@@ -171,7 +171,7 @@ public class UserClassifier extends AbstractService {
 		
 		// 1 層 - (CLUSTER_DEPTH) 層
 		for(int depth = 1; depth <= CLUSTER_DEPTH; ++depth) {
-			Logger.info("UserClassifier#doClassify(): classifying depth = "+depth);
+			LogUtil.info("UserClassifier#doClassify(): classifying depth = "+depth);
 			Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth));
 			Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 			Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
@@ -187,7 +187,7 @@ public class UserClassifier extends AbstractService {
 			
 			// 初期クラスタ中心を定める
 			initKMeans(depth);
-			Logger.info("UserClassifier#doClassify(): selected "+parents.size()+" parents");
+			LogUtil.info("UserClassifier#doClassify(): selected "+parents.size()+" parents");
 			
 //			// 変数初期化
 //			for(UserCluster parent : parents) {
@@ -205,7 +205,7 @@ public class UserClassifier extends AbstractService {
 			int count = 0;
 			int changed = 0;
 			do {
-				Logger.info("UserClassifier#doClassify():   trial "+count);
+				LogUtil.info("UserClassifier#doClassify():   trial "+count);
 				changed = 0;
 				if (0 < count) {
 					// 各 parent クラスタのクラスタ中心を更新
@@ -216,20 +216,20 @@ public class UserClassifier extends AbstractService {
 				}
 				
 				for(UserCluster child : children) {
-					Logger.info("UserClassifier#doClassify():    child cluster "+child.toString());
+//					LogUtil.info("UserClassifier#doClassify():    child cluster "+child);
 					Map<UserCluster, Double> dists = distances.get(child);
 					double minimumDistance = MAX_DISTANCE;
 					UserCluster minimumCluster = null;
 					for(UserCluster parent : parents) {
-						Logger.info("UserClassifier#doClassify():      +parent "+parent.toString());
+//						LogUtil.info("UserClassifier#doClassify():      +parent "+parent);
 						double d = dists.get(parent).doubleValue();
-						Logger.info("UserClassifier#doClassify():        +distance = "+d);
+						LogUtil.info("UserClassifier#doClassify():        +distance = "+d);
 						if (d < minimumDistance) {
 							minimumDistance = d;
 							minimumCluster = parent;
 						}
 					}
-					Logger.info("UserClassifier#doClassify():      --> nearest parent = "+minimumCluster+", distance="+minimumDistance);
+//					LogUtil.info("UserClassifier#doClassify():      --> nearest parent = "+minimumCluster+", distance="+minimumDistance);
 					minimumCluster.children.put(child, minimumDistance);
 					if (!prevClusters.containsKey(child) || !prevClusters.get(child).equals(minimumCluster)) {
 						++changed;
@@ -250,7 +250,7 @@ public class UserClassifier extends AbstractService {
 	 * @param depth
 	 */
 	private void initKMeans(int depth) {
-		Logger.info("UserClassifier#initKMeans("+depth+"):");
+		LogUtil.info("UserClassifier#initKMeans("+depth+"):");
 		Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth));
 		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 		Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
@@ -265,7 +265,7 @@ public class UserClassifier extends AbstractService {
 		
 		// num 個のクラスタ中心まで増やす
 		for(int i = 1; i < num; ++i) {
-			Logger.info("UserClassifier#initKMeans("+depth+"): i = "+i);
+			LogUtil.info("UserClassifier#initKMeans("+depth+"): i = "+i);
 			// calculate distance between clusters[0] and all clusters in children
 			// insert them into distanceMap
 			// take the furthest (or close to the furthest) cluster form children
@@ -300,7 +300,7 @@ public class UserClassifier extends AbstractService {
 			// furthestCluster を次のクラスタ中心 cluster[i] とする
 			clusters[i] = new UserCluster(furthestCluster);
 			parents.add(clusters[i]);
-			Logger.info("UserClassifier#initKMeans("+depth+"): distance = "+furthestDistance+", selected "+clusters[i]);
+			LogUtil.info("UserClassifier#initKMeans("+depth+"): distance = "+furthestDistance+", selected "+clusters[i]);
 		}
 		
 		// 最後に決めたクラスタ cluster[size-1] との距離も計算する
@@ -325,9 +325,9 @@ public class UserClassifier extends AbstractService {
 				distance = 1.0 - cosin;
 			}
 			if (distance <= 0.0) {
-				Logger.info("UserClassifier#calcDistances(): distance = 0.0");
-				Logger.info("UserClassifier#calcDistances():   <-- child.vec  = "+MathUtil.printVector(child.vector));
-				Logger.info("UserClassifier#calcDistances():   <-- parent.vec = "+MathUtil.printVector(parent.vector));
+				LogUtil.info("UserClassifier#calcDistances(): distance = 0.0");
+				LogUtil.info("UserClassifier#calcDistances():   <-- child.vec  = "+MathUtil.printVector(child.vector));
+				LogUtil.info("UserClassifier#calcDistances():   <-- parent.vec = "+MathUtil.printVector(parent.vector));
 			}
 			
 			if (!distances.containsKey(child)) {
