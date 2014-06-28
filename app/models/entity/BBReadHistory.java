@@ -192,4 +192,10 @@ public class BBReadHistory extends Model {
 		public static final String ITEM = "bb_item_id";
 		public static final String OPEN_TIME = "open_time";
 	}
+	public static class TYPENAME {
+		public static final String ID = "bigint";
+		public static final String USER = "bigint";
+		public static final String ITEM = "bigint";
+		public static final String OPEN_TIME = "bigint";
+	}
 }

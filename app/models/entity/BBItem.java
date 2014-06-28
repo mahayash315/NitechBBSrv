@@ -93,6 +93,12 @@ public class BBItem extends Model {
 		return bbItemModelService.getAllItems();
 	}
 	
+	/* toString */
+	@Override
+	public String toString() {
+		return "("+getIdDate()+","+getIdIndex()+")"+getAuthor()+"-"+getTitle();
+	}
+	
 	/* getter, setter */
 	public Long getId() {
 		return id;

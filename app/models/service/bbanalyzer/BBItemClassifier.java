@@ -25,15 +25,18 @@ public class BBItemClassifier extends AbstractService {
 	private static final double THRESHOLDS[] = new double[]{-1.0, 1.0};
 	
 	private static class SQL_BB_READ_HISTORY {
+		public static final int PARAM_SIZE = 100;
+		static final String PARAMS = "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";;
+		
 		static final String SQL_SELECT_ITEM_COUNTS = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
 												  + " from "+BBReadHistory.ENTITY+" group by "+BBReadHistory.PROPERTY.ITEM;
 		static final String SQL_SELECT_ITEM_COUNTS_WITH_MIN_OPEN_TIME = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
 																	  + " from "+BBReadHistory.ENTITY+" where "+BBReadHistory.PROPERTY.OPEN_TIME+" >= ? group by "+BBReadHistory.PROPERTY.ITEM;
 		static final String SQL_SELECT_ITEM_COUNTS_FOR_USER = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
-															+ " from "+BBReadHistory.ENTITY+" where "+BBReadHistory.PROPERTY.USER+" in (?)"
+															+ " from "+BBReadHistory.ENTITY+" where "+BBReadHistory.PROPERTY.USER+" in ("+PARAMS+")"
 															+ " group by "+BBReadHistory.PROPERTY.ITEM;
 		static final String SQL_SELECT_ITEM_COUNTS_WITH_MIN_OPEN_TIME_FOR_USER = "select "+BBReadHistory.PROPERTY.ITEM+", count("+BBReadHistory.PROPERTY.ID+")"
-																			   + " from "+BBReadHistory.ENTITY+" where "+BBReadHistory.PROPERTY.OPEN_TIME+" >= ? AND "+BBReadHistory.PROPERTY.USER+" in (?)"
+																			   + " from "+BBReadHistory.ENTITY+" where "+BBReadHistory.PROPERTY.USER+" in ("+PARAMS+") and "+BBReadHistory.PROPERTY.OPEN_TIME+" >= ?"
 																			   + " group by "+BBReadHistory.PROPERTY.ITEM;
 
 		private static class STATEMENT {
@@ -46,14 +49,22 @@ public class BBItemClassifier extends AbstractService {
 				return pstmt;
 			}
 			static PreparedStatement selectItemCounts(Connection conn, Set<User> users) throws SQLException {
-				StringBuilder inClause = new StringBuilder();
-				for(User user : users) {
-					inClause.append(user.getId());
-					inClause.append(",");
-				}
-				inClause.deleteCharAt(inClause.length()-1);
 				PreparedStatement pstmt = conn.prepareStatement(SQL_SELECT_ITEM_COUNTS_FOR_USER);
-				pstmt.setString(1, inClause.toString());
+
+				int size = users.size();
+				if (PARAM_SIZE < size) {
+					pstmt.close();
+					throw new SQLException("The input param size "+size+" is larger than supported size "+PARAM_SIZE);
+				}
+				
+				int i = 1;
+				for(User user : users) {
+					pstmt.setLong(i, user.getId());
+					++i;
+				}
+				for(; i <= PARAM_SIZE; ++i) {
+					pstmt.setNull(i, java.sql.Types.BIGINT);
+				}
 				return pstmt;
 			}
 			static PreparedStatement selectItemCounts(Connection conn, long minOpenTime, Set<User> users) throws SQLException {
@@ -64,8 +75,23 @@ public class BBItemClassifier extends AbstractService {
 				}
 				inClause.deleteCharAt(inClause.length()-1);
 				PreparedStatement pstmt = conn.prepareStatement(SQL_SELECT_ITEM_COUNTS_WITH_MIN_OPEN_TIME_FOR_USER);
-				pstmt.setLong(1, minOpenTime);
-				pstmt.setString(2, inClause.toString());
+				
+				int size = users.size();
+				if (PARAM_SIZE < size) {
+					pstmt.close();
+					throw new SQLException("The input param size "+size+" is larger than supported size "+PARAM_SIZE);
+				}
+				
+				int i = 1;
+				for(User user : users) {
+					pstmt.setLong(i, user.getId());
+					++i;
+				}
+				for(; i <= PARAM_SIZE; ++i) {
+					pstmt.setNull(i, java.sql.Types.BIGINT);
+				}
+
+				pstmt.setLong(2, minOpenTime);
 				return pstmt;
 			}
 		}
@@ -111,7 +137,7 @@ public class BBItemClassifier extends AbstractService {
 			int totalItemCount = 0;
 			
 			// 各記事が何度読まれたかをカウントする
-			Map<BBItem, Integer> countPerItems = countPerItems(getConnection(), null, users);
+			Map<BBItem, Integer> countPerItems = calcCountPerItems(getConnection(), null, users);
 			
 			// 掲示閲覧履歴から NUM_CLASS クラスへ分類
 			Map<Integer, Set<BBItem>> itemSets = classifyItemsFromReadHistory(countPerItems);
@@ -264,18 +290,25 @@ public class BBItemClassifier extends AbstractService {
 		// 標準化とクラス分類
 		for(BBItem item : standarized.keySet()) {
 			double d = (standarized.get(item) - mean) / var;
-			boolean isClassified = false;
+			int classifiedTo = -1;
 			standarized.put(item, Double.valueOf(d));
-			for(int i = 0; i < NUM_CLASS-1; ++i) {
-				if (THRESHOLDS[i] < d) {
-					sets.get(Integer.valueOf(i)).add(item);
-					isClassified = true;
-					break;
+			
+			if (d < THRESHOLDS[0]) {
+				sets.get(Integer.valueOf(0)).add(item);
+				classifiedTo = 0;
+			} else if (THRESHOLDS[NUM_CLASS-2] < d) {
+				sets.get(Integer.valueOf(NUM_CLASS-1)).add(item);
+				classifiedTo = NUM_CLASS-1;
+			} else {
+				for(int i = 1; i < NUM_CLASS-1; ++i) {
+					if (THRESHOLDS[i-1] < d && d < THRESHOLDS[i]) {
+						sets.get(Integer.valueOf(i)).add(item);
+						classifiedTo = i;
+						break;
+					}
 				}
 			}
-			if (!isClassified) {
-				sets.get(Integer.valueOf(NUM_CLASS-1)).add(item);
-			}
+			Logger.info("BBItemClassifier#classifyItemsFromReadHistory: classified item "+item+" to CLASS["+classifiedTo+"] with d="+d);
 		}
 		
 		return sets;
@@ -290,7 +323,7 @@ public class BBItemClassifier extends AbstractService {
 	 * @return
 	 * @throws SQLException
 	 */
-	private Map<BBItem, Integer> countPerItems(Connection conn, Long minOpenTime, Set<User> users) throws SQLException {
+	private Map<BBItem, Integer> calcCountPerItems(Connection conn, Long minOpenTime, Set<User> users) throws SQLException {
 		ResultSet rs = null;
 		try {
 			HashMap<BBItem, Integer> counts = new HashMap<BBItem, Integer>();
