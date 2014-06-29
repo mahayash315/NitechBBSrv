@@ -80,6 +80,16 @@ create table bb_read_history (
   constraint pk_bb_read_history primary key (id))
 ;
 
+create table bb_user_cluster (
+  id                        bigint auto_increment not null,
+  cluster_depth             bigint,
+  cluster_id                bigint,
+  feature                   longtext,
+  parent_id                 bigint,
+  distance_from_parent      double,
+  constraint pk_bb_user_cluster primary key (id))
+;
+
 create table bb_word (
   id                        bigint auto_increment not null,
   surface                   varchar(191),
@@ -139,10 +149,12 @@ alter table bb_read_history add constraint fk_bb_read_history_user_10 foreign ke
 create index ix_bb_read_history_user_10 on bb_read_history (user_id);
 alter table bb_read_history add constraint fk_bb_read_history_item_11 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
 create index ix_bb_read_history_item_11 on bb_read_history (bb_item_id);
-alter table bb_word_count add constraint fk_bb_word_count_item_12 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
-create index ix_bb_word_count_item_12 on bb_word_count (bb_item_id);
-alter table bb_word_count add constraint fk_bb_word_count_word_13 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
-create index ix_bb_word_count_word_13 on bb_word_count (bb_word_id);
+alter table bb_user_cluster add constraint fk_bb_user_cluster_parent_12 foreign key (parent_id) references bb_user_cluster (id) on delete restrict on update restrict;
+create index ix_bb_user_cluster_parent_12 on bb_user_cluster (parent_id);
+alter table bb_word_count add constraint fk_bb_word_count_item_13 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
+create index ix_bb_word_count_item_13 on bb_word_count (bb_item_id);
+alter table bb_word_count add constraint fk_bb_word_count_word_14 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
+create index ix_bb_word_count_word_14 on bb_word_count (bb_word_id);
 
 
 
@@ -163,6 +175,8 @@ drop table bb_item_word_count;
 drop table bb_naive_bayes_param;
 
 drop table bb_read_history;
+
+drop table bb_user_cluster;
 
 drop table bb_word;
 

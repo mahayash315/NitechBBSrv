@@ -19,6 +19,9 @@ public class UserCluster {
 //	public double[] vector;
 	public Map<Long,Double> feature;
 	
+	// クラスタの一つ上の層にあるクラスタとその距離
+	public UserCluster parent;
+	
 	// クラスタの一つ下の層にあるクラスタとその距離
 	public Map<UserCluster, Double> children;
 	
@@ -32,11 +35,16 @@ public class UserCluster {
 		children = new HashMap<UserCluster, Double>();
 		itemClassifier = new BBItemClassifier(this);
 	}
+	public UserCluster(long depth, long id) {
+		this();
+		this.depth = depth;
+		this.id = id;
+	}
 	public UserCluster(long id, UserCluster childCluster) {
 		this();
 		depth = childCluster.depth + 1;
 		this.id = id;
-		children.put(childCluster, Double.valueOf(0.0));
+		addChild(childCluster, 0.0);
 //		updateVector();
 		updateFeature();
 	}
@@ -46,13 +54,21 @@ public class UserCluster {
 			depth = children.keySet().iterator().next().depth + 1;
 		}
 		this.id = id;
-		this.children.putAll(children);
+		addChildren(children);
 //		updateVector();
 		updateFeature();
 	}
 	
 	
 	/* インスタンスメソッド */
+	/**
+	 * 親クラスタを設定する
+	 * @param parent
+	 */
+	public void setParent(UserCluster parent) {
+		this.parent = parent;
+	}
+	
 	/**
 	 * 子クラスタを追加する
 	 * @param child
@@ -61,6 +77,18 @@ public class UserCluster {
 	public void addChild(UserCluster child, double distance) {
 		if (child != null) {
 			children.put(child, Double.valueOf(distance));
+			child.setParent(this);
+		}
+	}
+	
+	/**
+	 * 子クラスタを追加する
+	 * @param children
+	 */
+	public void addChildren(Map<UserCluster, Double> children) {
+		this.children.putAll(children);
+		for(UserCluster child : children.keySet()) {
+			child.setParent(this);
 		}
 	}
 	

@@ -2,7 +2,6 @@ package models.service.bbanalyzer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import models.entity.BBItem;
+import models.entity.BBUserCluster;
 import models.entity.User;
 import models.service.AbstractService;
 import utils.bbanalyzer.LogUtil;
@@ -38,7 +38,7 @@ public class UserClassifier extends AbstractService {
 	int userVectorSize = 0;
 	
 	// 最下層のクラスタを格納する
-	Set<UserCluster> atomClusters;
+//	Set<UserCluster> atomClusters;
 	
 	// 各層におけるクラスタの集合を格納する
 	//   0 層 : アトムクラスタ
@@ -67,12 +67,6 @@ public class UserClassifier extends AbstractService {
 		init();
 		
 		try {
-			// ユーザベクトルの大きさを設定
-			initUserVectorSize();
-			
-			// ユーザをアトムクラスタに入れる
-			initAtomCluster();
-			
 			// 全層をクラスタ分割
 			doClassify();
 		} catch (SQLException e) {
@@ -99,7 +93,7 @@ public class UserClassifier extends AbstractService {
 	 * メンバを初期化する
 	 */
 	private void init() {
-		atomClusters = new HashSet<UserCluster>();
+//		atomClusters = new HashSet<UserCluster>();
 		clusterMap = new HashMap<Integer, Set<UserCluster>>();
 		distanceMap = new HashMap<Integer, Map<UserCluster, Map<UserCluster, Double>>>();
 		
@@ -109,40 +103,46 @@ public class UserClassifier extends AbstractService {
 		}
 	}
 	
-	/**
-	 * ユーザベクトルの大きさを設定する
-	 * @throws SQLException 
-	 */
-	private void initUserVectorSize() throws SQLException {
-		PreparedStatement st = null;
-		ResultSet rs = null;
-		
-		try {
-			st = SQL_BBITEM.STATEMENT.selectIdLength(getConnection());
-			rs = st.executeQuery();
-			
-			if (rs.next()) {
-				userVectorSize = rs.getInt(1);
-			} else {
-				userVectorSize = 0;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw e;
-		} finally {
-			if (st != null) {
-				st.close();
-			}
-			if (rs != null) {
-				rs.close();
-			}
-		}
-	}
+//	/**
+//	 * ユーザベクトルの大きさを設定する
+//	 * @throws SQLException 
+//	 */
+//	private void initUserVectorSize() throws SQLException {
+//		PreparedStatement st = null;
+//		ResultSet rs = null;
+//		
+//		try {
+//			st = SQL_BBITEM.STATEMENT.selectIdLength(getConnection());
+//			rs = st.executeQuery();
+//			
+//			if (rs.next()) {
+//				userVectorSize = rs.getInt(1);
+//			} else {
+//				userVectorSize = 0;
+//			}
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//			throw e;
+//		} finally {
+//			if (st != null) {
+//				st.close();
+//			}
+//			if (rs != null) {
+//				rs.close();
+//			}
+//		}
+//	}
 	
 	/**
 	 * 各ユーザが中心となる(ユーザ数と同じ数だけある)アトムクラスタを作る
 	 */
 	private void initAtomCluster() throws SQLException {
+		Set<UserCluster> atomClusters = clusterMap.get(Integer.valueOf(0));
+		if (atomClusters == null) {
+			atomClusters = new HashSet<UserCluster>();
+			clusterMap.put(Integer.valueOf(0), atomClusters);
+		}
+		
 		// 全ユーザを取得
 		Set<User> users = new User().findSet();
 		
@@ -154,15 +154,16 @@ public class UserClassifier extends AbstractService {
 	
 	/**
 	 * アトムクラスタの上の階層から始め、各階層でクラスタリングする。1階層終わったら上方向に進む。
+	 * @throws SQLException 
 	 */
-	private void doClassify() {
+	private void doClassify() throws SQLException {
 		//   0 層 : アトムクラスタ
 		//   1 層 : 最初のクラスタリング
 		//   ...
 		// (CLUSTER_DEPTH)層 : 最後のクラスタリング
 		
 		// 0 層
-		clusterMap.put(Integer.valueOf(0), atomClusters);
+		initAtomCluster();
 		
 		// 1 層 - (CLUSTER_DEPTH) 層
 		for(int depth = 1; depth <= CLUSTER_DEPTH; ++depth) {
@@ -214,6 +215,9 @@ public class UserClassifier extends AbstractService {
 				for(UserCluster child : children) {
 //					LogUtil.info("UserClassifier#doClassify():    child cluster "+child);
 					Map<UserCluster, Double> dists = distances.get(child);
+					if (dists == null) {
+						calcUpDistances(depth, child);
+					}
 					double minimumDistance = MAX_DISTANCE;
 					UserCluster minimumCluster = null;
 					for(UserCluster parent : parents) {
@@ -273,7 +277,7 @@ public class UserClassifier extends AbstractService {
 			//   as next center cluster (cluster[i])
 			
 			// 一つ前のクラスタとの距離を計算する
-			calcDistances(depth, clusters[i-1]);
+			calcDownDistances(depth, clusters[i-1]);
 			
 			// どの親クラスタからも一番遠い子クラスタを見つける
 			furthestCluster = null;
@@ -307,7 +311,7 @@ public class UserClassifier extends AbstractService {
 		}
 		
 		// 最後に決めたクラスタ cluster[size-1] との距離も計算する
-		calcDistances(depth, clusters[num-1]);
+		calcDownDistances(depth, clusters[num-1]);
 	}
 	
 	/**
@@ -316,37 +320,76 @@ public class UserClassifier extends AbstractService {
 	 * @param depth
 	 * @param parent
 	 */
-	private void calcDistances(int depth, UserCluster parent) {
-		Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
-		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
-		
-		for(UserCluster child : children) {
-//			double len1 = MathUtil.vectorSize(child.vector), len2 = MathUtil.vectorSize(parent.vector);
-//			double distance = 0;
-//			if (len1 != 0.0 && len2 != 0.0) {
-//				double cosin = MathUtil.vectorMultiply(child.vector, parent.vector) / (len1 * len2);
-//				distance = 1.0 - cosin;
-//			}
-//			if (distance <= 0.0) {
-//				LogUtil.info("UserClassifier#calcDistances(): distance = 0.0");
-//				LogUtil.info("UserClassifier#calcDistances():   <-- child.vec  = "+MathUtil.printVector(child.vector));
-//				LogUtil.info("UserClassifier#calcDistances():   <-- parent.vec = "+MathUtil.printVector(parent.vector));
-//			}
-			double distance = parent.distance(child);
-//			LogUtil.info("UserClassifier#calcDistances(): distance "+BBAnalyzerUtil.printFeature(parent.feature)+", "+BBAnalyzerUtil.printFeature(child.feature)+" = "+distance);
+	private void calcDownDistances(int depth, UserCluster parent) {
+		if (0 < depth) {
+			Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
+			Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 			
-			if (!distances.containsKey(child)) {
-				distances.put(child, new HashMap<UserCluster, Double>());
+			for(UserCluster child : children) {
+				double distance = parent.distance(child);
+				
+				if (!distances.containsKey(child)) {
+					distances.put(child, new HashMap<UserCluster, Double>());
+				}
+				distances.get(child).put(parent, Double.valueOf(distance));
 			}
-			distances.get(child).put(parent, Double.valueOf(distance));
+		}
+	}
+	
+	private void calcUpDistances(int depth, UserCluster child) {
+		if (depth < CLUSTER_DEPTH) {
+			Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
+			Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth+1));
+			
+			for(UserCluster parent : parents) {
+				double distance = child.distance(parent);
+				
+				if (!distances.containsKey(child)) {
+					distances.put(child, new HashMap<UserCluster, Double>());
+				}
+				distances.get(child).put(parent, Double.valueOf(distance));
+			}
 		}
 	}
 	
 	
 	
 	
-	private void loadUserClusters(int depth) {
-		// TODO implement here
+	public void loadUserClusters() throws SQLException {
+		// TODO test this method
+		for(int i = 0; i <= CLUSTER_DEPTH; ++i) {
+			Set<UserCluster> userClusters = clusterMap.get(Integer.valueOf(i));
+			Set<BBUserCluster> bbUserClusters = new BBUserCluster().findSetByDepth(i);
+			for(BBUserCluster bbUserCluster : bbUserClusters) {
+				UserCluster userCluster = bbUserCluster.convertToUserCluster();
+				userClusters.add(userCluster);
+			}
+		}
+	}
+	
+	public void saveUserClusters() {
+		// TODO test this method
+		for(UserCluster cluster : getTopClusters()) {
+			saveUserCluster(cluster, null, 0.0);
+		}
+	}
+	
+	private BBUserCluster saveUserCluster(UserCluster cluster, BBUserCluster parent, double distanceFromParent) {
+		long depth = cluster.depth;
+		BBUserCluster bbUserCluster = new BBUserCluster(cluster.depth, cluster.id).uniqueOrStore();
+		bbUserCluster.setDistanceFromParent(distanceFromParent);
+		bbUserCluster.setFeature(cluster.feature);
+		bbUserCluster.setParent(parent);
+		if (0 < depth) {
+			Set<BBUserCluster> children = new HashSet<BBUserCluster>();
+			for(UserCluster child : cluster.children.keySet()) {
+				children.add(saveUserCluster(child, bbUserCluster, cluster.children.get(child)));
+			}
+			bbUserCluster.setChildren(children);
+		}
+		bbUserCluster.store();
+		
+		return bbUserCluster;
 	}
 	
 }

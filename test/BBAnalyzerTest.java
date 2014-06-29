@@ -20,7 +20,7 @@ import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class BBAnalyzerTest {
 
-	@Test
+//	@Test
 	public void test1() {
 		running(fakeApplication(), new Runnable() {
 			public void run() {
@@ -136,6 +136,33 @@ public class BBAnalyzerTest {
 		});
 	}
 	
+	@Test
+	public void test4() {
+		running(fakeApplication(), new Runnable() {
+			public void run() {
+				try {
+					UserClassifier classifier = new UserClassifier();
+					classifier.classify();
+					
+					classifier.saveUserClusters();
+					
+					classifier.loadUserClusters();
+					
+					Set<UserCluster> topClusters = classifier.getTopClusters();
+					assertThat(topClusters).isNotNull();
+					
+					Map<UserCluster, Double> clusters = new HashMap<UserCluster, Double>();
+					for(UserCluster cluster : topClusters) {
+						clusters.put(cluster, Double.valueOf(0.0));
+					}
+					StringBuilder sb = new StringBuilder();
+					sprintClusters(sb, 0, clusters);
+				} catch(SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 	
 	
 	
