@@ -148,12 +148,7 @@ public class UserClassifier extends AbstractService {
 		
 		// 各ユーザについて、アトムクラスタを作る
 		for(User user : users) {
-			AtomUserCluster cluster = new AtomUserCluster();
-			cluster.user = user;
-//			cluster.vector = user.getUserVector(userVectorSize);
-			cluster.feature = user.getUserFeature();
-			cluster.children = null;
-			atomClusters.add(cluster);
+			atomClusters.add(new AtomUserCluster(user));
 		}
 	}
 	
@@ -223,7 +218,7 @@ public class UserClassifier extends AbstractService {
 					UserCluster minimumCluster = null;
 					for(UserCluster parent : parents) {
 //						LogUtil.info("UserClassifier#doClassify():      +parent "+parent);
-						double d = dists.get(parent).doubleValue();
+						double d = dists.get(parent);
 //						LogUtil.info("UserClassifier#doClassify():        +distance = "+d);
 						if (d < minimumDistance) {
 							minimumDistance = d;
@@ -231,7 +226,7 @@ public class UserClassifier extends AbstractService {
 						}
 					}
 //					LogUtil.info("UserClassifier#doClassify():      --> nearest parent = "+minimumCluster+", distance="+minimumDistance);
-					minimumCluster.children.put(child, minimumDistance);
+					minimumCluster.addChild(child, minimumDistance);
 					if (!prevClusters.containsKey(child) || !prevClusters.get(child).equals(minimumCluster)) {
 						++changed;
 					}
@@ -254,6 +249,7 @@ public class UserClassifier extends AbstractService {
 		LogUtil.info("UserClassifier#initKMeans("+depth+"):");
 		Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth));
 		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
+		Set<UserCluster> selected = new HashSet<UserCluster>();
 		Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
 		int num = CLUSTER_SIZES[depth-1];
 		UserCluster clusters[] = new UserCluster[num];
@@ -261,8 +257,10 @@ public class UserClassifier extends AbstractService {
 		double furthestDistance = 0;
 		
 		// クラスタ中心を1つ決める
-		clusters[0] = new UserCluster(children.iterator().next());
+		UserCluster firstCluster = children.iterator().next();
+		clusters[0] = new UserCluster(0, firstCluster);
 		parents.add(clusters[0]);
+		selected.add(firstCluster);
 		LogUtil.info("UserClassifier#initKMeans("+depth+"): i = 0");
 		LogUtil.info("UserClassifier#initKMeans("+depth+"): selected "+clusters[0]);
 		
@@ -283,7 +281,7 @@ public class UserClassifier extends AbstractService {
 			// for each cluster in children
 			for(UserCluster child : children) {
 				// すでに親なら除外
-				if (parents.contains(child)) {
+				if (selected.contains(child)) {
 					continue;
 				}
 				Map<UserCluster, Double> dists = distances.get(child);
@@ -302,8 +300,9 @@ public class UserClassifier extends AbstractService {
 			}
 			
 			// furthestCluster を次のクラスタ中心 cluster[i] とする
-			clusters[i] = new UserCluster(furthestCluster);
+			clusters[i] = new UserCluster(i, furthestCluster);
 			parents.add(clusters[i]);
+			selected.add(furthestCluster);
 			LogUtil.info("UserClassifier#initKMeans("+depth+"): distance = "+furthestDistance+", selected "+clusters[i]);
 		}
 		

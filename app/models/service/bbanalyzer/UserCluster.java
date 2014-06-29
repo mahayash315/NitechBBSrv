@@ -10,9 +10,13 @@ import models.entity.User;
 import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class UserCluster {
+	
+	// クラスタのID
+	public long depth;
+	public long id;
 
 	// クラスタの位置ベクトル
-	public double[] vector;
+//	public double[] vector;
 	public Map<Long,Double> feature;
 	
 	// クラスタの一つ下の層にあるクラスタとその距離
@@ -28,14 +32,20 @@ public class UserCluster {
 		children = new HashMap<UserCluster, Double>();
 		itemClassifier = new BBItemClassifier(this);
 	}
-	public UserCluster(UserCluster baseCluster) {
+	public UserCluster(long id, UserCluster childCluster) {
 		this();
-		children.put(baseCluster, Double.valueOf(0.0));
+		depth = childCluster.depth + 1;
+		this.id = id;
+		children.put(childCluster, Double.valueOf(0.0));
 //		updateVector();
 		updateFeature();
 	}
-	public UserCluster(Map<UserCluster, Double> children) {
+	public UserCluster(long id, Map<UserCluster, Double> children) {
 		this();
+		if (children != null && !children.isEmpty()) {
+			depth = children.keySet().iterator().next().depth + 1;
+		}
+		this.id = id;
 		this.children.putAll(children);
 //		updateVector();
 		updateFeature();
@@ -43,6 +53,17 @@ public class UserCluster {
 	
 	
 	/* インスタンスメソッド */
+	/**
+	 * 子クラスタを追加する
+	 * @param child
+	 * @param distance
+	 */
+	public void addChild(UserCluster child, double distance) {
+		if (child != null) {
+			children.put(child, Double.valueOf(distance));
+		}
+	}
+	
 	/**
 	 * クラスタ内に存在するすべてのユーザを取得する
 	 * @return
@@ -140,6 +161,8 @@ public class UserCluster {
 	public void updateFeature() {
 		if (children != null && 0 < children.size()) {
 			feature.clear();
+			
+			// 子クラスタの特徴の平均を取る
 			for(UserCluster child : children.keySet()) {
 				for(Long key : child.feature.keySet()) {
 					if (!feature.containsKey(key)) {
@@ -152,13 +175,48 @@ public class UserCluster {
 			for(Long key : feature.keySet()) {
 				feature.put(key, feature.get(key) / weight);
 			}
+			
+			// 各子クラスたとの距離を再計算
+			for(UserCluster child : children.keySet()) {
+				children.put(child, Double.valueOf(distance(child)));
+			}
 		}
+	}
+	
+	/* hashCode, equals */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (depth ^ (depth >>> 32));
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserCluster other = (UserCluster) obj;
+		if (depth != other.depth)
+			return false;
+		if (id != other.id)
+			return false;
+		return true;
 	}
 	
 	/* toString() */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("depth=");
+		sb.append(depth);
+		sb.append(", id=");
+		sb.append(id);
+		sb.append(", ");
 		sb.append(BBAnalyzerUtil.printFeature(feature));
 		if (children != null) {
 			sb.append(", users=[");
@@ -181,4 +239,5 @@ public class UserCluster {
 	public BBItemClassifier getItemClassifier() {
 		return itemClassifier;
 	}
+
 }

@@ -110,24 +110,28 @@ public class BBAnalyzerTest {
 	public void test3() {
 		running(fakeApplication(), new Runnable() {
 			public void run() {
-				Map<Long, Double> feature1 = new HashMap<Long,Double>(){{
-					put(Long.valueOf(3), Double.valueOf(1));
-				}};
-				Map<Long, Double> feature2 = new HashMap<Long,Double>(){{
-					put(Long.valueOf(1), Double.valueOf(5));
-					put(Long.valueOf(2), Double.valueOf(2));
-					put(Long.valueOf(3), Double.valueOf(3));
-				}};
-				AtomUserCluster u1 = new AtomUserCluster();
-				u1.feature = feature1;
-				AtomUserCluster u2 = new AtomUserCluster();
-				u2.feature = feature2;
-				UserCluster c1 = new UserCluster(u1);
-				UserCluster c2 = new UserCluster(u2);
-				Logger.info("u1.feature = "+BBAnalyzerUtil.printFeature(u1.feature));
-				Logger.info("c1.feature = "+BBAnalyzerUtil.printFeature(c1.feature));
-				Logger.info("u2.feature = "+BBAnalyzerUtil.printFeature(u2.feature));
-				Logger.info("c2.feature = "+BBAnalyzerUtil.printFeature(c2.feature));
+				try {
+					Map<Long, Double> feature1 = new HashMap<Long,Double>(){{
+						put(Long.valueOf(3), Double.valueOf(1));
+					}};
+					Map<Long, Double> feature2 = new HashMap<Long,Double>(){{
+						put(Long.valueOf(1), Double.valueOf(5));
+						put(Long.valueOf(2), Double.valueOf(2));
+						put(Long.valueOf(3), Double.valueOf(3));
+					}};
+					AtomUserCluster u1 = new AtomUserCluster(null);
+					u1.feature = feature1;
+					AtomUserCluster u2 = new AtomUserCluster(null);
+					u2.feature = feature2;
+					UserCluster c1 = new UserCluster(0, u1);
+					UserCluster c2 = new UserCluster(1, u2);
+					Logger.info("u1.feature = "+BBAnalyzerUtil.printFeature(u1.feature));
+					Logger.info("c1.feature = "+BBAnalyzerUtil.printFeature(c1.feature));
+					Logger.info("u2.feature = "+BBAnalyzerUtil.printFeature(u2.feature));
+					Logger.info("c2.feature = "+BBAnalyzerUtil.printFeature(c2.feature));
+				} catch(SQLException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
