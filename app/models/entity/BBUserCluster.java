@@ -42,11 +42,11 @@ public class BBUserCluster extends Model {
 	@Transient
 	Map<Long,Double> feature;
 	
-	@ManyToOne
+	@ManyToOne(cascade={})
 	@Column(name = "parent")
 	BBUserCluster parent;
 	
-	@OneToMany(mappedBy = "parent")
+	@OneToMany(mappedBy = "parent",cascade={})
 	Set<BBUserCluster> children;
 	
 	@Column(name = "distance_from_parent")
@@ -71,6 +71,12 @@ public class BBUserCluster extends Model {
 	public BBUserCluster(long clusterDepth, long clusterId) {
 		this.clusterDepth = clusterDepth;
 		this.clusterId = clusterId;
+	}
+	public BBUserCluster(UserCluster userCluster) {
+		if (userCluster != null) {
+			this.clusterDepth = userCluster.depth;
+			this.clusterId = userCluster.id;
+		}
 	}
 	
 	/* インスタンスメソッド */

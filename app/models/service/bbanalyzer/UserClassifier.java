@@ -378,9 +378,9 @@ public class UserClassifier extends AbstractService {
 		long depth = cluster.depth;
 		BBUserCluster bbUserCluster = new BBUserCluster(cluster.depth, cluster.id).uniqueOrStore();
 		bbUserCluster.setDistanceFromParent(distanceFromParent);
-		bbUserCluster.setFeature(cluster.feature);
 		bbUserCluster.setParent(parent);
 		if (0 < depth) {
+			bbUserCluster.setFeature(cluster.feature);
 			Set<BBUserCluster> children = new HashSet<BBUserCluster>();
 			for(UserCluster child : cluster.children.keySet()) {
 				children.add(saveUserCluster(child, bbUserCluster, cluster.children.get(child)));

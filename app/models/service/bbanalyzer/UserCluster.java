@@ -26,24 +26,26 @@ public class UserCluster {
 	public Map<UserCluster, Double> children;
 	
 	// 識別器
-	BBItemClassifier itemClassifier;
+	ItemClassifier itemClassifier;
 	
 	
 	/* コンストラクタ */
 	public UserCluster() {
 		feature = new HashMap<Long,Double>();
 		children = new HashMap<UserCluster, Double>();
-		itemClassifier = new BBItemClassifier(this);
+		itemClassifier = new ItemClassifier();
 	}
 	public UserCluster(long depth, long id) {
 		this();
 		this.depth = depth;
 		this.id = id;
+		itemClassifier = new ItemClassifier(this);
 	}
 	public UserCluster(long id, UserCluster childCluster) {
 		this();
 		depth = childCluster.depth + 1;
 		this.id = id;
+		itemClassifier = new ItemClassifier(this);
 		addChild(childCluster, 0.0);
 //		updateVector();
 		updateFeature();
@@ -264,7 +266,7 @@ public class UserCluster {
 	
 	
 	/* getter, setter */
-	public BBItemClassifier getItemClassifier() {
+	public ItemClassifier getItemClassifier() {
 		return itemClassifier;
 	}
 

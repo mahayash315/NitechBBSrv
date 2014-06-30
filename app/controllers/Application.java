@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.Set;
 
 import models.entity.BBItem;
-import models.service.bbanalyzer.BBItemClassifier;
+import models.service.bbanalyzer.ItemClassifier;
 import models.service.bbanalyzer.UserClassifier;
 import models.service.bbanalyzer.UserCluster;
 import play.mvc.Controller;
@@ -16,10 +16,12 @@ public class Application extends Controller {
     public static Result index() throws SQLException {
 		UserClassifier classifier = new UserClassifier();
 		classifier.classify();
+		classifier.saveUserClusters();
+		classifier.loadUserClusters();
 		Set<UserCluster> topClusters = classifier.getTopClusters();
 		UserCluster topCluster = topClusters.iterator().next();
 		if (topCluster != null) {
-			BBItemClassifier itemClassifier = topCluster.getItemClassifier();
+			ItemClassifier itemClassifier = topCluster.getItemClassifier();
 			itemClassifier.train();
 			
 			BBItem item = new BBItem();

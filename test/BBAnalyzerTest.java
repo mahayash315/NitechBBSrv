@@ -9,7 +9,7 @@ import java.util.Set;
 import models.entity.BBItem;
 import models.entity.User;
 import models.service.bbanalyzer.AtomUserCluster;
-import models.service.bbanalyzer.BBItemClassifier;
+import models.service.bbanalyzer.ItemClassifier;
 import models.service.bbanalyzer.UserClassifier;
 import models.service.bbanalyzer.UserCluster;
 
@@ -82,7 +82,7 @@ public class BBAnalyzerTest {
 					
 					Map<UserCluster, Integer> classified = new HashMap<UserCluster, Integer>();
 					for(UserCluster userCluster : allUserClusters) {
-						BBItemClassifier itemClassifier = userCluster.getItemClassifier();
+						ItemClassifier itemClassifier = userCluster.getItemClassifier();
 						itemClassifier.train();
 						int classifiedTo = itemClassifier.classify(item);
 						classified.put(userCluster, Integer.valueOf(classifiedTo));
@@ -92,7 +92,7 @@ public class BBAnalyzerTest {
 						Logger.info("BBAnalyzerTest#test2(): classified item to CLASS["+classified.get(userCluster)+"]");
 					}
 					
-					BBItemClassifier topItemClassifier = topCluster.getItemClassifier();
+					ItemClassifier topItemClassifier = topCluster.getItemClassifier();
 					topItemClassifier.train();
 					int classifiedTo = topItemClassifier.classify(item);
 					Logger.info("BBAnalyzerTest#test2(): classified item to CLASS["+classifiedTo+"]");
@@ -157,6 +157,7 @@ public class BBAnalyzerTest {
 					}
 					StringBuilder sb = new StringBuilder();
 					sprintClusters(sb, 0, clusters);
+					Logger.info("BBAnalyzerTest#test4(): "+sb.toString());
 				} catch(SQLException e) {
 					e.printStackTrace();
 				}

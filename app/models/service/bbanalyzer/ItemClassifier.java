@@ -10,15 +10,17 @@ import java.util.Map;
 import java.util.Set;
 
 import models.entity.BBItem;
+import models.entity.BBItemClassifier;
 import models.entity.BBItemWordCount;
 import models.entity.BBReadHistory;
+import models.entity.BBUserCluster;
 import models.entity.BBWord;
 import models.entity.User;
 import models.service.AbstractService;
 import utils.bbanalyzer.BBAnalyzerUtil;
 import utils.bbanalyzer.LogUtil;
 
-public class BBItemClassifier extends AbstractService {
+public class ItemClassifier extends AbstractService {
 	
 	/* 定数 */
 	public static final int NUM_CLASS = 3;
@@ -103,6 +105,7 @@ public class BBItemClassifier extends AbstractService {
 	
 	// この識別器の取り付け先クラスタ
 	UserCluster userCluster;
+	BBUserCluster bbUserCluster;
 	
 	// 事前確率のパラメータ
 	Map<Integer, Double> probPrior;
@@ -117,14 +120,19 @@ public class BBItemClassifier extends AbstractService {
 	int trainingDataCount;
 	
 	/* コンストラクタ */
-	private BBItemClassifier() {
-		loadProbPrior();
-		loadProbConds();
-		loadCounters();
+	public ItemClassifier() {
+		init();
 	}
-	public BBItemClassifier(UserCluster userCluster) {
+	public ItemClassifier(UserCluster userCluster) {
 		this();
 		this.userCluster = userCluster;
+		this.bbUserCluster = new BBUserCluster(userCluster).unique();
+		if (!loadProbs() || !loadCounters()) {
+			probPrior.clear();
+			probConds.clear();
+			trainingCount = 0;
+			trainingDataCount = 0;
+		}
 	}
 	
 	
@@ -222,8 +230,7 @@ public class BBItemClassifier extends AbstractService {
 			trainingDataCount = trainingDataCount + countPerItems.size();
 			
 			// パラメータの保存
-			saveProbPrior();
-			saveProbConds();
+			saveProbs();
 			saveCounters();
 		} catch (SQLException e) {
 			throw e;
@@ -278,10 +285,6 @@ public class BBItemClassifier extends AbstractService {
 		
 		return maxClass;
 	}
-	
-	
-	
-	
 	
 	/**
 	 * 掲示閲覧履歴から各掲示を CLASS_NUM クラス(興味なし～興味あり)に分類する
@@ -341,7 +344,6 @@ public class BBItemClassifier extends AbstractService {
 		return sets;
 	}
 	
-	
 	/**
 	 * 掲示閲覧履歴から掲示ごとに開かれた回数をカウントして返す
 	 * @param conn
@@ -379,32 +381,75 @@ public class BBItemClassifier extends AbstractService {
 	}
 	
 	
-	
-	private void loadProbPrior() {
+	private void init() {
 		probPrior = new HashMap<Integer, Double>();
-		// TODO implement here
-	}
-	
-	private void saveProbPrior() {
-		// TODO implement here
-	}
-	
-	private void loadProbConds() {
 		probConds = new HashMap<Integer, Map<BBWord, Double>>();
-		// TODO implement here
-	}
-	
-	private void saveProbConds() {
-		// TODO implement here
-	}
-	
-	private void loadCounters() {
 		trainingCount = 0;
 		trainingDataCount = 0;
-		// TODO implement here
+	}
+	
+	private boolean loadProbs() {
+		// TODO test this method
+		for(int i = 0; i < NUM_CLASS; ++i) {
+			BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, i).unique();
+			if (bbItemClassifier == null) {
+				return false;
+			}
+			probPrior.put(Integer.valueOf(i), bbItemClassifier.getProbPrior());
+			probConds.put(Integer.valueOf(i), bbItemClassifier.getProbCond());
+		}
+		return true;
+	}
+	
+	private void saveProbs() {
+		for(int i = 0; i < NUM_CLASS; ++i) {
+			BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, i).uniqueOrStore();
+			bbItemClassifier.setProbPrior(probPrior.get(Integer.valueOf(i)));
+			bbItemClassifier.setProbCond(probConds.get(Integer.valueOf(i)));
+			bbItemClassifier.store();
+		}
+	}
+	
+	private boolean loadCounters() {
+		BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, (-1)).unique();
+		if (bbItemClassifier == null) {
+			return false;
+		}
+		trainingCount = bbItemClassifier.getTrainingCount();
+		trainingDataCount = bbItemClassifier.getTrainintDataCount();
+		return true;
 	}
 	
 	private void saveCounters() {
-		// TODO implement here
+		BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, (-1)).uniqueOrStore();
+		bbItemClassifier.setTrainingCount(trainingCount);
+		bbItemClassifier.setTrainintDataCount(trainingDataCount);
+		bbItemClassifier.store();
+	}
+
+	/* hashCode, equals */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((userCluster == null) ? 0 : userCluster.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ItemClassifier other = (ItemClassifier) obj;
+		if (userCluster == null) {
+			if (other.userCluster != null)
+				return false;
+		} else if (!userCluster.equals(other.userCluster))
+			return false;
+		return true;
 	}
 }

@@ -46,14 +46,16 @@ public class BBWord extends Model {
 	public BBWord() {
 		super();
 	}
-	
+	public BBWord(long id) {
+		this();
+		this.id = Long.valueOf(id);
+	}
 	public BBWord(String surface) {
-		super();
+		this();
 		this.surface = surface;
 	}
-	
 	public BBWord(String surface, boolean isKnown) {
-		super();
+		this();
 		this.surface = surface;
 		this.isKnown = isKnown;
 	}

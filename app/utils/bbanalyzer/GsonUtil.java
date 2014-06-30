@@ -1,7 +1,22 @@
 package utils.bbanalyzer;
 
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+
+import models.entity.BBWord;
+
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 public class GsonUtil {
 
@@ -25,42 +40,52 @@ public class GsonUtil {
 	
 	
 	private static void init() {
-		gson = new GsonBuilder().create();
+		gson = new GsonBuilder()
+						.registerTypeAdapter(BBWordAdapter.type, new BBWordAdapter())
+						.create();
 		// add additional type adapters to gson here
 	}
 	
 	
-//	/**
-//	 * JSON からオブジェクトに変換する
-//	 * @param <T>
-//	 * @param json JSON
-//	 * @param classOfT 変換先オブジェクトのクラス
-//	 * @return
-//	 * @throws JsonSyntaxException 変換に失敗した際にスローされる
-//	 */
-//	public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
-//		return gson.fromJson(json, classOfT);
-//	}
-//	
-//	/**
-//	 * JSON からオブジェクトに変換する
-//	 * @param <T>
-//	 * @param json JSON
-//	 * @param typeOfT 変換先オブジェクトのタイプ(java.lang.reflect.Type)
-//	 * @return
-//	 * @throws JsonSyntaxException 変換に失敗した際にスローされる
-//	 */
-//	public <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {
-//		return gson.fromJson(json, typeOfT);
-//	}
-//	
-//	
-//	/**
-//	 * オブジェクトから JSON に変換する
-//	 * @param src
-//	 * @return
-//	 */
-//	public String toJson(Object src) {
-//		return gson.toJson(src);
-//	}
+	private static class BBWordAdapter implements JsonSerializer<Map<BBWord,Double>>, JsonDeserializer<Map<BBWord,Double>> {
+		private static Type type = new TypeToken<Map<BBWord,Double>>(){}.getType();
+		
+		@Override
+		public Map<BBWord,Double> deserialize(JsonElement arg0, Type arg1,
+				JsonDeserializationContext arg2) throws JsonParseException {
+			JsonArray array = arg0.getAsJsonArray();
+			if (array != null) {
+				Map<BBWord, Double> result = new HashMap<BBWord, Double>();
+				int size = array.size();
+				for(int i = 0; i < size; ++i) {
+					JsonObject obj = array.get(i).getAsJsonObject();
+					if (obj != null) {
+						long key = obj.get("key").getAsLong();
+						double value = obj.get("value").getAsDouble();
+						result.put(new BBWord(key).unique(), value);
+					}
+				}
+				return result;
+			}
+			return null;
+		}
+
+		@Override
+		public JsonElement serialize(Map<BBWord,Double> arg0, Type arg1,
+				JsonSerializationContext arg2) {
+			if (arg0 != null) {
+				JsonArray result = new JsonArray();
+				for(BBWord word : arg0.keySet()) {
+					JsonObject obj = new JsonObject();
+					double d = arg0.get(word);
+					obj.addProperty("key", word.getId());
+					obj.addProperty("value", String.valueOf(d));
+					result.add(obj);
+				}
+				return result;
+			}
+			return null;
+		}
+		
+	}
 }
