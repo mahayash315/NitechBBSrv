@@ -13,8 +13,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
@@ -58,11 +58,11 @@ public class GsonUtil {
 				Map<BBWord, Double> result = new HashMap<BBWord, Double>();
 				int size = array.size();
 				for(int i = 0; i < size; ++i) {
-					JsonObject obj = array.get(i).getAsJsonObject();
-					if (obj != null) {
-						long key = obj.get("key").getAsLong();
-						double value = obj.get("value").getAsDouble();
-						result.put(new BBWord(key).unique(), value);
+					JsonArray entry = array.get(i).getAsJsonArray();
+					if (entry != null) {
+						long id = entry.get(0).getAsLong();
+						double value = entry.get(1).getAsDouble();
+						result.put(new BBWord(id).unique(), value);
 					}
 				}
 				return result;
@@ -76,11 +76,11 @@ public class GsonUtil {
 			if (arg0 != null) {
 				JsonArray result = new JsonArray();
 				for(BBWord word : arg0.keySet()) {
-					JsonObject obj = new JsonObject();
+					JsonArray entry = new JsonArray();
 					double d = arg0.get(word);
-					obj.addProperty("key", word.getId());
-					obj.addProperty("value", String.valueOf(d));
-					result.add(obj);
+					entry.add(new JsonPrimitive(word.getId()));
+					entry.add(new JsonPrimitive(d));
+					result.add(entry);
 				}
 				return result;
 			}
