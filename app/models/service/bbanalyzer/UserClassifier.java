@@ -45,8 +45,8 @@ public class UserClassifier extends AbstractService {
 	private Map<Integer, Set<UserCluster>> clusterMap;
 	
 	// 各層における、その層のクラスタと一つ下の層のクラスタとの距離を格納する
-	//depth -> cluster(children) -> cluster(parent) -> distance
-	private Map<Integer, Map<UserCluster, Map<UserCluster, Double>>> distanceMap;
+	//cluster(children) -> cluster(parent) -> distance
+	private Map<UserCluster, Map<UserCluster, Double>> distanceMap;
 	
 	
 	/* コンストラクタ */
@@ -90,11 +90,10 @@ public class UserClassifier extends AbstractService {
 	 */
 	private void init() {
 		clusterMap = new HashMap<Integer, Set<UserCluster>>();
-		distanceMap = new HashMap<Integer, Map<UserCluster, Map<UserCluster, Double>>>();
+		distanceMap = new HashMap<UserCluster, Map<UserCluster, Double>>();
 		
 		for(int i = 0; i <= CLUSTER_DEPTH; ++i) {
 			clusterMap.put(Integer.valueOf(i), new HashSet<UserCluster>());
-			distanceMap.put(Integer.valueOf(i), new HashMap<UserCluster, Map<UserCluster, Double>>());
 		}
 	}
 	
@@ -157,6 +156,9 @@ public class UserClassifier extends AbstractService {
 		//   ...
 		// (CLUSTER_DEPTH)層 : 最後のクラスタリング
 		
+		// 距離マップを初期化 (古いデータが残っているため)
+		distanceMap.clear();
+		
 		// 0 層
 		initAtomCluster();
 		
@@ -165,7 +167,6 @@ public class UserClassifier extends AbstractService {
 			LogUtil.info("UserClassifier#doClassify(): classifying depth = "+depth);
 			Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth));
 			Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
-			Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
 			Map<UserCluster, UserCluster> prevClusters = new HashMap<UserCluster, UserCluster>();
 			
 			// make CLUSTER_SIZES[depth-1] clusters in parents
@@ -206,15 +207,11 @@ public class UserClassifier extends AbstractService {
 				
 				for(UserCluster child : children) {
 //					LogUtil.info("UserClassifier#doClassify():    child cluster "+child);
-					Map<UserCluster, Double> dists = distances.get(child);
-					if (dists == null) {
-						calcUpDistances(depth, child);
-					}
 					double minimumDistance = MAX_DISTANCE;
 					UserCluster minimumCluster = null;
 					for(UserCluster parent : parents) {
 //						LogUtil.info("UserClassifier#doClassify():      +parent "+parent);
-						double d = dists.get(parent);
+						double d = getDistance(child, parent);
 //						LogUtil.info("UserClassifier#doClassify():        +distance = "+d);
 						if (d < minimumDistance) {
 							minimumDistance = d;
@@ -244,7 +241,7 @@ public class UserClassifier extends AbstractService {
 			return true;
 		} else if (0 < depth && depth <= CLUSTER_DEPTH) {
 			Set<UserCluster> clusters = clusterMap.get(Integer.valueOf(depth));
-			if (clusters == null || clusters.size() != CLUSTER_SIZES[depth]) {
+			if (clusters == null || clusters.size() != CLUSTER_SIZES[depth-1]) {
 				return true;
 			} else {
 				return false;
@@ -262,7 +259,6 @@ public class UserClassifier extends AbstractService {
 		Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth));
 		Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 		Set<UserCluster> selected = new HashSet<UserCluster>();
-		Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
 		int num = CLUSTER_SIZES[depth-1];
 		UserCluster clusters[] = new UserCluster[num];
 		UserCluster furthestCluster = null;
@@ -284,8 +280,6 @@ public class UserClassifier extends AbstractService {
 			// take the furthest (or close to the furthest) cluster form children
 			//   as next center cluster (cluster[i])
 			
-			// 一つ前のクラスタとの距離を計算する
-			calcDownDistances(depth, clusters[i-1]);
 			
 			// どの親クラスタからも一番遠い子クラスタを見つける
 			furthestCluster = null;
@@ -296,11 +290,10 @@ public class UserClassifier extends AbstractService {
 				if (selected.contains(child)) {
 					continue;
 				}
-				Map<UserCluster, Double> dists = distances.get(child);
 				// calculate the distance from the nearest parent cluster
 				double minimumDistance = MAX_DISTANCE;
 				for(UserCluster parent : parents) {
-					double d = dists.get(parent).doubleValue();
+					double d = getDistance(child, parent);
 					if (d < minimumDistance) {
 						minimumDistance = d;
 					}
@@ -318,52 +311,38 @@ public class UserClassifier extends AbstractService {
 			LogUtil.info("UserClassifier#initKMeans("+depth+"): distance = "+furthestDistance+", selected "+clusters[i]);
 		}
 		
-		// 最後に決めたクラスタ cluster[size-1] との距離も計算する
-		calcDownDistances(depth, clusters[num-1]);
 	}
 	
-	/**
-	 * 階層 depth において、クラスタ parent から一つ下の階層の全クラスタとの距離を計算し
-	 * distanceMap に入れる
-	 * @param depth
-	 * @param parent
-	 */
-	private void calcDownDistances(int depth, UserCluster parent) {
-		if (0 < depth) {
-			Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
-			Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
-			
-			for(UserCluster child : children) {
-				double distance = parent.distance(child);
-				
-				if (!distances.containsKey(child)) {
-					distances.put(child, new HashMap<UserCluster, Double>());
-				}
-				distances.get(child).put(parent, Double.valueOf(distance));
-			}
-		}
-	}
 	
 	/**
-	 * 階層 depth において、クラスタ parent から一つ上の階層の全クラスタとの距離を計算し
-	 * distanceMap に入れる
-	 * @param depth
-	 * @param child
+	 * クラスタ間の距離を取得する
+	 * @param c1
+	 * @param c2
+	 * @return
 	 */
-	private void calcUpDistances(int depth, UserCluster child) {
-		if (depth < CLUSTER_DEPTH) {
-			Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));
-			Set<UserCluster> parents = clusterMap.get(Integer.valueOf(depth+1));
-			
-			for(UserCluster parent : parents) {
-				double distance = child.distance(parent);
-				
-				if (!distances.containsKey(child)) {
-					distances.put(child, new HashMap<UserCluster, Double>());
-				}
-				distances.get(child).put(parent, Double.valueOf(distance));
+	private double getDistance(UserCluster c1, UserCluster c2) {
+		UserCluster key1 = null, key2 = null;
+		if (c1.depth <= c2.depth) {
+			key1 = c1; key2 = c2;
+		} else {
+			key1 = c2; key2 = c1;
+		}
+		
+		Map<UserCluster, Double> map = distanceMap.get(key1);
+		if (map == null) {
+			map = new HashMap<UserCluster, Double>();
+		} else {
+			Double d = map.get(key2);
+			if (d != null) {
+				return d;
 			}
 		}
+		
+		Double d = Double.valueOf(c1.distance(c2));
+		map.put(key2, d);
+		distanceMap.put(key1, map);
+		
+		return d;
 	}
 	
 	
