@@ -128,10 +128,7 @@ public class ItemClassifier extends AbstractService {
 		this.userCluster = userCluster;
 		this.bbUserCluster = new BBUserCluster(userCluster).unique();
 		if (!loadProbs() || !loadCounters()) {
-			probPrior.clear();
-			probConds.clear();
-			trainingCount = 0;
-			trainingDataCount = 0;
+			init();
 		}
 	}
 	
@@ -218,11 +215,13 @@ public class ItemClassifier extends AbstractService {
 			
 			
 			// 事前確率の計算
-			double div = (double) totalItemCount;
-			for(int i = 0; i < NUM_CLASS; ++i) {
-				double prob = (double) itemSets.get(Integer.valueOf(i)).size() / div;
-				probPrior.put(Integer.valueOf(i), Double.valueOf(prob));
-				LogUtil.info("BBItemClassifier#train(): CLASS["+i+"] probPrior = "+prob);
+			if (0 < totalItemCount) {
+				double div = (double) totalItemCount;
+				for(int i = 0; i < NUM_CLASS; ++i) {
+					double prob = (double) itemSets.get(Integer.valueOf(i)).size() / div;
+					probPrior.put(Integer.valueOf(i), Double.valueOf(prob));
+					LogUtil.info("BBItemClassifier#train(): CLASS["+i+"] probPrior = "+prob);
+				}
 			}
 			
 			// カウンタ更新
@@ -386,6 +385,11 @@ public class ItemClassifier extends AbstractService {
 		probConds = new HashMap<Integer, Map<BBWord, Double>>();
 		trainingCount = 0;
 		trainingDataCount = 0;
+		
+		for(int i = 0; i < NUM_CLASS; ++i) {
+			probPrior.put(Integer.valueOf(i), Double.valueOf(0));
+			probConds.put(Integer.valueOf(i), new HashMap<BBWord, Double>());
+		}
 	}
 	
 	private boolean loadProbs() {
