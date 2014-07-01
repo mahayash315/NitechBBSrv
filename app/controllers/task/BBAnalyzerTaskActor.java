@@ -17,14 +17,6 @@ public class BBAnalyzerTaskActor extends UntypedActor {
 		if (message.equals("Call")) {
 			// バッチ処理を行う
 			
-//			Map<User, Exception> errors = calcNaiveBayesParams();
-//			if (0 < errors.size()) {
-//				LogUtil.error("BBAnalyzerTaskActor#onReceive(): errors occurred while executing the task");
-//				for(User user : errors.keySet()) {
-//					LogUtil.error("user = "+user.toString()+", exeption = "+errors.get(user).getLocalizedMessage());
-//				}
-//			}
-			
 			List<Exception> errors = new ArrayList<Exception>();
 			
 			// classifier
@@ -67,30 +59,4 @@ public class BBAnalyzerTaskActor extends UntypedActor {
 	private void trainAllItemClassifiers() throws SQLException {
 		bbAnalyzerService.trainAllItemClassifiers();
 	}
-	
-//	private Map<User, Exception> calcNaiveBayesParams() throws Exception {
-//
-//		// ユーザ一覧を取得
-//		Set<User> users = new User().findSet();
-//		
-//		Map<User, Exception> errors = new HashMap<User, Exception>();
-//		
-//		// 各ユーザのパラメータを計算
-//		for(User user : users) {
-//			Ebean.beginTransaction();
-//			try {
-//				// ベイズ推定用パラメータの設定
-//				bbAnalyzerService.train(user);
-//				
-//				Ebean.commitTransaction();
-//			} catch (Exception e) {
-//				Ebean.rollbackTransaction();
-//				errors.put(user, e);
-//			} finally {
-//				Ebean.endTransaction();
-//			}
-//		}
-//		
-//		return errors;
-//	}
 }

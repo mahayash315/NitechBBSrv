@@ -29,16 +29,7 @@ public class User extends Model {
 	String hashedNitechId;
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
-	List<BBItemHead> items;
-	
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
 	List<BBReadHistory> readHistories;
-	
-	@Column(name = "bb_analyzer_document_count")
-	int documentCount;
-	
-	@Column(name = "bb_analyzer_word_count")
-	int wordCount;
 	
 	@Transient
 	UserService userService = new UserService();
@@ -150,28 +141,10 @@ public class User extends Model {
 	public void setHashedNitechId(String hashedNitechId) {
 		this.hashedNitechId = hashedNitechId;
 	}
-	public List<BBItemHead> getItems() {
-		return items;
-	}
-	public void setItems(List<BBItemHead> items) {
-		this.items = items;
-	}
 	public List<BBReadHistory> getReadHistory() {
 		return readHistories;
 	}
 	public void setReadHistory(List<BBReadHistory> readHistory) {
 		this.readHistories = readHistory;
-	}
-	public int getDocumentCount() {
-		return documentCount;
-	}
-	public void setDocumentCount(int documentCount) {
-		this.documentCount = documentCount;
-	}
-	public int getWordCount() {
-		return wordCount;
-	}
-	public void setWordCount(int wordCount) {
-		this.wordCount = wordCount;
 	}
 }

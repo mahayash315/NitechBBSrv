@@ -27,12 +27,6 @@ create table bb_item (
   constraint pk_bb_item primary key (id))
 ;
 
-create table bb_item_appendix (
-  id                        bigint auto_increment not null,
-  bb_category_id            bigint,
-  constraint pk_bb_item_appendix primary key (id))
-;
-
 create table bb_item_classifier (
   id                        bigint auto_increment not null,
   bb_user_cluster_id        bigint,
@@ -44,40 +38,12 @@ create table bb_item_classifier (
   constraint pk_bb_item_classifier primary key (id))
 ;
 
-create table bb_item_head (
-  id                        bigint auto_increment not null,
-  id_date                   varchar(10) not null,
-  id_index                  varchar(3) not null,
-  user_id                   bigint,
-  date_show                 varchar(191),
-  date_exec                 varchar(191),
-  author                    longtext,
-  title                     longtext,
-  last_update               datetime,
-  bb_item_appendix_id       bigint,
-  constraint uq_bb_item_head_1 unique (user_id,id_date,id_index),
-  constraint pk_bb_item_head primary key (id))
-;
-
 create table bb_item_word_count (
   id                        bigint auto_increment not null,
   bb_item_id                bigint,
   bb_word_id                bigint,
   count                     integer,
   constraint pk_bb_item_word_count primary key (id))
-;
-
-create table bb_naive_bayes_param (
-  id                        bigint auto_increment not null,
-  user_id                   bigint,
-  bb_word_id                bigint,
-  bb_category_id            bigint,
-  count                     integer,
-  gauss_myu                 double,
-  poisson_lambda            double,
-  OPTLOCK                   integer not null,
-  constraint uq_bb_naive_bayes_param_1 unique (user_id,bb_word_id,bb_category_id),
-  constraint pk_bb_naive_bayes_param primary key (id))
 ;
 
 create table bb_read_history (
@@ -108,14 +74,6 @@ create table bb_word (
   constraint pk_bb_word primary key (id))
 ;
 
-create table bb_word_count (
-  id                        bigint auto_increment not null,
-  bb_item_id                bigint,
-  bb_word_id                bigint,
-  count                     integer,
-  constraint pk_bb_word_count primary key (id))
-;
-
 create table mock_bb_item (
   id_date                   varchar(10) not null,
   id_index                  integer not null,
@@ -133,41 +91,23 @@ create table mock_bb_item (
 create table user (
   id                        bigint auto_increment not null,
   hashed_nitech_id          varchar(191),
-  bb_analyzer_document_count integer,
-  bb_analyzer_word_count    integer,
   constraint pk_user primary key (id))
 ;
 
 alter table bb_category add constraint fk_bb_category_user_1 foreign key (user_id) references user (id) on delete restrict on update restrict;
 create index ix_bb_category_user_1 on bb_category (user_id);
-alter table bb_item_appendix add constraint fk_bb_item_appendix_category_2 foreign key (bb_category_id) references bb_category (id) on delete restrict on update restrict;
-create index ix_bb_item_appendix_category_2 on bb_item_appendix (bb_category_id);
-alter table bb_item_classifier add constraint fk_bb_item_classifier_bbUserCluster_3 foreign key (bb_user_cluster_id) references bb_user_cluster (id) on delete restrict on update restrict;
-create index ix_bb_item_classifier_bbUserCluster_3 on bb_item_classifier (bb_user_cluster_id);
-alter table bb_item_head add constraint fk_bb_item_head_user_4 foreign key (user_id) references user (id) on delete restrict on update restrict;
-create index ix_bb_item_head_user_4 on bb_item_head (user_id);
-alter table bb_item_head add constraint fk_bb_item_head_appendix_5 foreign key (bb_item_appendix_id) references bb_item_appendix (id) on delete restrict on update restrict;
-create index ix_bb_item_head_appendix_5 on bb_item_head (bb_item_appendix_id);
-alter table bb_item_word_count add constraint fk_bb_item_word_count_item_6 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
-create index ix_bb_item_word_count_item_6 on bb_item_word_count (bb_item_id);
-alter table bb_item_word_count add constraint fk_bb_item_word_count_word_7 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
-create index ix_bb_item_word_count_word_7 on bb_item_word_count (bb_word_id);
-alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_user_8 foreign key (user_id) references user (id) on delete restrict on update restrict;
-create index ix_bb_naive_bayes_param_user_8 on bb_naive_bayes_param (user_id);
-alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_word_9 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
-create index ix_bb_naive_bayes_param_word_9 on bb_naive_bayes_param (bb_word_id);
-alter table bb_naive_bayes_param add constraint fk_bb_naive_bayes_param_category_10 foreign key (bb_category_id) references bb_category (id) on delete restrict on update restrict;
-create index ix_bb_naive_bayes_param_category_10 on bb_naive_bayes_param (bb_category_id);
-alter table bb_read_history add constraint fk_bb_read_history_user_11 foreign key (user_id) references user (id) on delete restrict on update restrict;
-create index ix_bb_read_history_user_11 on bb_read_history (user_id);
-alter table bb_read_history add constraint fk_bb_read_history_item_12 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
-create index ix_bb_read_history_item_12 on bb_read_history (bb_item_id);
-alter table bb_user_cluster add constraint fk_bb_user_cluster_parent_13 foreign key (parent_id) references bb_user_cluster (id) on delete restrict on update restrict;
-create index ix_bb_user_cluster_parent_13 on bb_user_cluster (parent_id);
-alter table bb_word_count add constraint fk_bb_word_count_item_14 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
-create index ix_bb_word_count_item_14 on bb_word_count (bb_item_id);
-alter table bb_word_count add constraint fk_bb_word_count_word_15 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
-create index ix_bb_word_count_word_15 on bb_word_count (bb_word_id);
+alter table bb_item_classifier add constraint fk_bb_item_classifier_bbUserCluster_2 foreign key (bb_user_cluster_id) references bb_user_cluster (id) on delete restrict on update restrict;
+create index ix_bb_item_classifier_bbUserCluster_2 on bb_item_classifier (bb_user_cluster_id);
+alter table bb_item_word_count add constraint fk_bb_item_word_count_item_3 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
+create index ix_bb_item_word_count_item_3 on bb_item_word_count (bb_item_id);
+alter table bb_item_word_count add constraint fk_bb_item_word_count_word_4 foreign key (bb_word_id) references bb_word (id) on delete restrict on update restrict;
+create index ix_bb_item_word_count_word_4 on bb_item_word_count (bb_word_id);
+alter table bb_read_history add constraint fk_bb_read_history_user_5 foreign key (user_id) references user (id) on delete restrict on update restrict;
+create index ix_bb_read_history_user_5 on bb_read_history (user_id);
+alter table bb_read_history add constraint fk_bb_read_history_item_6 foreign key (bb_item_id) references bb_item (id) on delete restrict on update restrict;
+create index ix_bb_read_history_item_6 on bb_read_history (bb_item_id);
+alter table bb_user_cluster add constraint fk_bb_user_cluster_parent_7 foreign key (parent_id) references bb_user_cluster (id) on delete restrict on update restrict;
+create index ix_bb_user_cluster_parent_7 on bb_user_cluster (parent_id);
 
 
 
@@ -179,23 +119,15 @@ drop table bb_category;
 
 drop table bb_item;
 
-drop table bb_item_appendix;
-
 drop table bb_item_classifier;
 
-drop table bb_item_head;
-
 drop table bb_item_word_count;
-
-drop table bb_naive_bayes_param;
 
 drop table bb_read_history;
 
 drop table bb_user_cluster;
 
 drop table bb_word;
-
-drop table bb_word_count;
 
 drop table mock_bb_item;
 

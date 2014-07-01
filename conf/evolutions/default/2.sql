@@ -1,13 +1,13 @@
 # --- !Ups
 
-INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyzer_word_count) VALUES (1, 'user1', 0, 0);
-INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyzer_word_count) VALUES (2, 'user2', 0, 0);
-INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyzer_word_count) VALUES (3, 'user3', 0, 0);
-INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyzer_word_count) VALUES (4, 'user4', 0, 0);
-INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyzer_word_count) VALUES (5, 'user5', 0, 0);
-INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyzer_word_count) VALUES (6, 'user6', 0, 0);
-INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyzer_word_count) VALUES (7, 'user7', 0, 0);
-INSERT INTO `user` (id, hashed_nitech_id, bb_analyzer_document_count, bb_analyzer_word_count) VALUES (8, 'user8', 0, 0);
+INSERT INTO `user` (id, hashed_nitech_id) VALUES (1, 'user1');
+INSERT INTO `user` (id, hashed_nitech_id) VALUES (2, 'user2');
+INSERT INTO `user` (id, hashed_nitech_id) VALUES (3, 'user3');
+INSERT INTO `user` (id, hashed_nitech_id) VALUES (4, 'user4');
+INSERT INTO `user` (id, hashed_nitech_id) VALUES (5, 'user5');
+INSERT INTO `user` (id, hashed_nitech_id) VALUES (6, 'user6');
+INSERT INTO `user` (id, hashed_nitech_id) VALUES (7, 'user7');
+INSERT INTO `user` (id, hashed_nitech_id) VALUES (8, 'user8');
 
 INSERT INTO `bb_item` (id,id_date,id_index,author,title) VALUES (1,'2014-06-25','1','学生生活課（就職・キャリア支援係）','ジェネラルインターンシップ　第2次募集開始について');
 INSERT INTO `bb_item` (id,id_date,id_index,author,title) VALUES (2,'2014-06-25','2','学生生活課（就職・キャリア支援係）','平成２６年度キャリア形成ガイダンス（第６回）のお知らせ');
