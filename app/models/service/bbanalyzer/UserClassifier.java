@@ -35,26 +35,24 @@ public class UserClassifier extends AbstractService {
 	}
 	
 	/* メンバ */
-	int userVectorSize = 0;
-	
-	// 最下層のクラスタを格納する
-//	Set<UserCluster> atomClusters;
+//	private int userVectorSize = 0;
 	
 	// 各層におけるクラスタの集合を格納する
 	//   0 層 : アトムクラスタ
 	//   1 層 : 最初のクラスタリング
 	//   ...
 	// (CLUSTER_DEPTH)層 : 最後のクラスタリング
-	Map<Integer, Set<UserCluster>> clusterMap;
+	private Map<Integer, Set<UserCluster>> clusterMap;
 	
 	// 各層における、その層のクラスタと一つ下の層のクラスタとの距離を格納する
 	//depth -> cluster(children) -> cluster(parent) -> distance
-	Map<Integer, Map<UserCluster, Map<UserCluster, Double>>> distanceMap;
+	private Map<Integer, Map<UserCluster, Map<UserCluster, Double>>> distanceMap;
 	
 	
 	/* コンストラクタ */
-	public UserClassifier() {
-		
+	public UserClassifier() throws SQLException {
+		init();
+		loadUserClusters();
 	}
 	
 	/* インスタンスメソッド */
@@ -63,12 +61,10 @@ public class UserClassifier extends AbstractService {
 	 * @throws SQLException 
 	 */
 	public void classify() throws SQLException {
-		// 初期化
-		init();
-		
 		try {
 			// 全層をクラスタ分割
 			doClassify();
+			saveUserClusters();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw e;
@@ -93,7 +89,6 @@ public class UserClassifier extends AbstractService {
 	 * メンバを初期化する
 	 */
 	private void init() {
-//		atomClusters = new HashSet<UserCluster>();
 		clusterMap = new HashMap<Integer, Set<UserCluster>>();
 		distanceMap = new HashMap<Integer, Map<UserCluster, Map<UserCluster, Double>>>();
 		
@@ -181,14 +176,11 @@ public class UserClassifier extends AbstractService {
 			
 			// depth 層のクラスタリング
 			
-			// 初期クラスタ中心を定める
-			initKMeans(depth);
+			if (needsInitialization(depth)) {
+				// 初期クラスタ中心を定める
+				initKMeans(depth);
+			}
 			LogUtil.info("UserClassifier#doClassify(): selected "+parents.size()+" parents");
-			
-//			// 変数初期化
-//			for(UserCluster parent : parents) {
-//				parent.children = new HashMap<UserCluster, Double>();
-//			}
 			
 			// for i=1,2,...,n
 			// 		for each cluster in children
@@ -239,10 +231,26 @@ public class UserClassifier extends AbstractService {
 				
 				++count;
 			} while (MIN_KMEANS_CHANGE < changed && count < MAX_KMEANS_COUNT);
-			
-//			// clusterMap に追加
-//			clusterMap.put(Integer.valueOf(depth), parents);
 		}
+	}
+	
+	/**
+	 * depth 層に対して initKMeans() を行う必要があるか判断する
+	 * @param depth
+	 * @return
+	 */
+	private boolean needsInitialization(int depth) {
+		if (depth == 0) {
+			return true;
+		} else if (0 < depth && depth <= CLUSTER_DEPTH) {
+			Set<UserCluster> clusters = clusterMap.get(Integer.valueOf(depth));
+			if (clusters == null || clusters.size() != CLUSTER_SIZES[depth]) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -336,6 +344,12 @@ public class UserClassifier extends AbstractService {
 		}
 	}
 	
+	/**
+	 * 階層 depth において、クラスタ parent から一つ上の階層の全クラスタとの距離を計算し
+	 * distanceMap に入れる
+	 * @param depth
+	 * @param child
+	 */
 	private void calcUpDistances(int depth, UserCluster child) {
 		if (depth < CLUSTER_DEPTH) {
 			Map<UserCluster, Map<UserCluster, Double>> distances = distanceMap.get(Integer.valueOf(depth));

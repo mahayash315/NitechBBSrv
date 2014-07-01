@@ -4,10 +4,14 @@ import java.math.BigInteger;
 
 public class MathUtil {
 
+	static MathUtil mathUtil;
 	long N;
 	
 	public static MathUtil use() {
-		return new MathUtil();
+		if (mathUtil == null) {
+			mathUtil = new MathUtil();
+		}
+		return mathUtil;
 	}
 
 	public BigInteger factorial(int n) {

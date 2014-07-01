@@ -104,20 +104,20 @@ public class ItemClassifier extends AbstractService {
 	/* メンバ */
 	
 	// この識別器の取り付け先クラスタ
-	UserCluster userCluster;
-	BBUserCluster bbUserCluster;
+	protected UserCluster userCluster;
+	protected BBUserCluster bbUserCluster;
 	
 	// 事前確率のパラメータ
-	Map<Integer, Double> probPrior;
+	protected Map<Integer, Double> probPrior;
 	
 	// クラスごとの条件付き確率のパラメータ
-	Map<Integer, Map<BBWord, Double>> probConds;
+	protected Map<Integer, Map<BBWord, Double>> probConds;
 	
 	// 学習回数
-	int trainingCount;
+	protected int trainingCount;
 	
 	// 学習データの総数
-	int trainingDataCount;
+	protected int trainingDataCount;
 	
 	/* コンストラクタ */
 	public ItemClassifier() {

@@ -9,6 +9,7 @@ import java.util.Set;
 import models.entity.BBItem;
 import models.entity.User;
 import models.service.bbanalyzer.AtomUserCluster;
+import models.service.bbanalyzer.BBAnalyzerService;
 import models.service.bbanalyzer.ItemClassifier;
 import models.service.bbanalyzer.UserClassifier;
 import models.service.bbanalyzer.UserCluster;
@@ -28,24 +29,25 @@ public class BBAnalyzerTest {
 				
 				User user = new User(1L).unique();
 				assertThat(user).isNotNull();
-				
-				UserClassifier classifier = new UserClassifier();
+
 				try {
+					UserClassifier classifier = new UserClassifier();
 					classifier.classify();
+					
+					
+					Set<UserCluster> topClusters = classifier.getTopClusters();
+					assertThat(topClusters).isNotNull();
+					
+					Map<UserCluster, Double> clusters = new HashMap<UserCluster, Double>();
+					for(UserCluster cluster : topClusters) {
+						clusters.put(cluster, Double.valueOf(0.0));
+					}
+					StringBuilder sb = new StringBuilder();
+					sprintClusters(sb, 0, clusters);
+					Logger.info("BBAnalyzerTest#test1(): "+sb.toString());
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-				
-				Set<UserCluster> topClusters = classifier.getTopClusters();
-				assertThat(topClusters).isNotNull();
-				
-				Map<UserCluster, Double> clusters = new HashMap<UserCluster, Double>();
-				for(UserCluster cluster : topClusters) {
-					clusters.put(cluster, Double.valueOf(0.0));
-				}
-				StringBuilder sb = new StringBuilder();
-				sprintClusters(sb, 0, clusters);
-				Logger.info("BBAnalyzerTest#test1(): "+sb.toString());
 			}
 		});
 	}
@@ -136,7 +138,7 @@ public class BBAnalyzerTest {
 		});
 	}
 	
-	@Test
+//	@Test
 	public void test4() {
 		running(fakeApplication(), new Runnable() {
 			public void run() {
@@ -165,6 +167,20 @@ public class BBAnalyzerTest {
 		});
 	}
 	
+	
+	@Test
+	public void test5() {
+		running(fakeApplication(), new Runnable() {
+			public void run() {
+				try {
+					BBAnalyzerService.use().classifyUsers();
+					BBAnalyzerService.use().trainAllItemClassifiers();
+				} catch(SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 	
 	
 	

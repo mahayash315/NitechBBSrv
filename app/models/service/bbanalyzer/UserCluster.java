@@ -26,7 +26,7 @@ public class UserCluster {
 	public Map<UserCluster, Double> children;
 	
 	// 識別器
-	ItemClassifier itemClassifier;
+	private ItemClassifier itemClassifier;
 	
 	
 	/* コンストラクタ */

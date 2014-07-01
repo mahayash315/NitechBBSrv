@@ -1,7 +1,5 @@
 package models.service.bbitemhead;
 
-import models.entity.BBCategory;
-import models.entity.BBItemAppendix;
 import models.entity.BBItemHead;
 import models.entity.User;
 import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
@@ -71,18 +69,18 @@ public class BBItemHeadService extends AbstractService {
 			}
 			
 			// カテゴリ推定
-			BBCategory category = bbAnalyzerService.estimate(user, item);
-			if (category != null) {
-				++c;
-				BBItemAppendix appendix = item.getAppendix();
-				if (appendix == null) {
-					appendix = new BBItemAppendix(item, category);
-					item.setAppendix(appendix);
-				} else {
-					appendix.setCategory(category);
-				}
-				appendix.store();
-			}
+//			BBCategory category = bbAnalyzerService.estimate(user, item);
+//			if (category != null) {
+//				++c;
+//				BBItemAppendix appendix = item.getAppendix();
+//				if (appendix == null) {
+//					appendix = new BBItemAppendix(item, category);
+//					item.setAppendix(appendix);
+//				} else {
+//					appendix.setCategory(category);
+//				}
+//				appendix.store();
+//			}
 			
 			if (item.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す

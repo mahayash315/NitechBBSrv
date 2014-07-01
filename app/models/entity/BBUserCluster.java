@@ -20,7 +20,7 @@ import models.service.bbusercluster.BBUserClusterService;
 import play.db.ebean.Model;
 import utils.bbanalyzer.GsonUtil;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
 
 @Entity
 @Table(name = "bb_user_cluster")
@@ -51,7 +51,6 @@ public class BBUserCluster extends Model {
 	
 	@Column(name = "distance_from_parent")
 	double distanceFromParent;
-	
 	
 	@Transient
 	BBUserClusterService bbUserClusterService = new BBUserClusterService();

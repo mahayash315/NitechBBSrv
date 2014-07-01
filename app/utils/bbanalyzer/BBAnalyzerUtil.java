@@ -17,10 +17,15 @@ import org.atilika.kuromoji.Tokenizer;
 
 public class BBAnalyzerUtil {
 	
+	static BBAnalyzerUtil instance;
+	
 	Tokenizer tokenizer;
 	
 	public static BBAnalyzerUtil use() {
-		return new BBAnalyzerUtil();
+		if (instance == null) {
+			instance = new BBAnalyzerUtil();
+		}
+		return instance;
 	}
 	
 	public BBAnalyzerUtil() {
