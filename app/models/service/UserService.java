@@ -1,4 +1,4 @@
-package models.service.user;
+package models.service;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,7 +9,6 @@ import java.util.Map;
 
 import models.entity.BBReadHistory;
 import models.entity.User;
-import models.service.AbstractService;
 
 public class UserService extends AbstractService {
 

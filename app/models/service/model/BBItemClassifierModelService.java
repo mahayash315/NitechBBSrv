@@ -1,10 +1,9 @@
-package models.service.bbitemclassifier;
+package models.service.model;
 
 import java.util.Set;
 
 import models.entity.BBItemClassifier;
 import models.entity.BBUserCluster;
-import models.service.model.ModelService;
 
 public class BBItemClassifierModelService implements ModelService<Long, BBItemClassifier> {
 	

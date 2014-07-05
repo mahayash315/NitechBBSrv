@@ -11,8 +11,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import models.service.bbitem.BBItemModelService;
-import models.service.bbitem.BBItemService;
+import models.service.bbanalyzer.BBItemService;
+import models.service.model.BBItemModelService;
 import play.data.format.Formats.DateTime;
 import play.db.ebean.Model;
 import utils.EntityUtil;

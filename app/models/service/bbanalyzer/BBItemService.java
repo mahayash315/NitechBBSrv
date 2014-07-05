@@ -1,4 +1,4 @@
-package models.service.bbitem;
+package models.service.bbanalyzer;
 
 import models.entity.BBItem;
 import models.entity.User;
@@ -6,8 +6,7 @@ import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
 import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
 import models.service.AbstractService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
-import models.service.bbitemwordcount.BBItemWordCountService;
-import models.service.user.UserModelService;
+import models.service.model.UserModelService;
 import utils.api.bbanalyzer.LogUtil;
 
 public class BBItemService extends AbstractService {

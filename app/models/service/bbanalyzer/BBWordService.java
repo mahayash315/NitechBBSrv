@@ -1,4 +1,4 @@
-package models.service.bbword;
+package models.service.bbanalyzer;
 
 import models.service.AbstractService;
 

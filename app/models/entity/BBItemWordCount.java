@@ -11,8 +11,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import models.service.bbitemwordcount.BBItemWordCountModelService;
-import models.service.bbitemwordcount.BBItemWordCountService;
+import models.service.bbanalyzer.BBItemWordCountService;
+import models.service.model.BBItemWordCountModelService;
 import play.db.ebean.Model;
 
 @Entity

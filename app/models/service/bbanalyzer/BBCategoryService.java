@@ -1,4 +1,4 @@
-package models.service.bbcategory;
+package models.service.bbanalyzer;
 
 import models.service.AbstractService;
 

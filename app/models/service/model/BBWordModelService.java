@@ -1,10 +1,9 @@
-package models.service.bbword;
+package models.service.model;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
 import models.entity.BBWord;
-import models.service.model.ModelService;
 import utils.bbanalyzer.GsonUtil;
 
 import com.google.gson.reflect.TypeToken;

@@ -1,4 +1,4 @@
-package models.service.bbreadhistory;
+package models.service.model;
 
 import java.util.List;
 import java.util.Set;
@@ -6,7 +6,6 @@ import java.util.Set;
 import models.entity.BBItem;
 import models.entity.BBReadHistory;
 import models.entity.User;
-import models.service.model.ModelService;
 
 public class BBReadHistoryModelService implements ModelService<Long, BBReadHistory> {
 	

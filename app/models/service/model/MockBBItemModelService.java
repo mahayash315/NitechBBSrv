@@ -1,4 +1,4 @@
-package models.service.mockbbitem;
+package models.service.model;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -6,7 +6,6 @@ import java.util.List;
 
 import models.entity.MockBBItem;
 import models.entity.MockBBItem.MockBBItemPK;
-import models.service.model.ModelService;
 import models.setting.MockBBSetting;
 import utils.PageUtil;
 

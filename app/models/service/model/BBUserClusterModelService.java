@@ -1,9 +1,8 @@
-package models.service.bbusercluster;
+package models.service.model;
 
 import java.util.Set;
 
 import models.entity.BBUserCluster;
-import models.service.model.ModelService;
 
 public class BBUserClusterModelService implements ModelService<Long, BBUserCluster> {
 	

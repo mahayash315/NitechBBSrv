@@ -14,8 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import models.service.bbitemclassifier.BBItemClassifierModelService;
-import models.service.bbitemclassifier.BBItemClassifierService;
+import models.service.bbanalyzer.BBItemClassifierService;
+import models.service.model.BBItemClassifierModelService;
 import play.db.ebean.Model;
 import utils.bbanalyzer.GsonUtil;
 

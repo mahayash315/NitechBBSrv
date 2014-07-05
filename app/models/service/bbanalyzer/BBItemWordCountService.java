@@ -1,4 +1,4 @@
-package models.service.bbitemwordcount;
+package models.service.bbanalyzer;
 
 import java.util.Map;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package models.service.bbusercluster;
+package models.service.bbanalyzer;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -7,8 +7,6 @@ import java.util.Map;
 import models.entity.BBUserCluster;
 import models.entity.User;
 import models.service.AbstractService;
-import models.service.bbanalyzer.AtomUserCluster;
-import models.service.bbanalyzer.UserCluster;
 
 
 public class BBUserClusterService extends AbstractService {

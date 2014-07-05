@@ -1,9 +1,8 @@
-package models.service.bbitem;
+package models.service.model;
 
 import java.util.Set;
 
 import models.entity.BBItem;
-import models.service.model.ModelService;
 
 public class BBItemModelService implements ModelService<Long, BBItem> {
 	

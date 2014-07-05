@@ -15,8 +15,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import models.request.mockbb.admin.EditItemRequest;
-import models.service.mockbbitem.MockBBItemModelService;
-import models.service.mockbbitem.MockBBItemService;
+import models.service.mockbb.MockBBItemService;
+import models.service.model.MockBBItemModelService;
 import play.data.format.Formats.DateTime;
 import play.db.ebean.Model;
 import play.mvc.PathBindable;

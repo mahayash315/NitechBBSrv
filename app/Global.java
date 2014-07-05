@@ -3,7 +3,7 @@ import java.text.ParseException;
 import java.util.List;
 
 import models.entity.BBItem;
-import models.service.bbitemwordcount.BBItemWordCountService;
+import models.service.bbanalyzer.BBItemWordCountService;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;

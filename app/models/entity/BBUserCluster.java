@@ -14,9 +14,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import models.service.bbanalyzer.BBUserClusterService;
 import models.service.bbanalyzer.UserCluster;
-import models.service.bbusercluster.BBUserClusterModelService;
-import models.service.bbusercluster.BBUserClusterService;
+import models.service.model.BBUserClusterModelService;
 import play.db.ebean.Model;
 import utils.bbanalyzer.GsonUtil;
 

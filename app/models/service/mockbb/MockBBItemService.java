@@ -1,4 +1,4 @@
-package models.service.mockbbitem;
+package models.service.mockbb;
 
 import models.entity.MockBBItem;
 import models.entity.MockBBItem.MockBBItemPK;

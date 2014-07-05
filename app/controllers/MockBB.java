@@ -2,7 +2,7 @@ package controllers;
 
 import models.request.mockbb.GetDetailRequest;
 import models.request.mockbb.GetListRequest;
-import models.service.mockbbitem.MockBBItemService;
+import models.service.mockbb.MockBBItemService;
 import models.view.mockbb.GetDetailDto;
 import models.view.mockbb.GetListDto;
 import play.data.Form;

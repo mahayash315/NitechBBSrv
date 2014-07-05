@@ -8,8 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import models.service.bbword.BBWordModelService;
-import models.service.bbword.BBWordService;
+import models.service.bbanalyzer.BBWordService;
+import models.service.model.BBWordModelService;
 import play.db.ebean.Model;
 
 @Entity

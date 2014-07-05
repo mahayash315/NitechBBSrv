@@ -1,11 +1,10 @@
-package models.service.bbitemwordcount;
+package models.service.model;
 
 import java.util.Set;
 
 import models.entity.BBItem;
 import models.entity.BBItemWordCount;
 import models.entity.BBWord;
-import models.service.model.ModelService;
 
 public class BBItemWordCountModelService implements ModelService<Long, BBItemWordCount> {
 

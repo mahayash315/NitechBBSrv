@@ -14,8 +14,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import models.service.user.UserModelService;
-import models.service.user.UserService;
+import models.service.UserService;
+import models.service.model.UserModelService;
 import play.db.ebean.Model;
 
 @Entity

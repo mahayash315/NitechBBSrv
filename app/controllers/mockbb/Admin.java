@@ -6,7 +6,7 @@ import models.entity.MockBBItem;
 import models.entity.MockBBItem.MockBBItemPK;
 import models.request.mockbb.admin.CreateItemRequest;
 import models.request.mockbb.admin.EditItemRequest;
-import models.service.mockbbitem.MockBBItemService;
+import models.service.mockbb.MockBBItemService;
 import models.view.mockbb.admin.ManageDto;
 import play.data.Form;
 import play.mvc.Call;

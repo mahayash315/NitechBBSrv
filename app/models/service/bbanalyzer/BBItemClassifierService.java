@@ -1,4 +1,4 @@
-package models.service.bbitemclassifier;
+package models.service.bbanalyzer;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -6,7 +6,6 @@ import java.util.Map;
 
 import models.entity.BBUserCluster;
 import models.service.AbstractService;
-import models.service.bbanalyzer.ItemClassifier;
 
 
 public class BBItemClassifierService extends AbstractService {

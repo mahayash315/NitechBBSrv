@@ -1,9 +1,8 @@
-package models.service.user;
+package models.service.model;
 
 import java.util.Set;
 
 import models.entity.User;
-import models.service.model.ModelService;
 
 public class UserModelService implements ModelService<Long, User> {
 

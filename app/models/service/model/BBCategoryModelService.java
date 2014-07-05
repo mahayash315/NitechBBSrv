@@ -1,8 +1,7 @@
-package models.service.bbcategory;
+package models.service.model;
 
 import models.entity.BBCategory;
 import models.entity.User;
-import models.service.model.ModelService;
 
 public class BBCategoryModelService implements ModelService<Long, BBCategory> {
 

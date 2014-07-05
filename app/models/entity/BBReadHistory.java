@@ -13,8 +13,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import models.service.bbreadhistory.BBReadHistoryModelService;
-import models.service.bbreadhistory.BBReadHistoryService;
+import models.service.bbanalyzer.BBReadHistoryService;
+import models.service.model.BBReadHistoryModelService;
 import play.db.ebean.Model;
 import utils.EntityUtil;
 

@@ -10,8 +10,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import models.service.bbcategory.BBCategoryModelService;
-import models.service.bbcategory.BBCategoryService;
+import models.service.bbanalyzer.BBCategoryService;
+import models.service.model.BBCategoryModelService;
 import play.db.ebean.Model;
 
 @Entity
