@@ -173,7 +173,7 @@ public class BBAnalyzerTest {
 		running(fakeApplication(), new Runnable() {
 			public void run() {
 				try {
-					BBAnalyzerService.use().classifyUsers();
+					BBAnalyzerService.use().classifyAllUsers();
 					BBAnalyzerService.use().trainAllItemClassifiers();
 				} catch(SQLException e) {
 					e.printStackTrace();

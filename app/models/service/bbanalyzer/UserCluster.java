@@ -54,6 +54,7 @@ public class UserCluster {
 			depth = children.keySet().iterator().next().depth + 1;
 		}
 		this.id = id;
+		itemClassifier = new ItemClassifier(this);
 		addChildren(children);
 		updateFeature();
 	}
@@ -97,6 +98,13 @@ public class UserCluster {
 		for(UserCluster child : children.keySet()) {
 			child.setParent(this);
 		}
+	}
+	
+	/**
+	 * 子クラスタをすべて削除する
+	 */
+	public void clearChildren() {
+		children.clear();
 	}
 	
 	/**

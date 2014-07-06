@@ -1,11 +1,15 @@
 package controllers;
 
+import java.sql.SQLException;
+
 import models.request.bbanalyzer.BBAnalyzerRequest;
 import models.response.bbanalyzer.BBAnalyzerResult;
+import models.service.bbanalyzer.BBAnalyzerService;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import utils.bbanalyzer.BBAnalyzerUtil;
+import utils.bbanalyzer.LogUtil;
 
 public class BBAnalyzer extends Controller {
 
@@ -33,6 +37,30 @@ public class BBAnalyzer extends Controller {
 		BBAnalyzerResult result = BBAnalyzerUtil.use().analyzeText(form.get().getBody());
 		
 		return ok(views.html.bbanalyzer.kuromoji.render(form, result));
+	}
+	
+	public static Result classifyAllUsers() {
+		
+		try {
+			BBAnalyzerService.use().classifyAllUsers();
+		} catch (SQLException e) {
+			LogUtil.error("BBAnalyzer#classifyAllUsers()"+e);
+			return internalServerError(e.toString());
+		}
+		
+		return ok("DONE");
+	}
+	
+	public static Result trainAllItemClassifiers() {
+		
+		try {
+			BBAnalyzerService.use().trainAllItemClassifiers();
+		} catch (SQLException e) {
+			LogUtil.error("BBAnalyzer#trainAllItemClassifiers()"+e);
+			return internalServerError(e.toString());
+		}
+		
+		return ok("DONE");
 	}
 	
 	public static Result analyzeBody() {

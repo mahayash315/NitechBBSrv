@@ -36,7 +36,7 @@ public class BBAnalyzerService extends AbstractService {
 	 * クラスタ分析により、全ユーザをクラスタに分類する
 	 * @throws SQLException
 	 */
-	public void classifyUsers() throws SQLException {
+	public void classifyAllUsers() throws SQLException {
 		if (userClassifier != null) {
 			userClassifier.classify();
 		}

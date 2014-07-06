@@ -12,7 +12,7 @@ public class AtomUserCluster extends UserCluster {
 	public User user;
 	
 	public AtomUserCluster(User user) throws SQLException {
-		super();
+		super(0,user.getId());
 		this.depth = 0;
 		if (user != null) {
 			this.id = user.getId();

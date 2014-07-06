@@ -126,6 +126,10 @@ public class UserClassifier extends AbstractService {
 			clusterMap.put(Integer.valueOf(0), atomClusters);
 		}
 		
+		// 既存のリストすべて削除
+		atomClusters.clear();
+		atomClusterMap.clear();
+		
 		// 全ユーザを取得
 		Set<User> users = new User().findSet();
 		
@@ -160,6 +164,11 @@ public class UserClassifier extends AbstractService {
 			Set<UserCluster> children = clusterMap.get(Integer.valueOf(depth-1));
 			Map<UserCluster, UserCluster> prevClusters = new HashMap<UserCluster, UserCluster>();
 			
+			// 現在の状態を保存
+			for(UserCluster child : children) {
+				prevClusters.put(child, child.getParent());
+			}
+			
 			// make CLUSTER_SIZES[depth-1] clusters in parents
 			// for each cluster in parents
 			// 		for each cluster in children
@@ -187,35 +196,35 @@ public class UserClassifier extends AbstractService {
 			do {
 				LogUtil.info("UserClassifier#doClassify():   trial "+count);
 				changed = 0;
-				if (0 < count) {
-					// 各 parent クラスタのクラスタ中心を更新
-					for(UserCluster parent : parents) {
-//						parent.updateVector();
-						parent.updateFeature();
-						parent.children.clear();
-					}
+				
+				for(UserCluster parent : parents) {
+					parent.clearChildren();
 				}
 				
 				for(UserCluster child : children) {
-//					LogUtil.info("UserClassifier#doClassify():    child cluster "+child);
 					double minimumDistance = MAX_DISTANCE;
-					UserCluster minimumCluster = null;
-					for(UserCluster parent : parents) {
-//						LogUtil.info("UserClassifier#doClassify():      +parent "+parent);
-						double d = getDistance(child, parent);
-//						LogUtil.info("UserClassifier#doClassify():        +distance = "+d);
+					UserCluster parent = null;
+					for(UserCluster candidate : parents) {
+						double d = getDistance(child, candidate);
 						if (d < minimumDistance) {
 							minimumDistance = d;
-							minimumCluster = parent;
+							parent = candidate;
 						}
 					}
-//					LogUtil.info("UserClassifier#doClassify():      --> nearest parent = "+minimumCluster+", distance="+minimumDistance);
-					minimumCluster.addChild(child, minimumDistance);
-					child.setParent(minimumCluster);
-					if (!prevClusters.containsKey(child) || !prevClusters.get(child).equals(minimumCluster)) {
+					parent.addChild(child, minimumDistance);
+					
+					UserCluster prev = prevClusters.get(child);
+					if (prev != null && !prev.equals(parent)) {
 						++changed;
 					}
-					prevClusters.put(child, minimumCluster);
+					prevClusters.put(child, parent);
+				}
+				
+				if (0 < depth) {
+					// 各 parent クラスタのクラスタ中心を更新
+					for(UserCluster parent : parents) {
+						parent.updateFeature();
+					}
 				}
 				
 				++count;

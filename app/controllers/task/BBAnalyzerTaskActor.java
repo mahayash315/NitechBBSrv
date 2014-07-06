@@ -53,7 +53,7 @@ public class BBAnalyzerTaskActor extends UntypedActor {
 	
 	
 	private void classifyUsers() throws SQLException {
-		bbAnalyzerService.classifyUsers();
+		bbAnalyzerService.classifyAllUsers();
 	}
 	
 	private void trainAllItemClassifiers() throws SQLException {

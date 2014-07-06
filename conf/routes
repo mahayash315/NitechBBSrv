@@ -12,6 +12,8 @@ GET		/bbanalyzer/kuromoji				controllers.BBAnalyzer.kuromoji()
 POST	/bbanalyzer/kuromoji				controllers.BBAnalyzer.procKuromoji()
 POST	/bbanalyzer/analyzeBody				controllers.BBAnalyzer.analyzeBody()
 #GET		/bbanalyzer/calc					controllers.BBAnalyzer.calcNaiveBayesParams()
+GET		/bbanalyzer/classify				controllers.BBAnalyzer.classifyAllUsers()
+GET		/bbanalyzer/train					controllers.BBAnalyzer.trainAllItemClassifiers()
 
 # BBAnalyzer API
 POST	/bbanalyzer/postNewItemHeads.json 	controllers.api.BBAnalyzer.postNewItemHeads()

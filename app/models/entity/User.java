@@ -106,15 +106,6 @@ public class User extends Model {
 	}
 	
 	/**
-	 * ユーザベクトルを取得する
-	 * @return
-	 */
-//	@Deprecated
-//	public double[] getUserVector(int size) throws SQLException {
-//		return userService.getUserVector(this, size);
-//	}
-	
-	/**
 	 * ユーザ特徴を取得する
 	 * @return
 	 */
