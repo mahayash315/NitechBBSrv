@@ -1,5 +1,6 @@
 package models.service.model;
 
+import java.util.List;
 import java.util.Set;
 
 import models.entity.BBItem;
@@ -85,6 +86,14 @@ public class BBItemModelService implements ModelService<Long, BBItem> {
 			return findByDateIndex(entry.getIdDate(), entry.getIdIndex());
 		}
 		return null;
+	}
+
+	/**
+	 * 全エントリを返す 
+	 * @return
+	 */
+	public List<BBItem> getAllItemsAsList() {
+		return BBItem.find.findList();
 	}
 	
 	/**

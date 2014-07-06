@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -173,7 +174,7 @@ public class ItemClassifier extends AbstractService {
 			// 		クラス c の確率パラメータ P (consists of p_i for all i) を更新
 			// end
 			// 各クラスについて
-			for(int i = 0; i < NUM_CLASS; ++i) {
+			for(int i = 1; i <= NUM_CLASS; ++i) {
 				Map<BBWord, Double> probCond = probConds.get(i);
 				if (probCond == null) {
 					probCond = new HashMap<BBWord, Double>();
@@ -208,7 +209,6 @@ public class ItemClassifier extends AbstractService {
 						double count = totalWordCounts.get(word).doubleValue();
 						double prob = count / n;
 						probCond.put(word, Double.valueOf(prob));
-						LogUtil.info("BBItemClassifier#train(): CLASS["+i+"] probCond("+word+") = "+prob);
 					}
 				}
 				probConds.put(Integer.valueOf(i), probCond);
@@ -218,10 +218,9 @@ public class ItemClassifier extends AbstractService {
 			// 事前確率の計算
 			if (0 < totalItemCount) {
 				double div = (double) totalItemCount;
-				for(int i = 0; i < NUM_CLASS; ++i) {
+				for(int i = 1; i <= NUM_CLASS; ++i) {
 					double prob = (double) itemSets.get(Integer.valueOf(i)).size() / div;
 					probPrior.put(Integer.valueOf(i), Double.valueOf(prob));
-					LogUtil.info("BBItemClassifier#train(): CLASS["+i+"] probPrior = "+prob);
 				}
 			}
 			
@@ -258,20 +257,20 @@ public class ItemClassifier extends AbstractService {
 
 		Set<BBWord> features = BBAnalyzerUtil.use().extractFeatures(item);
 		
-		for(int i = 0; i < NUM_CLASS; ++i) {
+		for(int i = 1; i <= NUM_CLASS; ++i) {
 			double prior = probPrior.get(Integer.valueOf(i)).doubleValue();
 			Map<BBWord, Double> probCond = probConds.get(Integer.valueOf(i));
 			
 			double prob = Math.log(1.0+prior);
-			LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = "+Math.log(1.0+prior));
+//			LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = "+Math.log(1.0+prior));
 			for(BBWord word : probCond.keySet()) {
 				double cond = probCond.get(word).doubleValue();
 				if (features.contains(word)) {
 					prob = prob + Math.log(1.0+cond);
-					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(1.0+cond)+" (cond="+cond+") <- "+word);
+//					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(1.0+cond)+" (cond="+cond+") <- "+word);
 				} else {
 					prob = prob + Math.log(2.0-cond);
-					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(2.0-cond)+" (cond="+cond+") <- "+word);
+//					LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] prob = prob + "+Math.log(2.0-cond)+" (cond="+cond+") <- "+word);
 				}
 			}
 			probs.put(Integer.valueOf(i), prob);
@@ -280,8 +279,9 @@ public class ItemClassifier extends AbstractService {
 				maxClass = i;
 				maxProb = prob;
 			}
-			LogUtil.info("BBItemClassifier#classify(): CLASS["+i+"] calculated prob="+prob);
+			LogUtil.info("BBItemClassifier#classify(): (depth="+userCluster.depth+") CLASS["+i+"] calculated prob="+prob);
 		}
+		LogUtil.info("BBItemClassifier#classify(): (depth="+userCluster.depth+") classified as CLASS["+maxClass+"]");
 		
 		return maxClass;
 	}
@@ -293,53 +293,69 @@ public class ItemClassifier extends AbstractService {
 	 */
 	private Map<Integer, Set<BBItem>> classifyItemsFromReadHistory(Map<BBItem, Integer> countPerItems) {
 		Map<Integer, Set<BBItem>> sets = new HashMap<Integer, Set<BBItem>>();
-		for(int i = 0; i < NUM_CLASS; ++i) {
+		for(int i = 1; i <= NUM_CLASS; ++i) {
 			sets.put(Integer.valueOf(i), new HashSet<BBItem>());
 		}
 		
 		// 全掲示取得
-		Set<BBItem> allItems = new BBItem().getAllItems();
+		List<BBItem> allItems = new BBItem().getAllItemsAsList();
+		int size = allItems.size();
+		double dsize = (double) size;
 		
-		// 標準化されたカウントの格納先
-		Map<BBItem, Double> standarized = new HashMap<BBItem, Double>();
-		
-		// 全記事のカウントの平均と分散を計算
+		// 一時変数用意
+		int i = 0, j = 0;
 		int sum = 0;
-		for(BBItem item : allItems) {
+		double var = 0;
+		double mean = 0;
+		int counts[] = new int[size];
+		double standarized[] = new double[size];
+		
+		// 全記事のカウント
+		for(i = 0; i < size; ++i) {
+			BBItem item = allItems.get(i);
 			int count = countPerItems.containsKey(item) ? countPerItems.get(item) : 0;
-			standarized.put(item, Double.valueOf(count));
+			counts[i] = count;
 			sum = sum + count;
 		}
-		double mean = ((double) sum) / allItems.size();
-		double var = 0;
-		for(Double count : standarized.values()) {
+
+		// 全記事のカウントの平均と分散を計算
+		mean = ((double) sum) / dsize;
+		for(double count : standarized) {
 			double d = count - mean;
 			var = var + d*d;
 		}
+		var = var / (dsize - 1.0);
 		double div = (var == 0.0) ? 1.0 : var;
 		
-		// 標準化とクラス分類
-		for(BBItem item : standarized.keySet()) {
-			double d = (standarized.get(item) - mean) / div;
+		// 標準化
+		for(i = 0; i < size; ++i) {
+			double d = ((double) counts[i] - mean) / div;
+			standarized[i] = d;
+		}
+		
+		// クラス分類
+		for(i = 0; i < size; ++i) {
+			BBItem item = allItems.get(i);
 			int classifiedTo = DEFAULT_CLASSIFY_TO;
-			standarized.put(item, Double.valueOf(d));
 			
-			if (d < THRESHOLDS[0]) {
-				sets.get(Integer.valueOf(0)).add(item);
-				classifiedTo = 0;
-			} else if (THRESHOLDS[NUM_CLASS-2] < d) {
+			double eval = standarized[i];
+			
+			if (eval <= THRESHOLDS[0]) {
+				sets.get(Integer.valueOf(1)).add(item);
+				classifiedTo = 1;
+			} else if (THRESHOLDS[NUM_CLASS-2] <= eval) {
 				sets.get(Integer.valueOf(NUM_CLASS-1)).add(item);
-				classifiedTo = NUM_CLASS-1;
+				classifiedTo = NUM_CLASS;
 			} else {
-				for(int i = 1; i < NUM_CLASS-1; ++i) {
-					if (THRESHOLDS[i-1] < d && d < THRESHOLDS[i]) {
-						sets.get(Integer.valueOf(i)).add(item);
-						classifiedTo = i;
+				for(j = 1; j < NUM_CLASS-1; ++j) {
+					if (THRESHOLDS[j-1] <= eval && eval < THRESHOLDS[j]) {
+						sets.get(Integer.valueOf(j+1)).add(item);
+						classifiedTo = j+1;
 						break;
 					}
 				}
 			}
-			LogUtil.info("BBItemClassifier#classifyItemsFromReadHistory():\n classified to CLASS["+classifiedTo+"] with d="+d+", item "+item);
+			LogUtil.info("BBItemClassifier#classifyItemsFromReadHistory():\n classified to CLASS["+classifiedTo+"] with eval="+eval+", item "+item);
 		}
 		
 		return sets;
@@ -388,7 +404,7 @@ public class ItemClassifier extends AbstractService {
 		trainingCount = 0;
 		trainingDataCount = 0;
 		
-		for(int i = 0; i < NUM_CLASS; ++i) {
+		for(int i = 1; i <= NUM_CLASS; ++i) {
 			probPrior.put(Integer.valueOf(i), Double.valueOf(0));
 			probConds.put(Integer.valueOf(i), new HashMap<BBWord, Double>());
 		}
@@ -396,7 +412,7 @@ public class ItemClassifier extends AbstractService {
 	
 	private boolean loadProbs() {
 		// TODO test this method
-		for(int i = 0; i < NUM_CLASS; ++i) {
+		for(int i = 1; i <= NUM_CLASS; ++i) {
 			BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, i).unique();
 			if (bbItemClassifier == null) {
 				return false;
@@ -408,7 +424,7 @@ public class ItemClassifier extends AbstractService {
 	}
 	
 	private void saveProbs() {
-		for(int i = 0; i < NUM_CLASS; ++i) {
+		for(int i = 1; i <= NUM_CLASS; ++i) {
 			BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, i).uniqueOrStore();
 			bbItemClassifier.setProbPrior(probPrior.get(Integer.valueOf(i)));
 			bbItemClassifier.setProbCond(probConds.get(Integer.valueOf(i)));
@@ -417,7 +433,7 @@ public class ItemClassifier extends AbstractService {
 	}
 	
 	private boolean loadCounters() {
-		BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, (-1)).unique();
+		BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, 0).unique();
 		if (bbItemClassifier == null) {
 			return false;
 		}
@@ -427,7 +443,7 @@ public class ItemClassifier extends AbstractService {
 	}
 	
 	private void saveCounters() {
-		BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, (-1)).uniqueOrStore();
+		BBItemClassifier bbItemClassifier = new BBItemClassifier(bbUserCluster, 0).uniqueOrStore();
 		bbItemClassifier.setTrainingCount(trainingCount);
 		bbItemClassifier.setTrainintDataCount(trainingDataCount);
 		bbItemClassifier.store();

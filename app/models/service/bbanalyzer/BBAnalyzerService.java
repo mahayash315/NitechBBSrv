@@ -89,15 +89,15 @@ public class BBAnalyzerService extends AbstractService {
 		for(UserCluster cluster : results.keySet()) {
 			int classNumber = results.get(cluster);
 			
-			// 2 > 0 > 1 の優先度で出力
-			if (classNumber == 2) {
+			// 3 > 1 > 2 の優先度で出力
+			if (classNumber == 3) {
 				return 3;
-			} else if (classNumber == 0) {
+			} else if (classNumber == 1) {
 				return 1;
 			}
 		}
 		
-		return (results.size() <= 0) ? (-1) : 1;
+		return (results.size() <= 0) ? (-1) : 2;
 	}
 	
 	/**

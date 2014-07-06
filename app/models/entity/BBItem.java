@@ -1,6 +1,7 @@
 package models.entity;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -87,6 +88,10 @@ public class BBItem extends Model {
 			return o;
 		}
 		return null;
+	}
+	
+	public List<BBItem> getAllItemsAsList() {
+		return bbItemModelService.getAllItemsAsList();
 	}
 	
 	public Set<BBItem> getAllItems() {
