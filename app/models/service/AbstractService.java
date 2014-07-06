@@ -28,6 +28,7 @@ public abstract class AbstractService {
 		if (conn != null) {
 			if (Ebean.currentTransaction() == null) {
 				conn.close();
+				conn = null;
 			}
 		}
 	}

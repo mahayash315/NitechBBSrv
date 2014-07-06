@@ -148,7 +148,6 @@ public class ItemClassifier extends AbstractService {
 		
 		try {
 			Set<User> users = userCluster.getAllUsers();
-			Set<BBReadHistory> histories = userCluster.getAllReadHistories(users, null);
 			Map<BBWord, Integer> totalWordCounts = new HashMap<BBWord, Integer>();
 			int totalItemCount = 0;
 			

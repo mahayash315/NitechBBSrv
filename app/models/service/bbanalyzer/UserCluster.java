@@ -149,6 +149,7 @@ public class UserCluster {
 	 */
 	public Set<UserCluster> getAllClusters() {
 		Set<UserCluster> clusters = new HashSet<UserCluster>();
+		clusters.add(this);
 		if (children != null) {
 			for(UserCluster child : children.keySet()) {
 				clusters.add(child);
