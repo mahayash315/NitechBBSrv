@@ -1,5 +1,7 @@
 package models.response.api.bbanalyzer;
 
+import models.setting.api.bbanalyzer.BBAnalyzerStatusSetting;
+
 
 public class BBAnalyzerResponse {
 
@@ -7,6 +9,18 @@ public class BBAnalyzerResponse {
 	protected String status;
 	protected String message;
 	
+	public BBAnalyzerResponse() {
+		this(BBAnalyzerStatusSetting.DEFAULT);
+	}
+	public BBAnalyzerResponse(BBAnalyzerStatusSetting status) {
+		this.code = status.getCode();
+		this.status = status.getStatus();
+	}
+	public BBAnalyzerResponse(BBAnalyzerResponse base) {
+		this.code = base.getCode();
+		this.status = base.getStatus();
+		this.message = base.getMessage();
+	}
 
 	public Integer getCode() {
 		return code;

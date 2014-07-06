@@ -59,7 +59,7 @@ create table bb_read_history (
 
 create table bb_user_cluster (
   id                        bigint auto_increment not null,
-  cluster_depth             bigint,
+  cluster_depth             integer,
   cluster_id                bigint,
   feature                   longtext,
   parent_id                 bigint,

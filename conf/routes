@@ -16,6 +16,7 @@ POST	/bbanalyzer/analyzeBody				controllers.BBAnalyzer.analyzeBody()
 # BBAnalyzer API
 POST	/bbanalyzer/postNewItemHeads.json 	controllers.api.BBAnalyzer.postNewItemHeads()
 POST	/bbanalyzer/postReadHistory.json 	controllers.api.BBAnalyzer.postReadHistory()
+GET		/bbanalyzer/classifyItem.json		controllers.api.BBAnalyzer.classifyItem(uid ?= null, id_date ?= null, id_index ?= null)
 
 # Mock BB
 GET		/mockbb								controllers.MockBB.redirectToIndex()

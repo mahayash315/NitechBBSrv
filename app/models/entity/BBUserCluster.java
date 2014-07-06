@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -30,7 +31,7 @@ public class BBUserCluster extends Model {
 	Long id;
 	
 	@Column(name = "cluster_depth")
-	long clusterDepth;
+	int clusterDepth;
 	
 	@Column(name = "cluster_id")
 	long clusterId;
@@ -46,7 +47,7 @@ public class BBUserCluster extends Model {
 	@Column(name = "parent")
 	BBUserCluster parent;
 	
-	@OneToMany(mappedBy = "parent",cascade={})
+	@OneToMany(mappedBy = "parent",cascade={},fetch=FetchType.LAZY)
 	Set<BBUserCluster> children;
 	
 	@Column(name = "distance_from_parent")
@@ -67,7 +68,7 @@ public class BBUserCluster extends Model {
 	public BBUserCluster(Long id) {
 		this.id = id;
 	}
-	public BBUserCluster(long clusterDepth, long clusterId) {
+	public BBUserCluster(int clusterDepth, long clusterId) {
 		this.clusterDepth = clusterDepth;
 		this.clusterId = clusterId;
 	}
@@ -107,7 +108,7 @@ public class BBUserCluster extends Model {
 		bbUserClusterModelService.delete(this);
 	}
 	
-	public Set<BBUserCluster> findSetByDepth(long depth) {
+	public Set<BBUserCluster> findSetByDepth(int depth) {
 		return bbUserClusterModelService.findSetByClusterDepth(depth);
 	}
 	
@@ -139,82 +140,71 @@ public class BBUserCluster extends Model {
 		return true;
 	}
 	
+	/* toString */
+	@Override
+	public String toString() {
+		return "id="+id+", clusterDepth="+clusterDepth+", clusterId="+clusterId;
+	}
+	
 	/* getter, setter */
 	public Long getId() {
 		return id;
 	}
-
 	public void setId(Long id) {
 		this.id = id;
 	}
-
-	public long getClusterDepth() {
+	public int getClusterDepth() {
 		return clusterDepth;
 	}
-
-	public void setClusterDepth(long clusterDepth) {
+	public void setClusterDepth(int clusterDepth) {
 		this.clusterDepth = clusterDepth;
 	}
-
 	public long getClusterId() {
 		return clusterId;
 	}
-
 	public void setClusterId(long clusterId) {
 		this.clusterId = clusterId;
 	}
-
 	public String getJsonFeature() {
 		return jsonFeature;
 	}
-
 	public void setJsonFeature(String jsonFeature) {
 		this.jsonFeature = jsonFeature;
 	}
-	
 	public Map<Long, Double> getFeature() {
 		prepareFeature();
 		return feature;
 	}
-
 	public void setFeature(Map<Long, Double> feature) {
 		this.feature = feature;
 		jsonFeature = null;
 		prepareJsonFeature();
 	}
-	
 	private void prepareFeature() {
 		if (feature == null) {
 			feature = GsonUtil.use().fromJson(jsonFeature, TYPE_OF_FEATURE);
 		}
 	}
-	
 	private void prepareJsonFeature() {
 		if (jsonFeature == null) {
 			jsonFeature = GsonUtil.use().toJson(feature, TYPE_OF_FEATURE);
 		}
 	}
-	
 	public BBUserCluster getParent() {
 		return parent;
 	}
-	
 	public void setParent(BBUserCluster parent) {
 		this.parent = parent;
 	}
-
 	public Set<BBUserCluster> getChildren() {
 		return children;
 	}
-	
 	public void setChildren(Set<BBUserCluster> children) {
 		this.children = children;
 	}
-	
 	public double getDistanceFromParent() {
 		return distanceFromParent;
 	}
-	
 	public void setDistanceFromParent(double distanceFromParent) {
 		this.distanceFromParent = distanceFromParent;
 	}

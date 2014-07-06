@@ -2,8 +2,8 @@ package models.service.bbanalyzer;
 
 import models.entity.BBItem;
 import models.entity.User;
-import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
-import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
+import models.request.api.bbanalyzer.NewItemHeadsRequest;
+import models.response.api.bbanalyzer.NewItemHeadsResponse;
 import models.service.AbstractService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.service.model.UserModelService;
@@ -23,7 +23,7 @@ public class BBItemService extends AbstractService {
 	 * @return
 	 * @throws Exception 
 	 */
-	public BBNewItemHeadsResponse storeBBNewItemHeads(BBNewItemHeadsRequest request) throws Exception {
+	public NewItemHeadsResponse storeBBNewItemHeads(NewItemHeadsRequest request) throws Exception {
 		
 		// User 取得
 		User user = UserModelService.use().findByNitechId(request.hashedNitechId);
@@ -34,7 +34,7 @@ public class BBItemService extends AbstractService {
 			// User の保存
 			if (user.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す
-				return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
+				return new NewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
 		
@@ -100,21 +100,21 @@ public class BBItemService extends AbstractService {
 			
 			if (item.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す
-				return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
+				return new NewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 			
 			if (isNew || isChanged) {
 				// 更新された場合は BBItemWordCount を更新
 				boolean updated = BBItemWordCountService.use().updateBBItemWordCount(item);
 				if (!updated) {
-					return new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
+					return new NewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 				}
 			}
 		}
 		LogUtil.info("ESTIMATED "+c+" ITEMS");
 		
 		// 成功
-		BBNewItemHeadsResponse response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getOKResponse());
+		NewItemHeadsResponse response = new NewItemHeadsResponse(BBAnalyzerService.use().getOKResponse());
 		response.setMessage("OK");
 		return response;
 	}

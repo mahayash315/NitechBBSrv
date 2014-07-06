@@ -7,6 +7,8 @@ public enum BBAnalyzerStatusSetting {
 	INTERNAL_ERROR	(50, "internal server error."),
 	NO_RESULT		(51, "no result.");
 	
+	public static final BBAnalyzerStatusSetting DEFAULT = NO_RESULT;
+	
 	private Integer code;
 	private String status;
 	

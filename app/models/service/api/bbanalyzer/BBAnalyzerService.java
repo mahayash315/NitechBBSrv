@@ -14,13 +14,7 @@ public class BBAnalyzerService {
 	 * @return
 	 */
 	public BBAnalyzerResponse getInternalErrorResponse() {
-		BBAnalyzerResponse result = new BBAnalyzerResponse();
-		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.INTERNAL_ERROR;
-		
-		result.setCode(status.getCode());
-		result.setStatus(status.getStatus());
-		
-		return result;
+		return new BBAnalyzerResponse(BBAnalyzerStatusSetting.INTERNAL_ERROR);
 	}
 	
 	/**
@@ -28,13 +22,7 @@ public class BBAnalyzerService {
 	 * @return
 	 */
 	public BBAnalyzerResponse getBadRequestResponse() {
-		BBAnalyzerResponse result = new BBAnalyzerResponse();
-		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.BAD_REQUEST;
-		
-		result.setCode(status.getCode());
-		result.setStatus(status.getStatus());
-		
-		return result;
+		return new BBAnalyzerResponse(BBAnalyzerStatusSetting.BAD_REQUEST);
 	}
 	
 	/**
@@ -42,12 +30,6 @@ public class BBAnalyzerService {
 	 * @return
 	 */
 	public BBAnalyzerResponse getOKResponse() {
-		BBAnalyzerResponse result = new BBAnalyzerResponse();
-		BBAnalyzerStatusSetting status = BBAnalyzerStatusSetting.OK;
-		
-		result.setCode(status.getCode());
-		result.setStatus(status.getStatus());
-		
-		return result;
+		return new BBAnalyzerResponse(BBAnalyzerStatusSetting.OK);
 	}
 }

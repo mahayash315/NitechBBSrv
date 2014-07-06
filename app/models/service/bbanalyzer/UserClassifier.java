@@ -35,7 +35,6 @@ public class UserClassifier extends AbstractService {
 	}
 	
 	/* メンバ */
-//	private int userVectorSize = 0;
 	
 	// 各層におけるクラスタの集合を格納する
 	//   0 層 : アトムクラスタ
@@ -47,6 +46,9 @@ public class UserClassifier extends AbstractService {
 	// 各層における、その層のクラスタと一つ下の層のクラスタとの距離を格納する
 	//cluster(children) -> cluster(parent) -> distance
 	private Map<UserCluster, Map<UserCluster, Double>> distanceMap;
+	
+	// ユーザとユーザクラスタの紐付け
+	private Map<User, AtomUserCluster> atomClusterMap;
 	
 	
 	/* コンストラクタ */
@@ -78,9 +80,25 @@ public class UserClassifier extends AbstractService {
 		}
 	}
 	
+	/**
+	 * 先頭クラスタ（depth が一番大きいクラスタ）の集合を返す
+	 * @return
+	 */
 	public Set<UserCluster> getTopClusters() {
 		if (clusterMap != null && clusterMap.containsKey(CLUSTER_DEPTH)) {
 			return clusterMap.get(CLUSTER_DEPTH);
+		}
+		return null;
+	}
+	
+	/**
+	 * アトムユーザクラスタを返す
+	 * @param user
+	 * @return
+	 */
+	public AtomUserCluster getAtomUserCluster(User user) {
+		if (clusterMap != null && clusterMap.containsKey(Integer.valueOf(0)) && atomClusterMap != null) {
+			return atomClusterMap.get(user);
 		}
 		return null;
 	}
@@ -91,41 +109,12 @@ public class UserClassifier extends AbstractService {
 	private void init() {
 		clusterMap = new HashMap<Integer, Set<UserCluster>>();
 		distanceMap = new HashMap<UserCluster, Map<UserCluster, Double>>();
+		atomClusterMap = new HashMap<User, AtomUserCluster>();
 		
 		for(int i = 0; i <= CLUSTER_DEPTH; ++i) {
 			clusterMap.put(Integer.valueOf(i), new HashSet<UserCluster>());
 		}
 	}
-	
-//	/**
-//	 * ユーザベクトルの大きさを設定する
-//	 * @throws SQLException 
-//	 */
-//	private void initUserVectorSize() throws SQLException {
-//		PreparedStatement st = null;
-//		ResultSet rs = null;
-//		
-//		try {
-//			st = SQL_BBITEM.STATEMENT.selectIdLength(getConnection());
-//			rs = st.executeQuery();
-//			
-//			if (rs.next()) {
-//				userVectorSize = rs.getInt(1);
-//			} else {
-//				userVectorSize = 0;
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//			throw e;
-//		} finally {
-//			if (st != null) {
-//				st.close();
-//			}
-//			if (rs != null) {
-//				rs.close();
-//			}
-//		}
-//	}
 	
 	/**
 	 * 各ユーザが中心となる(ユーザ数と同じ数だけある)アトムクラスタを作る
@@ -142,7 +131,9 @@ public class UserClassifier extends AbstractService {
 		
 		// 各ユーザについて、アトムクラスタを作る
 		for(User user : users) {
-			atomClusters.add(new AtomUserCluster(user));
+			AtomUserCluster userCluster = new AtomUserCluster(user);
+			atomClusters.add(userCluster);
+			atomClusterMap.put(user, userCluster);
 		}
 	}
 	
@@ -220,6 +211,7 @@ public class UserClassifier extends AbstractService {
 					}
 //					LogUtil.info("UserClassifier#doClassify():      --> nearest parent = "+minimumCluster+", distance="+minimumDistance);
 					minimumCluster.addChild(child, minimumDistance);
+					child.setParent(minimumCluster);
 					if (!prevClusters.containsKey(child) || !prevClusters.get(child).equals(minimumCluster)) {
 						++changed;
 					}
@@ -349,8 +341,19 @@ public class UserClassifier extends AbstractService {
 	
 	
 	public void loadUserClusters() throws SQLException {
-		// TODO test this method
-		for(int i = 0; i <= CLUSTER_DEPTH; ++i) {
+		// atom clusters
+		{
+			Set<UserCluster> userClusters = clusterMap.get(Integer.valueOf(0));
+			Set<BBUserCluster> bbUserClusters = new BBUserCluster().findSetByDepth(0);
+			for(BBUserCluster bbUserCluster : bbUserClusters) {
+				AtomUserCluster userCluster = (AtomUserCluster) bbUserCluster.convertToUserCluster();
+				userClusters.add(userCluster);
+				atomClusterMap.put(userCluster.getUser(), userCluster);
+			}
+		}
+		
+		// upper clusters
+		for(int i = 1; i <= CLUSTER_DEPTH; ++i) {
 			Set<UserCluster> userClusters = clusterMap.get(Integer.valueOf(i));
 			Set<BBUserCluster> bbUserClusters = new BBUserCluster().findSetByDepth(i);
 			for(BBUserCluster bbUserCluster : bbUserClusters) {

@@ -66,7 +66,7 @@ public class BBUserClusterModelService implements ModelService<Long, BBUserClust
 							.findUnique();
 	}
 	
-	public Set<BBUserCluster> findSetByClusterDepth(long clusterDepth) {
+	public Set<BBUserCluster> findSetByClusterDepth(int clusterDepth) {
 		return BBUserCluster.find
 							.where()
 								.eq("clusterDepth", clusterDepth)

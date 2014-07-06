@@ -4,8 +4,8 @@ import models.entity.BBItem;
 import models.entity.BBReadHistory;
 import models.entity.User;
 import models.request.api.bbanalyzer.BBReadHistoryItem;
-import models.request.api.bbanalyzer.BBReadHistoryRequest;
-import models.response.api.bbanalyzer.BBReadHistoryResponse;
+import models.request.api.bbanalyzer.ReadHistoryRequest;
+import models.response.api.bbanalyzer.ReadHistoryResponse;
 import models.service.AbstractService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.service.model.BBReadHistoryModelService;
@@ -30,7 +30,7 @@ public class BBReadHistoryService extends AbstractService {
 	 * @return
 	 * @throws Exception 
 	 */
-	public BBReadHistoryResponse storeReceivedHistory(BBReadHistoryRequest request) throws Exception {
+	public ReadHistoryResponse storeReceivedHistory(ReadHistoryRequest request) throws Exception {
 		
 		// User 取得
 		User user = UserModelService.use().findByNitechId(request.hashedNitechId);
@@ -41,7 +41,7 @@ public class BBReadHistoryService extends AbstractService {
 			// User の保存
 			if (user.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す
-				return new BBReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
+				return new ReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
 		
@@ -57,7 +57,7 @@ public class BBReadHistoryService extends AbstractService {
 				// BBItemHead の保存
 				if (item.store() == null) {
 					// 保存に失敗した場合は internalServerError を返す
-					return new BBReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
+					return new ReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
 				}
 			}
 			
@@ -75,12 +75,12 @@ public class BBReadHistoryService extends AbstractService {
 			// BBReadHistory 保存
 			if (history.store() == null) {
 				// 保存に失敗した場合は internalServerError を返す
-				return new BBReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
+				return new ReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
 			}
 		}
 		
 		// 成功
-		BBReadHistoryResponse response = new BBReadHistoryResponse(BBAnalyzerService.use().getOKResponse());
+		ReadHistoryResponse response = new ReadHistoryResponse(BBAnalyzerService.use().getOKResponse());
 		response.setMessage("OK");
 		return response;
 	}

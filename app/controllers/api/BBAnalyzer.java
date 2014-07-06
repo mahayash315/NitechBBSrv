@@ -1,10 +1,12 @@
 package controllers.api;
 
+import models.entity.BBItem;
 import models.entity.User;
-import models.request.api.bbanalyzer.BBNewItemHeadsRequest;
-import models.request.api.bbanalyzer.BBReadHistoryRequest;
-import models.response.api.bbanalyzer.BBNewItemHeadsResponse;
-import models.response.api.bbanalyzer.BBReadHistoryResponse;
+import models.request.api.bbanalyzer.NewItemHeadsRequest;
+import models.request.api.bbanalyzer.ReadHistoryRequest;
+import models.response.api.bbanalyzer.ClassifyItemResponse;
+import models.response.api.bbanalyzer.NewItemHeadsResponse;
+import models.response.api.bbanalyzer.ReadHistoryResponse;
 import models.service.api.bbanalyzer.BBAnalyzerService;
 import models.service.bbanalyzer.BBItemService;
 import models.service.bbanalyzer.BBReadHistoryService;
@@ -30,26 +32,25 @@ public class BBAnalyzer extends Controller {
 	 */
 	@BodyParser.Of(BodyParser.Json.class)
 	public static Result postNewItemHeads() {
-		BBNewItemHeadsResponse response = null;
+		NewItemHeadsResponse response = null;
 		
 		JsonNode jsonNode = request().body().asJson();
 		
 		// アサート
 		if( jsonNode == null ) {
-			response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getBadRequestResponse());
+			response = new NewItemHeadsResponse(BBAnalyzerService.use().getBadRequestResponse());
 			response.setMessage("Parse error.");
-			return internalServerError(Json.toJson(response));
+			return internalServerError(GsonUtil.use().toJson(response));
 		}
 		
 		try {
 			// オブジェクトに変換
 			String json = Json.stringify(jsonNode);
-			BBNewItemHeadsRequest request = GsonUtil.use().fromJson(json, BBNewItemHeadsRequest.class);
+			NewItemHeadsRequest request = GsonUtil.use().fromJson(json, NewItemHeadsRequest.class);
 
 			Ebean.beginTransaction();
 			try {
 				// リクエストを処理
-//				response = BBItemHeadService.use().storeBBNewItemHeads(request);
 				response = BBItemService.use().storeBBNewItemHeads(request);
 
 				// OK の場合のみ commit する
@@ -62,7 +63,7 @@ public class BBAnalyzer extends Controller {
 				Ebean.rollbackTransaction();
 				
 				LogUtil.error("Exception@BBAnalyzer#postNewItemHeads()", e0);
-				response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
+				response = new NewItemHeadsResponse(BBAnalyzerService.use().getInternalErrorResponse());
 				response.setMessage(e0.getLocalizedMessage());
 			} finally {
 				Ebean.endTransaction();
@@ -75,9 +76,9 @@ public class BBAnalyzer extends Controller {
 		} catch (JsonSyntaxException e) {
 			// JSON パースエラー
 			LogUtil.error("Exception@BBAnalyzer#postNewItemHeads()", e);
-			response = new BBNewItemHeadsResponse(BBAnalyzerService.use().getBadRequestResponse());
+			response = new NewItemHeadsResponse(BBAnalyzerService.use().getBadRequestResponse());
 			response.setMessage("Parse error. Invalid JSON sent.");
-			return badRequest(Json.toJson(response));
+			return badRequest(GsonUtil.use().toJson(response));
 		}
 	}
 	
@@ -89,21 +90,21 @@ public class BBAnalyzer extends Controller {
 	@BodyParser.Of(BodyParser.Json.class)
 	@Transactional
 	public static Result postReadHistory() {
-		BBReadHistoryResponse response = null;
+		ReadHistoryResponse response = null;
 		
 		JsonNode jsonNode = request().body().asJson();
 		
 		// アサート
 		if( jsonNode == null ) {
-			response = new BBReadHistoryResponse(BBAnalyzerService.use().getBadRequestResponse());
+			response = new ReadHistoryResponse(BBAnalyzerService.use().getBadRequestResponse());
 			response.setMessage("Parse error.");
-			return badRequest(Json.toJson(response));
+			return badRequest(GsonUtil.use().toJson(response));
 		}
 		
 		try {
 			// オブジェクトに変換
 			String json = Json.stringify(jsonNode);
-			BBReadHistoryRequest request = GsonUtil.use().fromJson(json, BBReadHistoryRequest.class);
+			ReadHistoryRequest request = GsonUtil.use().fromJson(json, ReadHistoryRequest.class);
 			
 			// 閲覧履歴を保存
 			Ebean.beginTransaction();
@@ -121,7 +122,7 @@ public class BBAnalyzer extends Controller {
 				Ebean.rollbackTransaction();
 				
 				LogUtil.error("Exception@BBAnalyzer#postNewItemHeads()", e0);
-				response = new BBReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
+				response = new ReadHistoryResponse(BBAnalyzerService.use().getInternalErrorResponse());
 				response.setMessage(e0.getLocalizedMessage());
 			} finally {
 				Ebean.endTransaction();
@@ -151,9 +152,48 @@ public class BBAnalyzer extends Controller {
 		} catch (JsonSyntaxException e) {
 			// JSON パースエラー
 			LogUtil.error("Exception@BBAnalyzer#postNewItemHeads()", e);
-			response = new BBReadHistoryResponse(BBAnalyzerService.use().getBadRequestResponse());
+			response = new ReadHistoryResponse(BBAnalyzerService.use().getBadRequestResponse());
 			response.setMessage("Parse error. Invalid JSON sent.");
-			return badRequest(Json.toJson(response));
+			return badRequest(GsonUtil.use().toJson(response));
 		}
+	}
+	
+	
+	
+	public static Result classifyItem(String hashedNitechId, String idDate, String idIndex) {
+		ClassifyItemResponse response = null;
+		
+		if (hashedNitechId != null && idDate != null && idIndex != null) {
+			try {
+				// ユーザ取得
+				User user = new User(hashedNitechId).unique();
+				if (user == null) {
+					throw new Exception("User "+hashedNitechId+" not found");
+				}
+				
+				// 掲示取得
+				BBItem item = new BBItem(idDate, idIndex).unique();
+				if (item == null) {
+					throw new Exception("BBItem ("+idDate+","+idIndex+") not found");
+				}
+				
+				// クラス分類
+				int classNumber = models.service.bbanalyzer.BBAnalyzerService.use().classifyItem(user, item);
+				
+				response = new ClassifyItemResponse(BBAnalyzerService.use().getOKResponse());
+				response.clazz = Integer.valueOf(classNumber);
+				
+				return ok(GsonUtil.use().toJson(response));
+			} catch (Exception e) {
+				LogUtil.error("Exception@BBAnalyzer#classifyItem()", e);
+				response = new ClassifyItemResponse(BBAnalyzerService.use().getBadRequestResponse());
+				response.setMessage(e.getMessage());
+				return badRequest(GsonUtil.use().toJson(response));
+			}
+		}
+		
+		response = new ClassifyItemResponse(BBAnalyzerService.use().getBadRequestResponse());
+		response.setMessage("invalid parameters given.");
+		return badRequest(GsonUtil.use().toJson(response));
 	}
 }

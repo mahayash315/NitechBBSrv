@@ -21,18 +21,21 @@ public class BBUserClusterService extends AbstractService {
 		if (bbUserCluster != null) {
 			UserCluster userCluster = sUserClusterMap.get(bbUserCluster);
 			if (userCluster == null) {
-				long depth = bbUserCluster.getClusterDepth();
+				int depth = bbUserCluster.getClusterDepth();
 				long id = bbUserCluster.getClusterId();
-				if (depth == 0) {
-					// atom cluster
-					userCluster = new AtomUserCluster(new User(Long.valueOf(id)).unique());
-				} else {
-					// cluster
-					userCluster = new UserCluster(depth, id);
+				userCluster = (depth == 0) ? new AtomUserCluster(new User(Long.valueOf(id)).unique()) : new UserCluster(depth, id);
+				sUserClusterMap.put(bbUserCluster, userCluster);
+				
+				if (0 < depth) {
 					userCluster.feature = bbUserCluster.getFeature();
 					for(BBUserCluster child : bbUserCluster.getChildren()) {
 						userCluster.children.put(convertBBUserClusterToUserCluster(child), child.getDistanceFromParent());
 					}
+				}
+				
+				BBUserCluster parent = bbUserCluster.getParent();
+				if (parent != null) {
+					userCluster.setParent(convertBBUserClusterToUserCluster(parent));
 				}
 			}
 			return userCluster;

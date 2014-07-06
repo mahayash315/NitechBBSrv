@@ -36,14 +36,13 @@ public class AtomUserCluster extends UserCluster {
 		return 1.0;
 	}
 	
-//	@Override
-//	public void updateVector() {
-//		// do nothing
-//	}
-	
 	@Override
 	public void updateFeature() {
 		// do nothing
+	}
+	
+	public User getUser() {
+		return user;
 	}
 	
 	/* hashCode, equals */

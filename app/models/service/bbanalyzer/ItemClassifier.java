@@ -24,8 +24,9 @@ public class ItemClassifier extends AbstractService {
 	
 	/* 定数 */
 	public static final int NUM_CLASS = 3;
+	public static final int NO_CLASS_NUM = -1;
 	private static final double THRESHOLDS[] = new double[]{-1.0, 1.0};
-	private static final int DEFAULT_CLASSIFY_TO = -1;
+	private static final int DEFAULT_CLASSIFY_TO = NO_CLASS_NUM;
 	private static final int MIN_TRAINIG_DATA_COUNT = 1;
 	
 	private static class SQL_BB_READ_HISTORY {
@@ -246,7 +247,7 @@ public class ItemClassifier extends AbstractService {
 		// TODO test this method
 		
 		if (trainingDataCount < MIN_TRAINIG_DATA_COUNT) {
-			LogUtil.info("BBItemClassifier#classify(): not trained enough");
+			LogUtil.info("BBItemClassifier#classify(): (classifier["+toString()+"]) not trained enough");
 			return DEFAULT_CLASSIFY_TO;
 		}
 
@@ -315,10 +316,11 @@ public class ItemClassifier extends AbstractService {
 			double d = count - mean;
 			var = var + d*d;
 		}
+		double div = (var == 0.0) ? 1.0 : var;
 		
 		// 標準化とクラス分類
 		for(BBItem item : standarized.keySet()) {
-			double d = (standarized.get(item) - mean) / var;
+			double d = (standarized.get(item) - mean) / div;
 			int classifiedTo = DEFAULT_CLASSIFY_TO;
 			standarized.put(item, Double.valueOf(d));
 			
@@ -455,5 +457,11 @@ public class ItemClassifier extends AbstractService {
 		} else if (!userCluster.equals(other.userCluster))
 			return false;
 		return true;
+	}
+	
+	/* toString */
+	@Override
+	public String toString() {
+		return "probPrior="+probPrior+", probConds="+probConds+", trainingCount="+trainingCount+", trainingDataCount="+trainingDataCount+", userCluster="+userCluster;
 	}
 }

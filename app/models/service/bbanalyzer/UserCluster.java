@@ -12,11 +12,10 @@ import utils.bbanalyzer.BBAnalyzerUtil;
 public class UserCluster {
 	
 	// クラスタのID
-	public long depth;
+	public int depth;
 	public long id;
 
 	// クラスタの位置ベクトル
-//	public double[] vector;
 	public Map<Long,Double> feature;
 	
 	// クラスタの一つ上の層にあるクラスタとその距離
@@ -35,7 +34,7 @@ public class UserCluster {
 		children = new HashMap<UserCluster, Double>();
 		itemClassifier = new ItemClassifier();
 	}
-	public UserCluster(long depth, long id) {
+	public UserCluster(int depth, long id) {
 		this();
 		this.depth = depth;
 		this.id = id;
@@ -47,7 +46,6 @@ public class UserCluster {
 		this.id = id;
 		itemClassifier = new ItemClassifier(this);
 		addChild(childCluster, 0.0);
-//		updateVector();
 		updateFeature();
 	}
 	public UserCluster(long id, Map<UserCluster, Double> children) {
@@ -57,7 +55,6 @@ public class UserCluster {
 		}
 		this.id = id;
 		addChildren(children);
-//		updateVector();
 		updateFeature();
 	}
 	
@@ -69,6 +66,14 @@ public class UserCluster {
 	 */
 	public void setParent(UserCluster parent) {
 		this.parent = parent;
+	}
+	
+	/**
+	 * 親クラスタを返す
+	 * @param parent
+	 */
+	public UserCluster getParent() {
+		return parent;
 	}
 	
 	/**
@@ -167,24 +172,7 @@ public class UserCluster {
 	public double distance(UserCluster obj) {
 		return BBAnalyzerUtil.featureDifference(feature, obj.feature);
 	}
-	
-	/**
-	 * クラスタのクラスタ中心ベクトルを子クラスタのベクトルの平均を取ることで更新
-	 */
-//	public void updateVector() {
-//		if (children != null && 0 < children.size()) {
-//			Set<UserCluster> keySet = children.keySet();
-//			double childVector[] = keySet.iterator().next().vector;
-//			if (childVector != null) {
-//				vector = new double[childVector.length];
-//				for(UserCluster child : keySet) {
-//					MathUtil.vectorMultiplyAndAdd(vector, child.vector, child.getWeight());
-//				}
-//				MathUtil.vectorDivide(vector, getWeight());
-//			}
-//		}
-//	}
-	
+
 	/**
 	 * クラスタのクラスタ中心ベクトルを子クラスタの特徴の平均を取ることで更新
 	 */
