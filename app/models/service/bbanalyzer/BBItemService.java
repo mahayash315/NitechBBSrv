@@ -41,46 +41,48 @@ public class BBItemService extends AbstractService {
 		int c = 0;
 		boolean isNew = false, isChanged = false;
 		// 各 BBItemHead に関して
-		for (models.request.api.bbanalyzer.BBItemHead itemHead : request.list) {
+		for (models.request.api.bbanalyzer.NewItemHeadsRequest.BBItemHead itemHead : request.list) {
 			BBItem item = new BBItem(itemHead.getIdDate(), itemHead.getIdIndex()).unique();
 			if (item == null) {
 				isNew = true;
-				item = new BBItem();
-				item.setIdDate(itemHead.getIdDate());
-				item.setIdIndex(itemHead.getIdIndex());
-			}
-			String oldDateShow = item.getDateShow();
-			String oldDateExec = item.getDateExec();
-			String oldAuthor = item.getAuthor();
-			String oldTitle = item.getTitle();
-			
-			String dateShow = itemHead.getDateShow();
-			String dateExec = itemHead.getDateExec();
-			String author = itemHead.getAuthor();
-			String title = itemHead.getTitle();
-			
-			if (dateShow != null && !dateShow.isEmpty()) {
-				if (oldDateShow != null && !oldDateShow.equals(dateShow)) {
-					isChanged = true;
-					item.setDateShow(dateShow);
+				item = new BBItem(itemHead.getIdDate(), itemHead.getIdIndex());
+				item.setDateShow(itemHead.getDateShow());
+				item.setDateExec(itemHead.getDateExec());
+				item.setAuthor(itemHead.getAuthor());
+				item.setTitle(itemHead.getTitle());
+			} else {
+				String dateShow = itemHead.getDateShow();
+				String dateExec = itemHead.getDateExec();
+				String author = itemHead.getAuthor();
+				String title = itemHead.getTitle();
+				
+				if (dateShow != null && !dateShow.isEmpty()) {
+					String old = item.getDateShow();
+					if (old != null && !old.equals(dateShow)) {
+						isChanged = true;
+						item.setDateShow(dateShow);
+					}
 				}
-			}
-			if (dateExec != null && !dateExec.isEmpty()) {
-				if (oldDateExec != null && !oldDateExec.equals(dateExec)) {
-					isChanged = true;
-					item.setDateExec(dateExec);
+				if (dateExec != null && !dateExec.isEmpty()) {
+					String old = item.getDateExec();
+					if (old != null && !old.equals(dateExec)) {
+						isChanged = true;
+						item.setDateExec(dateExec);
+					}
 				}
-			}
-			if (author != null && !author.isEmpty()) {
-				if (oldAuthor != null && !oldAuthor.equals(author)) {
-					isChanged = true;
-					item.setAuthor(author);
+				if (author != null && !author.isEmpty()) {
+					String old = item.getAuthor();
+					if (old != null && !old.equals(author)) {
+						isChanged = true;
+						item.setAuthor(author);
+					}
 				}
-			}
-			if (title != null && !title.isEmpty()) {
-				if (oldTitle != null && !oldTitle.equals(title)) {
-					isChanged = true;
-					item.setTitle(title);
+				if (title != null && !title.isEmpty()) {
+					String old = item.getTitle();
+					if (old != null && !old.equals(title)) {
+						isChanged = true;
+						item.setTitle(title);
+					}
 				}
 			}
 			

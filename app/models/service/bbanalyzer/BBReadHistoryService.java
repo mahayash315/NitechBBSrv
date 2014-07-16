@@ -3,7 +3,6 @@ package models.service.bbanalyzer;
 import models.entity.BBItem;
 import models.entity.BBReadHistory;
 import models.entity.User;
-import models.request.api.bbanalyzer.BBReadHistoryItem;
 import models.request.api.bbanalyzer.ReadHistoryRequest;
 import models.response.api.bbanalyzer.ReadHistoryResponse;
 import models.service.AbstractService;
@@ -47,7 +46,7 @@ public class BBReadHistoryService extends AbstractService {
 		
 		
 		// 各 ReadHistory を保存
-		for (BBReadHistoryItem historyItem : request.histories) {
+		for (models.request.api.bbanalyzer.ReadHistoryRequest.BBReadHistoryItem historyItem : request.histories) {
 			// BBItemHead 取得
 			BBItem item = new BBItem(historyItem.getIdDate(), historyItem.getIdIndex()).unique();
 			if (item == null) {
