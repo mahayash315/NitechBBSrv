@@ -1,9 +1,10 @@
-package models.service.model;
+package models.service.model.bbanalyzer;
 
 import java.util.List;
 import java.util.Set;
 
-import models.entity.BBItem;
+import models.entity.bbanalyzer.BBItem;
+import models.service.model.ModelService;
 
 public class BBItemModelService implements ModelService<Long, BBItem> {
 	
@@ -24,26 +25,6 @@ public class BBItemModelService implements ModelService<Long, BBItem> {
 		if (entry != null) {
 			entry.save();
 			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBItem update(BBItem entry) {
-		if (entry != null) {
-			entry.update();
-			return entry;
-		}
-		return null;
-	}
-
-	@Override
-	public BBItem update(BBItem entry, Long id) {
-		if (entry != null && id != null) {
-			entry.update(id);
-			if (entry.getId().equals(id)) {
 				return entry;
 			}
 		}

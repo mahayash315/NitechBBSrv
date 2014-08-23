@@ -1,4 +1,4 @@
-package models.entity;
+package models.entity.bbanalyzer;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import models.service.bbanalyzer.BBWordService;
-import models.service.model.BBWordModelService;
+import models.service.model.bbanalyzer.BBWordModelService;
 import play.db.ebean.Model;
 
 @Entity

@@ -1,4 +1,4 @@
-package models.entity;
+package models.entity.bbanalyzer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,8 +10,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import models.entity.User;
 import models.service.bbanalyzer.BBCategoryService;
-import models.service.model.BBCategoryModelService;
+import models.service.model.bbanalyzer.BBCategoryModelService;
 import play.db.ebean.Model;
 
 @Entity

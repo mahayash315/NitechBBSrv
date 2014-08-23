@@ -1,9 +1,10 @@
-package models.service.model;
+package models.service.model.bbanalyzer;
 
 import java.util.Set;
 
-import models.entity.BBItemClassifier;
-import models.entity.BBUserCluster;
+import models.entity.bbanalyzer.BBItemClassifier;
+import models.entity.bbanalyzer.BBUserCluster;
+import models.service.model.ModelService;
 
 public class BBItemClassifierModelService implements ModelService<Long, BBItemClassifier> {
 	
@@ -24,28 +25,6 @@ public class BBItemClassifierModelService implements ModelService<Long, BBItemCl
 		if (entry != null) {
 			entry.save();
 			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBItemClassifier update(BBItemClassifier entry) {
-		if (entry != null) {
-			entry.update();
-			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBItemClassifier update(BBItemClassifier entry, Long id) {
-		if (entry != null && id != null) {
-			entry.update(id);
-			if (entry.getId().equals(id)) {
 				return entry;
 			}
 		}

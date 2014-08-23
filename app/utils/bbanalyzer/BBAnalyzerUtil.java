@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import models.entity.BBItem;
-import models.entity.BBWord;
+import models.entity.bbanalyzer.BBItem;
+import models.entity.bbanalyzer.BBWord;
 import models.response.bbanalyzer.BBAnalyzerResult;
 
 import org.atilika.kuromoji.Token;

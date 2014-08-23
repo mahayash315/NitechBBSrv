@@ -4,8 +4,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import models.entity.BBUserCluster;
 import models.entity.User;
+import models.entity.bbanalyzer.BBUserCluster;
 import models.service.AbstractService;
 
 

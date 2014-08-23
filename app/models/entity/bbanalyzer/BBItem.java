@@ -1,4 +1,4 @@
-package models.entity;
+package models.entity.bbanalyzer;
 
 import java.util.Date;
 import java.util.List;
@@ -13,7 +13,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import models.service.bbanalyzer.BBItemService;
-import models.service.model.BBItemModelService;
+import models.service.model.bbanalyzer.BBItemModelService;
 import play.data.format.Formats.DateTime;
 import play.db.ebean.Model;
 import utils.EntityUtil;

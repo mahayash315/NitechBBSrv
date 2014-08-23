@@ -1,4 +1,4 @@
-package models.entity;
+package models.entity.bbanalyzer;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import models.service.bbanalyzer.BBItemClassifierService;
-import models.service.model.BBItemClassifierModelService;
+import models.service.model.bbanalyzer.BBItemClassifierModelService;
 import play.db.ebean.Model;
 import utils.bbanalyzer.GsonUtil;
 

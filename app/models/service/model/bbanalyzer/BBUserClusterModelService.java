@@ -1,8 +1,9 @@
-package models.service.model;
+package models.service.model.bbanalyzer;
 
 import java.util.Set;
 
-import models.entity.BBUserCluster;
+import models.entity.bbanalyzer.BBUserCluster;
+import models.service.model.ModelService;
 
 public class BBUserClusterModelService implements ModelService<Long, BBUserCluster> {
 	
@@ -23,28 +24,6 @@ public class BBUserClusterModelService implements ModelService<Long, BBUserClust
 		if (entry != null) {
 			entry.save();
 			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBUserCluster update(BBUserCluster entry) {
-		if (entry != null) {
-			entry.update();
-			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBUserCluster update(BBUserCluster entry, Long id) {
-		if (entry != null && id != null) {
-			entry.update(id);
-			if (entry.getId().equals(id)) {
 				return entry;
 			}
 		}

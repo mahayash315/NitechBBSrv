@@ -1,11 +1,12 @@
-package models.service.model;
+package models.service.model.bbanalyzer;
 
 import java.util.List;
 import java.util.Set;
 
-import models.entity.BBItem;
-import models.entity.BBReadHistory;
 import models.entity.User;
+import models.entity.bbanalyzer.BBItem;
+import models.entity.bbanalyzer.BBReadHistory;
+import models.service.model.ModelService;
 
 public class BBReadHistoryModelService implements ModelService<Long, BBReadHistory> {
 	
@@ -28,26 +29,6 @@ public class BBReadHistoryModelService implements ModelService<Long, BBReadHisto
 		if (entry != null) {
 			entry.save();
 			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBReadHistory update(BBReadHistory entry) {
-		if (entry != null) {
-			entry.update();
-			return entry;
-		}
-		return null;
-	}
-
-	@Override
-	public BBReadHistory update(BBReadHistory entry, Long id) {
-		if (entry != null && id != null) {
-			entry.update(id);
-			if (entry.getId().equals(id)) {
 				return entry;
 			}
 		}

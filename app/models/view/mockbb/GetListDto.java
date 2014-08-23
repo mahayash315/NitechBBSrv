@@ -2,7 +2,7 @@ package models.view.mockbb;
 
 import java.util.List;
 
-import models.entity.MockBBItem;
+import models.entity.mockbb.MockBBItem;
 
 public class GetListDto {
 	public String currentOrder;

@@ -1,9 +1,10 @@
-package models.service.model;
+package models.service.model.bbanalyzer;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
-import models.entity.BBWord;
+import models.entity.bbanalyzer.BBWord;
+import models.service.model.ModelService;
 import utils.bbanalyzer.GsonUtil;
 
 import com.google.gson.reflect.TypeToken;
@@ -34,30 +35,6 @@ public class BBWordModelService implements ModelService<Long, BBWord> {
 //			serializeJson(entry);
 			entry.save();
 			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBWord update(BBWord entry) {
-		if (entry != null) {
-//			serializeJson(entry);
-			entry.update();
-			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBWord update(BBWord entry, Long id) {
-		if (entry != null && id != null) {
-//			serializeJson(entry);
-			entry.update(id);
-			if (entry.getId().equals(id)) {
 				return entry;
 			}
 		}

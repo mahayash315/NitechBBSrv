@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import models.entity.BBReadHistory;
 import models.entity.User;
+import models.entity.bbanalyzer.BBReadHistory;
 import utils.bbanalyzer.BBAnalyzerUtil;
 
 public class UserCluster {

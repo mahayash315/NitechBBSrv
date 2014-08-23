@@ -1,4 +1,4 @@
-package models.entity;
+package models.entity.bbanalyzer;
 
 import java.util.List;
 import java.util.Set;
@@ -13,8 +13,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import models.entity.User;
 import models.service.bbanalyzer.BBReadHistoryService;
-import models.service.model.BBReadHistoryModelService;
+import models.service.model.bbanalyzer.BBReadHistoryModelService;
 import play.db.ebean.Model;
 import utils.EntityUtil;
 

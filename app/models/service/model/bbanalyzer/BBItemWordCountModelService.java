@@ -1,10 +1,11 @@
-package models.service.model;
+package models.service.model.bbanalyzer;
 
 import java.util.Set;
 
-import models.entity.BBItem;
-import models.entity.BBItemWordCount;
-import models.entity.BBWord;
+import models.entity.bbanalyzer.BBItem;
+import models.entity.bbanalyzer.BBItemWordCount;
+import models.entity.bbanalyzer.BBWord;
+import models.service.model.ModelService;
 
 public class BBItemWordCountModelService implements ModelService<Long, BBItemWordCount> {
 
@@ -26,28 +27,6 @@ public class BBItemWordCountModelService implements ModelService<Long, BBItemWor
 		if (entry != null) {
 			entry.save();
 			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBItemWordCount update(BBItemWordCount entry) {
-		if (entry != null) {
-			entry.update();
-			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBItemWordCount update(BBItemWordCount entry, Long id) {
-		if (entry != null && id != null) {
-			entry.update(id);
-			if (entry.getId().equals(id)) {
 				return entry;
 			}
 		}

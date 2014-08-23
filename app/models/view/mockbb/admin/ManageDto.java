@@ -2,7 +2,7 @@ package models.view.mockbb.admin;
 
 import java.util.List;
 
-import models.entity.MockBBItem;
+import models.entity.mockbb.MockBBItem;
 
 public class ManageDto {
 	public Integer currentPage;

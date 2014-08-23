@@ -3,9 +3,9 @@ package models.service.bbanalyzer;
 import java.util.Map;
 import java.util.Set;
 
-import models.entity.BBItem;
-import models.entity.BBItemWordCount;
-import models.entity.BBWord;
+import models.entity.bbanalyzer.BBItem;
+import models.entity.bbanalyzer.BBItemWordCount;
+import models.entity.bbanalyzer.BBWord;
 import models.service.AbstractService;
 import utils.bbanalyzer.BBAnalyzerUtil;
 

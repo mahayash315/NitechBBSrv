@@ -2,7 +2,7 @@ import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.List;
 
-import models.entity.BBItem;
+import models.entity.bbanalyzer.BBItem;
 import models.service.bbanalyzer.BBItemWordCountService;
 import play.Application;
 import play.GlobalSettings;

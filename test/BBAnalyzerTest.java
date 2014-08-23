@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import models.entity.BBItem;
 import models.entity.User;
+import models.entity.bbanalyzer.BBItem;
 import models.service.bbanalyzer.AtomUserCluster;
 import models.service.bbanalyzer.BBAnalyzerService;
 import models.service.bbanalyzer.ItemClassifier;

@@ -1,7 +1,7 @@
 package models.service.bbanalyzer;
 
-import models.entity.BBItem;
 import models.entity.User;
+import models.entity.bbanalyzer.BBItem;
 import models.request.api.bbanalyzer.NewItemHeadsRequest;
 import models.response.api.bbanalyzer.NewItemHeadsResponse;
 import models.service.AbstractService;

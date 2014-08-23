@@ -1,4 +1,4 @@
-package models.entity;
+package models.entity.bbanalyzer;
 
 import java.lang.reflect.Type;
 import java.sql.SQLException;
@@ -17,7 +17,7 @@ import javax.persistence.Transient;
 
 import models.service.bbanalyzer.BBUserClusterService;
 import models.service.bbanalyzer.UserCluster;
-import models.service.model.BBUserClusterModelService;
+import models.service.model.bbanalyzer.BBUserClusterModelService;
 import play.db.ebean.Model;
 import utils.bbanalyzer.GsonUtil;
 

@@ -2,8 +2,8 @@ package controllers.mockbb;
 
 import java.util.Date;
 
-import models.entity.MockBBItem;
-import models.entity.MockBBItem.MockBBItemPK;
+import models.entity.mockbb.MockBBItem;
+import models.entity.mockbb.MockBBItem.MockBBItemPK;
 import models.request.mockbb.admin.CreateItemRequest;
 import models.request.mockbb.admin.EditItemRequest;
 import models.service.mockbb.MockBBItemService;

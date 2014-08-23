@@ -1,6 +1,6 @@
 package models.view.mockbb;
 
-import models.entity.MockBBItem;
+import models.entity.mockbb.MockBBItem;
 
 public class GetDetailDto {
 	public MockBBItem item;

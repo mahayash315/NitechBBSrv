@@ -1,4 +1,4 @@
-package models.entity;
+package models.entity.bbanalyzer;
 
 import java.util.Set;
 
@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import models.service.bbanalyzer.BBItemWordCountService;
-import models.service.model.BBItemWordCountModelService;
+import models.service.model.bbanalyzer.BBItemWordCountModelService;
 import play.db.ebean.Model;
 
 @Entity

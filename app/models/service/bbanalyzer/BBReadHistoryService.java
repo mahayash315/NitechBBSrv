@@ -1,14 +1,14 @@
 package models.service.bbanalyzer;
 
-import models.entity.BBItem;
-import models.entity.BBReadHistory;
 import models.entity.User;
+import models.entity.bbanalyzer.BBItem;
+import models.entity.bbanalyzer.BBReadHistory;
 import models.request.api.bbanalyzer.ReadHistoryRequest;
 import models.response.api.bbanalyzer.ReadHistoryResponse;
 import models.service.AbstractService;
 import models.service.api.bbanalyzer.BBAnalyzerService;
-import models.service.model.BBReadHistoryModelService;
 import models.service.model.UserModelService;
+import models.service.model.bbanalyzer.BBReadHistoryModelService;
 
 public class BBReadHistoryService extends AbstractService {
 

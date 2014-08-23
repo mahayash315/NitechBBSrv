@@ -14,6 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import models.entity.bbanalyzer.BBReadHistory;
 import models.service.UserService;
 import models.service.model.UserModelService;
 import play.db.ebean.Model;

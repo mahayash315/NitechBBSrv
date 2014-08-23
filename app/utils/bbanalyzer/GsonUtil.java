@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-import models.entity.BBWord;
+import models.entity.bbanalyzer.BBWord;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;

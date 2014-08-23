@@ -30,28 +30,10 @@ public class UserModelService implements ModelService<Long, User> {
 	}
 
 	@Override
-	public User update(User entry) {
-		if (entry != null) {
-			entry.update();
-			return entry;
-		}
-		return null;
-	}
-
-	@Override
-	public User update(User entry, Long id) {
-		if (entry != null && id != null) {
-			entry.update(id);
-			if (entry.getId().equals(id)) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
 	public void delete(User entry) {
-		entry.delete();
+		if (entry != null) {
+			entry.delete();
+		}
 	}
 	
 	

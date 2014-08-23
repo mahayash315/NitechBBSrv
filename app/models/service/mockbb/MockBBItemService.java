@@ -1,7 +1,7 @@
 package models.service.mockbb;
 
-import models.entity.MockBBItem;
-import models.entity.MockBBItem.MockBBItemPK;
+import models.entity.mockbb.MockBBItem;
+import models.entity.mockbb.MockBBItem.MockBBItemPK;
 import models.request.mockbb.GetDetailRequest;
 import models.request.mockbb.GetListRequest;
 import models.request.mockbb.admin.CreateItemRequest;

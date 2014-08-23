@@ -1,7 +1,8 @@
-package models.service.model;
+package models.service.model.bbanalyzer;
 
-import models.entity.BBCategory;
 import models.entity.User;
+import models.entity.bbanalyzer.BBCategory;
+import models.service.model.ModelService;
 
 public class BBCategoryModelService implements ModelService<Long, BBCategory> {
 
@@ -23,28 +24,6 @@ public class BBCategoryModelService implements ModelService<Long, BBCategory> {
 		if (entry != null) {
 			entry.save();
 			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBCategory update(BBCategory entry) {
-		if (entry != null) {
-			entry.update();
-			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public BBCategory update(BBCategory entry, Long id) {
-		if (entry != null && id != null) {
-			entry.update(id);
-			if (entry.getId().equals(id)) {
 				return entry;
 			}
 		}

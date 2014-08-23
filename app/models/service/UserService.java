@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import models.entity.BBReadHistory;
 import models.entity.User;
+import models.entity.bbanalyzer.BBReadHistory;
 
 public class UserService extends AbstractService {
 

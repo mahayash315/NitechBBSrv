@@ -8,9 +8,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import models.entity.BBItem;
-import models.entity.BBUserCluster;
 import models.entity.User;
+import models.entity.bbanalyzer.BBItem;
+import models.entity.bbanalyzer.BBUserCluster;
 import models.service.AbstractService;
 import utils.bbanalyzer.LogUtil;
 

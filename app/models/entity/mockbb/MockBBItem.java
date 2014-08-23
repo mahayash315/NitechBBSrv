@@ -1,4 +1,4 @@
-package models.entity;
+package models.entity.mockbb;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,7 +16,7 @@ import javax.persistence.Transient;
 
 import models.request.mockbb.admin.EditItemRequest;
 import models.service.mockbb.MockBBItemService;
-import models.service.model.MockBBItemModelService;
+import models.service.model.mockbb.MockBBItemModelService;
 import play.data.format.Formats.DateTime;
 import play.db.ebean.Model;
 import play.mvc.PathBindable;

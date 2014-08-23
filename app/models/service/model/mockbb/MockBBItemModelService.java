@@ -1,11 +1,12 @@
-package models.service.model;
+package models.service.model.mockbb;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import models.entity.MockBBItem;
-import models.entity.MockBBItem.MockBBItemPK;
+import models.entity.mockbb.MockBBItem;
+import models.entity.mockbb.MockBBItem.MockBBItemPK;
+import models.service.model.ModelService;
 import models.setting.MockBBSetting;
 import utils.PageUtil;
 
@@ -42,26 +43,6 @@ public class MockBBItemModelService implements ModelService<MockBBItemPK, MockBB
 			
 			entry.save();
 			if (entry.getId() != null) {
-				return entry;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public MockBBItem update(MockBBItem entry) {
-		if (entry != null) {
-			entry.update();
-			return entry;
-		}
-		return null;
-	}
-
-	@Override
-	public MockBBItem update(MockBBItem entry, MockBBItemPK id) {
-		if (entry != null) {
-			entry.update(id);
-			if (entry.getId().equals(id)) {
 				return entry;
 			}
 		}

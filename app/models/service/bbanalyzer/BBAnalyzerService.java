@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import models.entity.BBItem;
 import models.entity.User;
+import models.entity.bbanalyzer.BBItem;
 import models.service.AbstractService;
 import utils.api.bbanalyzer.LogUtil;
 
