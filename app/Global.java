@@ -33,7 +33,7 @@ public class Global extends GlobalSettings {
 		}
 		
 		// initialize for debugging
-		initForDebug();
+//		initForDebug();
 	}
 
 	@Override

@@ -1,11 +1,12 @@
-@(form : play.data.Form[models.request.bbanalyzer.BBAnalyzerRequest], result : models.response.bbanalyzer.BBAnalyzerResult)
+@(reqForm : play.data.Form[models.request.bbanalyzer.BBAnalyzerRequest], result : models.response.bbanalyzer.BBAnalyzerResult)
 
-@import helper.twitterBootstrap._
+@import helper._
+@implicitField = @{ FieldConstructor(basicFieldConstructorTemplate.f) }
 
 @main("Testing Kuromoji - BBAnalyzer") {
 
-    @helper.form(action = routes.BBAnalyzer.procKuromoji()) {
-    	@helper.textarea(form("body"), '_label -> "本文", '_class -> "largeTextArea")
+    @form(action = routes.BBAnalyzer.procKuromoji()) {
+    	@textarea(reqForm("body"), '_label -> "本文", '_class -> "largeTextArea")
     	
     	<div id="actions" style="margin-left: 8em;">
     		<input type="submit" value="Submit" class="btn primary"> or

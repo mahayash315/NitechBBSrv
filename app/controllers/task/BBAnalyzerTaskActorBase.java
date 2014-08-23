@@ -17,7 +17,7 @@ public class BBAnalyzerTaskActorBase {
 
 	private static BBAnalyzerTaskActorBase instance = new BBAnalyzerTaskActorBase();
 	private ActorSystem system = ActorSystem.create("bbAnalyzerActor");
-	private ActorRef bbAnalyzerTaskActor = Akka.system().actorOf(new Props(BBAnalyzerTaskActor.class));
+	private ActorRef bbAnalyzerTaskActor = Akka.system().actorOf(Props.create(BBAnalyzerTaskActor.class));
 	private Cancellable cancellable;
 	
 	private BBAnalyzerTaskActorBase() {

@@ -1,0 +1,11 @@
+@* basicFieldConstructorTemplate Template File *@
+@(elements: helper.FieldElements)
+
+<div class="clearfix @if(elements.hasErrors) {error}">
+	<label for="@elements.id">@elements.label</label>
+	<div class="input">
+	    @elements.input
+	    <span class="help-inline">@elements.errors.mkString(", ")</span>
+	    <span class="help-block">@elements.infos.mkString(", ")</span>
+	</div>
+</div>

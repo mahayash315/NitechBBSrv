@@ -1,10 +1,12 @@
-name := "NitechBBSrv"
+name := """NitechBBSrv"""
 
 version := "1.0-SNAPSHOT"
 
-Keys.fork in Test := false
+lazy val root = (project in file(".")).enablePlugins(PlayJava)
 
-parallelExecution in Test := false
+scalaVersion := "2.11.1"
+
+resolvers += "Atilika Repository" at "http://www.atilika.org/nexus/content/repositories/atilika"
 
 libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "5.1.30",
@@ -13,8 +15,4 @@ libraryDependencies ++= Seq(
   javaJdbc,
   javaEbean,
   cache
-)     
-
-play.Project.playJavaSettings
-
-resolvers += "Atilika Repository" at "http://www.atilika.org/nexus/content/repositories/atilika"
+)
