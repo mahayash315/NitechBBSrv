@@ -5,47 +5,50 @@ BEGIN
     select concat("** ", msg) AS '** DEBUG:';;
 END;
 
-CREATE PROCEDURE PrepareTrainData(IN threshold DOUBLE)
+CREATE PROCEDURE PrepareTrainDataFor(IN _nitech_user_id BIGINT, IN threshold DOUBLE)
 BEGIN
 	DECLARE hasNext int;;
-	DECLARE _nitech_user_id bigint;;
 	DECLARE _post_id bigint;;
 	DECLARE _v double;;
     DECLARE cur CURSOR FOR
 		select 
-		    nitech_user_id, post_id, (c - avg) / (std * std) v
+		    post_id, (c - avg) / (std * std) v
 		from
-		    (select 
-		        t1.nitech_user_id, t1.post_id, count(t1.id) c, t2.avg, t2.std
-		    from
-		        bb_history t1
-		    join 
-		    	(select 
-		        	t1.nitech_user_id, avg(t1.n) avg, std(t1.n) std
-		    	from
-		        	(select 
-		        		t1.nitech_user_id, t1.post_id, if(t2.n is null, 0, t2.n) n
-		    		from
-		        		bb_possession t1
-		    		left join
-		    			(select 
-		        			nitech_user_id, post_id, count(id) n
-		    			from
-		        			bb_history
-		    			group by nitech_user_id , post_id) t2
-		    		ON t1.nitech_user_id = t2.nitech_user_id and t1.post_id = t2.post_id) t1
-		    	group by t1.nitech_user_id) t2
-		    ON t1.nitech_user_id = t2.nitech_user_id
-		    group by t1.nitech_user_id , t1.post_id) t;;
+		    (select t1.post_id, t1.c, t2.avg, t2.std from
+		    	(select post_id,count(id) c from
+		    		(select id,post_id from bb_history where nitech_user_id=_nitech_user_id) t
+		    	group by post_id) t1 join 
+		    	(select avg(n) avg, std(n) std from
+		        	(select t1.post_id, if(t2.n is null, 0, t2.n) n from
+		        		(select post_id from bb_possession where nitech_user_id=_nitech_user_id) t1 left join
+		    			(select post_id, count(id) n from bb_history where nitech_user_id=_nitech_user_id group by post_id) t2
+		    		ON t1.post_id = t2.post_id) t) t2) t;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
 
 	SET hasNext = 1;;
 	OPEN cur;;
 	WHILE hasNext DO
-		FETCH cur INTO _nitech_user_id, _post_id, _v;;
+		FETCH cur INTO _post_id, _v;;
 		IF _v >= threshold THEN
 			update bb_possession set `is_interesting` = 1 where nitech_user_id=_nitech_user_id and post_id=_post_id;;
 		END IF;;
+	END WHILE;;
+	CLOSE cur;;
+END;
+
+CREATE PROCEDURE PrepareTrainData(IN threshold DOUBLE)
+BEGIN
+	DECLARE hasNext int;;
+	DECLARE _nitech_user_id bigint;;
+    DECLARE cur CURSOR FOR
+    	select id from nitech_user;;
+	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
+
+	SET hasNext = 1;;
+	OPEN cur;;
+	WHILE hasNext DO
+		FETCH cur INTO _nitech_user_id;;
+		call PrepareTrainDataFor(_nitech_user_id, threshold);;
 	END WHILE;;
 	CLOSE cur;;
 END;
@@ -61,39 +64,17 @@ BEGIN
 		select 
 		    t1.word_id, if(t1.sum is null, 0, t1.sum/t2.n) v
 		from
-		    (select 
-		        t1.id word_id, t2.sum sum
-		    from
-		        bb_word t1
-		    left join (select 
-		        t2.word_id, sum(t2.value) sum
-		    from
-		        (select 
-		        post_id
-		    from
-		        bb_possession
-		    where
-		        nitech_user_id = _nitech_user_id
-		            and is_interesting = _is_interesting) t1
-		    join bb_word_in_post t2 ON t1.post_id = t2.post_id
-		    group by t2.word_id) t2 ON t1.id = t2.word_id) t1
-		        join
-		    (select 
-		        count(t1.post_id) as n
-		    from
-		        (select 
-		        post_id
-		    from
-		        bb_possession
-		    where
-		        nitech_user_id = _nitech_user_id
-		            and is_interesting = _is_interesting) t1
-		    join (select 
-		        post_id
-		    from
-		        bb_history
-		    where
-		        nitech_user_id = _nitech_user_id) t2 ON t1.post_id = t2.post_id) t2;;
+		    (select t1.id word_id, t2.sum sum from bb_word t1 left join
+		        (select t2.word_id, sum(t2.value) sum from
+		        	(select post_id from bb_possession where nitech_user_id = _nitech_user_id and is_interesting = _is_interesting) t1
+		    	join bb_word_in_post t2 ON t1.post_id = t2.post_id group by t2.word_id) t2
+		    	ON t1.id = t2.word_id) t1
+		join
+	    	(select count(t1.post_id) as n from
+	        	(select post_id from bb_possession where nitech_user_id = _nitech_user_id and is_interesting = _is_interesting) t1
+	   		join
+	    		(select post_id from bb_history where nitech_user_id = _nitech_user_id) t2
+	    	ON t1.post_id = t2.post_id) t2;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
 
 	SET hasNext = 1;;
@@ -131,6 +112,33 @@ BEGIN
 	CLOSE cur;;
 END;
 
+CREATE FUNCTION feature_multiply(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+BEGIN
+	IF (select count(id) from bb_user_cluster_vector where cluster_id=_cluster_id1)
+		= (select count(id) from bb_user_cluster_vector where cluster_id=_cluster_id2) THEN
+		return
+			(select sum(v) from
+				(select v1.v*v2.v v from
+					(select `word_id`,`value` v from bb_user_cluster_vector where cluster_id =_cluster_id1) v1
+					join
+					(select `word_id`,`value` v from bb_user_cluster_vector where cluster_id =_cluster_id2) v2
+					on v1.`word_id`=v2.`word_id`) t);;
+	END IF;;
+	RETURN 0;;
+END;
+
+CREATE FUNCTION feature_length(_cluster_id bigint) RETURNS DOUBLE
+BEGIN
+	RETURN
+		(select sqrt(sum) length from
+			(select sum(v) sum from
+				(select POW(`value`,2) v from bb_user_cluster_vector where cluster_id=_cluster_id) t) t);;
+END;
+
+CREATE FUNCTION feature_distance(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+BEGIN
+	RETURN (select feature_multiply(_cluster_id1,_cluster_id2) / feature_length(_cluster_id1)*feature_length(_cluster_id2));;
+END;
 
 CREATE PROCEDURE KMeans()
 BEGIN
@@ -141,9 +149,14 @@ END;
 SET FOREIGN_KEY_CHECKS=0;
 
 DROP PROCEDURE IF EXISTS debugMsg;
+DROP PROCEDURE IF EXISTS PrepareTrainDataFor;
 DROP PROCEDURE IF EXISTS PrepareTrainData;
 DROP PROCEDURE IF EXISTS TrainFor;
 DROP PROCEDURE IF EXISTS Train;
+
+DROP FUNCTION IF EXISTS feature_multiply;
+DROP FUNCTION IF EXISTS feature_length;
+DROP FUNCTION IF EXISTS feature_distance;
 DROP PROCEDURE IF EXISTS KMeans;
 
 SET FOREIGN_KEY_CHECKS=1;
