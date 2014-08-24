@@ -1,5 +1,7 @@
 package models.entity.bb;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -10,7 +12,7 @@ import models.service.model.bb.WordModelService;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name="bb_word2")
+@Table(name="bb_word")
 public class Word extends Model {
 
 	@Id
@@ -27,6 +29,12 @@ public class Word extends Model {
 	
 	public static Finder<Long,Word> find = new Finder<Long,Word>(Long.class,Word.class);
 	
+	public Word() {
+		
+	}
+	public Word(Long id) {
+		this.id = id;
+	}
 
 	public Word unique() {
 		Word o = null;
@@ -40,6 +48,9 @@ public class Word extends Model {
 	}
 	public Word store() {
 		return modelService.save(this);
+	}
+	public List<Word> findList() {
+		return modelService.findList();
 	}
 	@Override
 	public void save() {
@@ -62,6 +73,37 @@ public class Word extends Model {
 	}
 	public void setBaseForm(String baseForm) {
 		this.baseForm = baseForm;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((baseForm == null) ? 0 : baseForm.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Word other = (Word) obj;
+		if (baseForm == null) {
+			if (other.baseForm != null)
+				return false;
+		} else if (!baseForm.equals(other.baseForm))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
 	}
 	
 }

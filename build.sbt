@@ -14,5 +14,9 @@ libraryDependencies ++= Seq(
   "org.atilika.kuromoji" % "kuromoji" % "0.7.7",
   javaJdbc,
   javaEbean,
-  cache
+  cache,
+  javaWs
 )
+
+fork in (Test) := false
+

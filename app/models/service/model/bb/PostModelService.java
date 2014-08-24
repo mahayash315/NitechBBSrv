@@ -32,7 +32,5 @@ public class PostModelService implements ModelService<Long, Post> {
 			Ebean.delete(entry);
 		}
 	}
-
-	
 	
 }

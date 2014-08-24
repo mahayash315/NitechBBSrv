@@ -1,11 +1,16 @@
 package models.entity;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import models.entity.bb.Post;
+import models.entity.bb.Word;
 import models.service.model.NitechUserModelService;
 import play.db.ebean.Model;
 
@@ -27,6 +32,12 @@ public class NitechUser extends Model {
 	/* finder */
 	public static Finder<Long,NitechUser> find = new Finder<Long,NitechUser>(Long.class, NitechUser.class);
 	
+	public NitechUser() {
+	}
+	public NitechUser(String hashedId) {
+		this.hashedId = hashedId;
+	}
+	
 	/* メソッド */
 	public NitechUser unique() {
 		NitechUser o = null;
@@ -40,6 +51,12 @@ public class NitechUser extends Model {
 	}
 	public NitechUser store() {
 		return modelService.save(this);
+	}
+	public List<Post> findPossessingPosts() {
+		return modelService.findPossessingPosts(this);
+	}
+	public Map<Word,Double> getFeatureVector(List<Long> postIds) {
+		return modelService.getFeatureVector(this, postIds);
 	}
 	
 	@Override

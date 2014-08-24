@@ -11,27 +11,27 @@ import javax.persistence.Table;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name="bb_title_vector")
-public class TitleVector extends Model {
+@Table(name="bb_user_cluster_vector")
+public class UserClusterVector extends Model {
 
 	@EmbeddedId
 	public PK id;
 	
 	@ManyToOne
-	@MapsId("post_id")
-	public Post post;
+	@MapsId("clusterId")
+	public UserCluster cluster;
 	
 	@ManyToOne
-	@MapsId("word_id")
+	@MapsId("wordId")
 	public Word word;
 	
 	@Column(name="value")
-	public boolean value;
+	public double value;
 	
 	@Embeddable
 	public static class PK {
-		@Column(name="post_id")
-		public Long postId;
+		@Column(name="cluster_id")
+		public Long clusterId;
 		
 		@Column(name="word_id")
 		public Long wordId;
@@ -41,7 +41,7 @@ public class TitleVector extends Model {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result
-					+ ((postId == null) ? 0 : postId.hashCode());
+					+ ((clusterId == null) ? 0 : clusterId.hashCode());
 			result = prime * result
 					+ ((wordId == null) ? 0 : wordId.hashCode());
 			return result;
@@ -56,10 +56,10 @@ public class TitleVector extends Model {
 			if (getClass() != obj.getClass())
 				return false;
 			PK other = (PK) obj;
-			if (postId == null) {
-				if (other.postId != null)
+			if (clusterId == null) {
+				if (other.clusterId != null)
 					return false;
-			} else if (!postId.equals(other.postId))
+			} else if (!clusterId.equals(other.clusterId))
 				return false;
 			if (wordId == null) {
 				if (other.wordId != null)
@@ -69,5 +69,4 @@ public class TitleVector extends Model {
 			return true;
 		}
 	}
-	
 }

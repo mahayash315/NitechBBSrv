@@ -24,7 +24,7 @@ import utils.bbanalyzer.GsonUtil;
 import com.google.common.reflect.TypeToken;
 
 @Entity
-@Table(name = "bb_user_cluster")
+@Table(name = "bba_user_cluster")
 public class BBUserCluster extends Model {
 
 	@Id

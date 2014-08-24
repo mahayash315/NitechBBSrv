@@ -13,9 +13,6 @@ import models.service.bbanalyzer.BBAnalyzerService;
 import models.service.bbanalyzer.ItemClassifier;
 import models.service.bbanalyzer.UserClassifier;
 import models.service.bbanalyzer.UserCluster;
-
-import org.junit.Test;
-
 import play.Logger;
 import utils.bbanalyzer.BBAnalyzerUtil;
 
@@ -168,7 +165,7 @@ public class BBAnalyzerTest {
 	}
 	
 	
-	@Test
+//	@Test
 	public void test5() {
 		running(fakeApplication(), new Runnable() {
 			public void run() {

@@ -11,30 +11,30 @@ import javax.persistence.Table;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name="bb_author_vector")
-public class AuthorVector extends Model {
+@Table(name="bb_word_in_post")
+public class WordInPost extends Model {
 
 	@EmbeddedId
-	public PK id;
+	private PK id;
 	
 	@ManyToOne
-	@MapsId("post_id")
-	public Post post;
+	@MapsId("postId")
+	private Post post;
 	
 	@ManyToOne
-	@MapsId("word_id")
-	public Word word;
+	@MapsId("wordId")
+	private Word word;
 	
 	@Column(name="value")
-	public boolean value;
+	private boolean value;
 	
 	@Embeddable
 	public static class PK {
 		@Column(name="post_id")
-		public Long postId;
+		private Long postId;
 		
 		@Column(name="word_id")
-		public Long wordId;
+		private Long wordId;
 
 		@Override
 		public int hashCode() {
@@ -68,6 +68,31 @@ public class AuthorVector extends Model {
 				return false;
 			return true;
 		}
+	}
+
+	public PK getId() {
+		return id;
+	}
+	public void setId(PK id) {
+		this.id = id;
+	}
+	public Post getPost() {
+		return post;
+	}
+	public void setPost(Post post) {
+		this.post = post;
+	}
+	public Word getWord() {
+		return word;
+	}
+	public void setWord(Word word) {
+		this.word = word;
+	}
+	public boolean isValue() {
+		return value;
+	}
+	public void setValue(boolean value) {
+		this.value = value;
 	}
 	
 }

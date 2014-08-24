@@ -16,7 +16,7 @@ import models.service.model.bbanalyzer.BBItemWordCountModelService;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name = "bb_item_word_count")
+@Table(name = "bba_item_word_count")
 public class BBItemWordCount extends Model {
 
 	@Id

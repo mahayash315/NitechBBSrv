@@ -17,7 +17,7 @@ import play.db.ebean.Model;
 
 @Entity
 @Table(
-	name = "bb_category",
+	name = "bba_category",
 	uniqueConstraints = {
 		@UniqueConstraint(columnNames={"user_id", "name"})
 	}

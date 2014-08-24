@@ -1,16 +1,19 @@
 package models.service.model.bb;
 
+import java.util.List;
+
 import models.entity.bb.Word;
 import models.service.model.ModelService;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.RawSql;
 import com.avaje.ebean.RawSqlBuilder;
 
 public class WordModelService implements ModelService<Long, Word> {
 	
-	private static RawSql genId = RawSqlBuilder
-			.parse("select min(id)+1 from bb_word2 t1 where (select id from bb_word2 t2 where t2.id=t1.id+1) is null")
+	private static RawSql sGenId = RawSqlBuilder
+			.parse("select min(id)+1 from bb_word t1 where (select id from bb_word t2 where t2.id=t1.id+1) is null")
 			.columnMapping("min(id)+1", "id").create();
 
 	@Override
@@ -26,7 +29,7 @@ public class WordModelService implements ModelService<Long, Word> {
 		if (entry != null) {
 			if (entry.getId() == null) {
 				// 新規ID生成
-				Word g = Word.find.setRawSql(genId).findUnique();
+				Word g = Word.find.setRawSql(sGenId).findUnique();
 				if (g != null) {
 					entry.setId(g.getId());
 				}
@@ -52,6 +55,11 @@ public class WordModelService implements ModelService<Long, Word> {
 			return Word.find.where().eq("baseForm", baseForm).findUnique();
 		}
 		return null;
+	}
+	
+	public List<Word> findList() {
+		ExpressionList<Word> expr = Word.find.where();
+		return expr.findList();
 	}
 	
 }

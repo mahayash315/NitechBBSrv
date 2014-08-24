@@ -20,7 +20,7 @@ import play.db.ebean.Model;
 import utils.EntityUtil;
 
 @Entity
-@Table(name = "bb_read_history")
+@Table(name = "bba_read_history")
 public class BBReadHistory extends Model {
 
 	@Id

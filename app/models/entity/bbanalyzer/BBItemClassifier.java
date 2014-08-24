@@ -22,7 +22,7 @@ import utils.bbanalyzer.GsonUtil;
 import com.google.common.reflect.TypeToken;
 
 @Entity
-@Table(name="bb_item_classifier")
+@Table(name="bba_item_classifier")
 public class BBItemClassifier extends Model {
 	@Id
 	Long id;

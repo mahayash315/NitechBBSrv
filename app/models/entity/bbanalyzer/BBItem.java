@@ -19,7 +19,7 @@ import play.db.ebean.Model;
 import utils.EntityUtil;
 
 @Entity
-@Table(name = "bb_item", uniqueConstraints={
+@Table(name = "bba_item", uniqueConstraints={
 		@UniqueConstraint(columnNames={"id_date", "id_index"})
 })
 public class BBItem extends Model {

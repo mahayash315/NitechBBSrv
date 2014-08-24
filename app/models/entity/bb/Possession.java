@@ -8,42 +8,39 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
 
+import models.entity.NitechUser;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name="bb_title_cluster_vector")
-public class TitleClusterVector extends Model {
-
+@Table(name="bb_possession")
+public class Possession extends Model {
 	@EmbeddedId
-	public PK id;
+	private PK id;
 	
 	@ManyToOne
-	@MapsId("cluster_id")
-	public TitleCluster cluster;
+	@MapsId("nitechUserId")
+	private NitechUser nitechUser;
 	
 	@ManyToOne
-	@MapsId("word_id")
-	public Word word;
-	
-	@Column(name="value")
-	public double value;
+	@MapsId("postId")
+	private Post post;
 	
 	@Embeddable
 	public static class PK {
-		@Column(name="cluster_id")
-		public Long clusterId;
+		@Column(name="nitech_user_id")
+		private Long nitechUserId;
 		
-		@Column(name="word_id")
-		public Long wordId;
+		@Column(name="post_id")
+		private Long postId;
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result
-					+ ((clusterId == null) ? 0 : clusterId.hashCode());
+					+ ((nitechUserId == null) ? 0 : nitechUserId.hashCode());
 			result = prime * result
-					+ ((wordId == null) ? 0 : wordId.hashCode());
+					+ ((postId == null) ? 0 : postId.hashCode());
 			return result;
 		}
 
@@ -56,17 +53,19 @@ public class TitleClusterVector extends Model {
 			if (getClass() != obj.getClass())
 				return false;
 			PK other = (PK) obj;
-			if (clusterId == null) {
-				if (other.clusterId != null)
+			if (nitechUserId == null) {
+				if (other.nitechUserId != null)
 					return false;
-			} else if (!clusterId.equals(other.clusterId))
+			} else if (!nitechUserId.equals(other.nitechUserId))
 				return false;
-			if (wordId == null) {
-				if (other.wordId != null)
+			if (postId == null) {
+				if (other.postId != null)
 					return false;
-			} else if (!wordId.equals(other.wordId))
+			} else if (!postId.equals(other.postId))
 				return false;
 			return true;
 		}
 	}
+	
+	public static Finder<Possession.PK,Possession> find = new Finder<Possession.PK,Possession>(Possession.PK.class,Possession.class);
 }

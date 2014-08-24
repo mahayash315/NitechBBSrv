@@ -13,7 +13,7 @@ import models.service.model.bbanalyzer.BBWordModelService;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name = "bb_word")
+@Table(name = "bba_word")
 public class BBWord extends Model {
 
 	@Id

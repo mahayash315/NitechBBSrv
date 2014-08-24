@@ -1,10 +1,12 @@
-package models.service.bb.cluster;
+package models.service.bb;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import models.entity.bb.UserCluster;
 import models.entity.bb.Word;
 import utils.bbanalyzer.LogUtil;
 
@@ -13,20 +15,33 @@ public class Cluster {
 	private static final int MAX_KMEANS_COUNT = 10;
 	private static final int MIN_KMEANS_CHANGE = 0;
 
+	// DBエントリ
+	protected UserCluster userCluster;
 	// クラスタの中心ベクトル
 	protected HashMap<Word,Double> vector;
 	// 親クラスタ
 	protected Cluster parent;
 	// 子クラスタと自分との距離
-	protected HashMap<Cluster,Double> children;
+	protected HashSet<Cluster> children;
 	
 	public Cluster() {
 		vector = new HashMap<Word,Double>();
 	}
-	public Cluster(Cluster child) {
+	protected Cluster(Cluster child) {
 		vector = new HashMap<Word,Double>();
-		children = new HashMap<Cluster,Double>();
-		addChild(child, 0);
+		children = new HashSet<Cluster>();
+		addChild(child);
+	}
+	protected Cluster(UserCluster userCluster) {
+		this.userCluster = userCluster;
+	}
+	
+	/**
+	 * DB エントリを返す
+	 * @return
+	 */
+	public UserCluster getUserCluster() {
+		return userCluster.unique();
 	}
 	
 	/**
@@ -50,9 +65,9 @@ public class Cluster {
 	 * @param child
 	 * @param distance
 	 */
-	public void addChild(Cluster child, double distance) {
+	public void addChild(Cluster child) {
 		if (child != null) {
-			children.put(child, Double.valueOf(distance));
+			children.add(child);
 			child.setParent(this);
 		}
 	}
@@ -61,9 +76,9 @@ public class Cluster {
 	 * 子クラスタを追加する
 	 * @param children
 	 */
-	public void addChildren(Map<Cluster, Double> children) {
-		this.children.putAll(children);
-		for(Cluster child : children.keySet()) {
+	public void addChildren(Set<Cluster> children) {
+		this.children.addAll(children);
+		for(Cluster child : children) {
 			child.setParent(this);
 		}
 	}
@@ -82,7 +97,7 @@ public class Cluster {
 	public double getWeight() {
 		double weight = 1;
 		if (children != null) {
-			for(Cluster child : children.keySet()) {
+			for(Cluster child : children) {
 				weight = weight + child.getWeight();
 			}
 		}
@@ -106,7 +121,7 @@ public class Cluster {
 			vector.clear();
 			
 			// 子クラスタの特徴の平均を取る
-			for(Cluster child : children.keySet()) {
+			for(Cluster child : children) {
 				for(Word key : child.vector.keySet()) {
 					if (!vector.containsKey(key)) {
 						vector.put(key, Double.valueOf(0));
@@ -117,11 +132,6 @@ public class Cluster {
 			double weight = getWeight();
 			for(Word key : vector.keySet()) {
 				vector.put(key, vector.get(key) / weight);
-			}
-			
-			// 各子クラスたとの距離を再計算
-			for(Cluster child : children.keySet()) {
-				children.put(child, Double.valueOf(distance(child)));
 			}
 		}
 	}
@@ -173,7 +183,7 @@ public class Cluster {
 						parent = candidate;
 					}
 				}
-				parent.addChild(child, minimumDistance);
+				parent.addChild(child);
 				
 				Cluster prev = prevParents.get(child);
 				if (prev != null && !prev.equals(parent)) {

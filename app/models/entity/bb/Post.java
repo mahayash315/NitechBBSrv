@@ -2,8 +2,10 @@ package models.entity.bb;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -29,11 +31,11 @@ public class Post extends Model {
 	@Column(name="id_index")
 	private int idIndex;
 	
-	@OneToMany(mappedBy="post")
-	private List<AuthorVector> authorVector;
+	@OneToMany(mappedBy="post",cascade={CascadeType.ALL},fetch=FetchType.LAZY)
+	private List<WordInPost> wordsInPost;
 	
-	@OneToMany(mappedBy="post")
-	private List<TitleVector> titleVector;
+	@OneToMany(mappedBy="post",cascade={CascadeType.REMOVE},fetch=FetchType.LAZY)
+	private List<Possession> possessions;
 	
 	
 	
@@ -44,9 +46,9 @@ public class Post extends Model {
 	public static Finder<Long,Post> find = new Finder<Long,Post>(Long.class,Post.class);
 	
 	
-	
-	
-	
+	public Post() {
+		
+	}
 	
 
 	public Long getId() {
@@ -67,19 +69,44 @@ public class Post extends Model {
 	public void setIdIndex(int idIndex) {
 		this.idIndex = idIndex;
 	}
-	public List<AuthorVector> getAuthorVector() {
-		return authorVector;
+	public List<WordInPost> getWordsInPost() {
+		return wordsInPost;
 	}
-	public void setAuthorVector(List<AuthorVector> authorVector) {
-		this.authorVector = authorVector;
-	}
-	public List<TitleVector> getTitleVector() {
-		return titleVector;
-	}
-	public void setTitleVector(List<TitleVector> titleVector) {
-		this.titleVector = titleVector;
+	public void setWordsInPost(List<WordInPost> wordsInPost) {
+		this.wordsInPost = wordsInPost;
 	}
 	
-	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((idDate == null) ? 0 : idDate.hashCode());
+		result = prime * result + idIndex;
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Post other = (Post) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (idDate == null) {
+			if (other.idDate != null)
+				return false;
+		} else if (!idDate.equals(other.idDate))
+			return false;
+		if (idIndex != other.idIndex)
+			return false;
+		return true;
+	}
 	
 }

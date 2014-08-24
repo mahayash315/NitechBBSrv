@@ -1,5 +1,7 @@
 package models.entity.bb;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -38,7 +40,42 @@ public class History extends Model {
 	public static Finder<Long,History> find = new Finder<Long,History>(Long.class,History.class);
 	
 	
+	public History() {
+		
+	}
+	public History(NitechUser nitechUser) {
+		this.nitechUser = nitechUser;
+	}
 	
+	
+	public History unique() {
+		History o = null;
+		if ((o = modelService.findById(id)) != null) {
+			return o;
+		}
+		return null;
+	}
+	public History store() {
+		return modelService.save(this);
+	}
+	
+	/**
+	 * リストを返す
+	 * @param minTimestamp 最小のタイムスタンプ, null の場合は無視
+	 * @return
+	 */
+	public List<History> findList(Long minTimestamp) {
+		return modelService.findList(nitechUser, post, minTimestamp);
+	}
+	
+	@Override
+	public void save() {
+		store();
+	}
+	@Override
+	public void delete() {
+		modelService.delete(this);
+	}
 	
 
 	public Long getId() {
