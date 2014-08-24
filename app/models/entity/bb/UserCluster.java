@@ -12,20 +12,23 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import models.entity.NitechUser;
 import models.service.model.bb.UserClusterModelService;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name="bb_user_cluster")
+@Table(name="bb_user_cluster",uniqueConstraints={
+	@UniqueConstraint(columnNames={"nitech_user_id"})
+})
 public class UserCluster extends Model {
 
 	@Id
 	private Long id;
 	
 	@OneToOne(optional=true)
-	@JoinColumn(name="user_id")
+	@JoinColumn(name="nitech_user_id", nullable=true)
 	private NitechUser nitechUser;
 	
 	@Column(name="depth")

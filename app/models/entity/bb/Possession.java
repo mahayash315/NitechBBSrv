@@ -25,6 +25,9 @@ public class Possession extends Model {
 	@MapsId("postId")
 	private Post post;
 	
+	@Column(name="is_interesting")
+	private boolean isInteresting;
+	
 	@Embeddable
 	public static class PK {
 		@Column(name="nitech_user_id")
@@ -68,4 +71,8 @@ public class Possession extends Model {
 	}
 	
 	public static Finder<Possession.PK,Possession> find = new Finder<Possession.PK,Possession>(Possession.PK.class,Possession.class);
+
+	public boolean getIsInteresting() {
+		return isInteresting;
+	}
 }

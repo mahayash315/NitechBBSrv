@@ -105,6 +105,7 @@ create table nitech_user (
 create table bb_possession (
   nitech_user_id            bigint,
   post_id                   bigint,
+  is_interesting            tinyint(1) default 0,
   constraint pk_bb_possession primary key (nitech_user_id, post_id))
 ;
 
@@ -124,9 +125,10 @@ create table user (
 
 create table bb_user_cluster (
   id                        bigint auto_increment not null,
-  user_id                   bigint,
+  nitech_user_id            bigint,
   depth                     integer,
   parent_id                 bigint,
+  constraint uq_bb_user_cluster_1 unique (nitech_user_id),
   constraint pk_bb_user_cluster primary key (id))
 ;
 
@@ -172,8 +174,8 @@ alter table bb_possession add constraint fk_bb_possession_nitechUser_10 foreign 
 create index ix_bb_possession_nitechUser_10 on bb_possession (nitech_user_id);
 alter table bb_possession add constraint fk_bb_possession_post_11 foreign key (post_id) references bb_post (id) on delete restrict on update restrict;
 create index ix_bb_possession_post_11 on bb_possession (post_id);
-alter table bb_user_cluster add constraint fk_bb_user_cluster_nitechUser_12 foreign key (user_id) references nitech_user (id) on delete restrict on update restrict;
-create index ix_bb_user_cluster_nitechUser_12 on bb_user_cluster (user_id);
+alter table bb_user_cluster add constraint fk_bb_user_cluster_nitechUser_12 foreign key (nitech_user_id) references nitech_user (id) on delete restrict on update restrict;
+create index ix_bb_user_cluster_nitechUser_12 on bb_user_cluster (nitech_user_id);
 alter table bb_user_cluster add constraint fk_bb_user_cluster_parent_13 foreign key (parent_id) references bb_user_cluster (id) on delete restrict on update restrict;
 create index ix_bb_user_cluster_parent_13 on bb_user_cluster (parent_id);
 alter table bb_user_cluster_vector add constraint fk_bb_user_cluster_vector_cluster_14 foreign key (cluster_id) references bb_user_cluster (id) on delete restrict on update restrict;
