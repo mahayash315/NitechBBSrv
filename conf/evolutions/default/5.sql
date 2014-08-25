@@ -136,32 +136,50 @@ BEGIN
 END;
 
 
--- 第 _depth 層に _k 個の親クラスタを作り、初期化する操作
-CREATE PROCEDURE InitKMeansIn(IN _depth INT, IN _k INT)
+-- クラスタ _cluster_id を削除する
+CREATE PROCEDURE DeleteCluster(IN _cluster_id BIGINT)
+BEGIN
+	DECLARE _w double;;
+	DECLARE _parent_cluster_id bigint;;
+	delete from bb_user_cluster_vector where cluster_id=_cluster_id;;
+	select weight,parent_id from bb_user_cluster where id=_cluster_id into _w,_parent_cluster_id;;
+	update bb_user_cluster set parent_id = NULL where parent_id = _cluster_id;; 
+	call PropagateClusterWeight(_parent_cluster_id, -_w);;
+	delete from bb_user_cluster where id=_cluster_id;;
+END;
+
+
+-- 第 _depth 層のクラスタを全て削除
+CREATE PROCEDURE DeleteClustersFor(IN _depth INT)
 BEGIN
 	DECLARE hasNext int;;
-	DECLARE i int;;
-	DECLARE k int;;
-	DECLARE _parent_cluster_id bigint;;
-	DECLARE _child_cluster_id bigint;;
-	DECLARE _d double;;
+	DECLARE _id bigint;;
 	DECLARE cur CURSOR FOR
 		select id from bb_user_cluster where depth=_depth;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
-		
---	既存の第 _depth 層のクラスタを削除
-	IF 0 < _depth THEN
-		delete from bb_user_cluster_vector where cluster_id in
-			(select id from bb_user_cluster where depth=_depth);;
+	
+	IF 0 < _depth and exists (select id from bb_user_cluster where depth=_depth) THEN
 		SET hasNext = 1;;
 		OPEN cur;;
 		WHILE hasNext DO
-			FETCH cur INTO _parent_cluster_id;;
-			update bb_user_cluster set parent_id = NULL where parent_id = _parent_cluster_id;; 
+			FETCH cur INTO _id;;
+			call DeleteCluster(_id);;
 		END WHILE;;
 		CLOSE cur;;
-		delete from bb_user_cluster where depth=_depth;;
 	END IF;;
+END;
+
+
+-- 第 _depth 層に _k 個の親クラスタを作り、初期化する操作
+CREATE PROCEDURE InitKMeansFor(IN _depth INT, IN _k INT)
+BEGIN
+	DECLARE i int;;
+	DECLARE k int;;
+	DECLARE _child_cluster_id bigint;;
+	DECLARE _d double;;
+	
+--	既存の第 _depth 層のクラスタを削除
+	call DeleteClustersFor(_depth);;
 	
 --	引数の _k よりも子クラスタが少なければ k をその数にする	
 	select min(n) from
@@ -178,16 +196,14 @@ BEGIN
 			select id2, min(d) mind from
 				(select id1, id2, feature_distance(id1,id2) d from
 					(select t1.id id1, t2.id id2 from
-						(select id from bb_user_cluster where depth=@depth) t1
+						(select id from bb_user_cluster where depth=_depth) t1
 					join
-						(select id from bb_user_cluster where depth=@depth-1) t2) t) t
+						(select id from bb_user_cluster where depth=_depth-1) t2) t) t
 			group by id2
 			order by mind desc
 			limit 1
 			into _child_cluster_id, _d;;
-			
 			call CreateParentCluster(_depth, _child_cluster_id);;
-			
 			SET i=i+1;;
 		END WHILE;;
 	END IF;;
@@ -195,7 +211,7 @@ END;
 
 
 -- 第 depth-1 層の子クラスタを depth 層の親クラスタに分類
-CREATE PROCEDURE ClassifyClustersIn(IN _depth INT)
+CREATE PROCEDURE ClassifyClustersFor(IN _depth INT)
 BEGIN
 	DECLARE hasNext int;;
 	DECLARE changed bigint;;
@@ -266,9 +282,11 @@ DROP PROCEDURE IF EXISTS GetClusterFeature;
 DROP PROCEDURE IF EXISTS UpdateClusterFeature;
 DROP PROCEDURE IF EXISTS SetParentCluster;
 DROP PROCEDURE IF EXISTS CreateParentCluster;
-DROP PROCEDURE IF EXISTS InitKMeansIn;
+DROP PROCEDURE IF EXISTS DeleteCluster;
+DROP PROCEDURE IF EXISTS DeleteClustersFor;
+DROP PROCEDURE IF EXISTS InitKMeansFor;
 DROP PROCEDURE IF EXISTS InitKMeans;
-DROP PROCEDURE IF EXISTS ClassifyClustersIn;
+DROP PROCEDURE IF EXISTS ClassifyClustersFor;
 DROP PROCEDURE IF EXISTS ClassifyClusters;
 
 SET FOREIGN_KEY_CHECKS=1;
