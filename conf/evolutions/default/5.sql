@@ -56,7 +56,7 @@ BEGIN
 END;
 
 
--- クラスタの中心ベクトルを更新する操作//TODO
+-- クラスタの中心ベクトルを更新する操作
 CREATE PROCEDURE UpdateClusterFeature(IN _cluster_id BIGINT)
 BEGIN
 	DECLARE hasNext int;;
@@ -111,6 +111,7 @@ BEGIN
 END;
 
 
+--  第 _depth 層に一つ下の層の _child_cluster_id を基とする親クラスタを作成する操作
 CREATE PROCEDURE CreateParentCluster(IN _depth INT, IN _child_cluster_id BIGINT)
 BEGIN
 	DECLARE hasNext int;;
@@ -135,7 +136,8 @@ BEGIN
 END;
 
 
-CREATE PROCEDURE InitKMeans(IN _depth INT, IN _k INT)
+-- 第 _depth 層に _k 個の親クラスタを作り、初期化する操作
+CREATE PROCEDURE InitKMeansIn(IN _depth INT, IN _k INT)
 BEGIN
 	DECLARE hasNext int;;
 	DECLARE i int;;
@@ -143,17 +145,33 @@ BEGIN
 	DECLARE _parent_cluster_id bigint;;
 	DECLARE _child_cluster_id bigint;;
 	DECLARE _d double;;
+	DECLARE cur CURSOR FOR
+		select id from bb_user_cluster where depth=_depth;;
+	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
+		
+--	既存の第 _depth 層のクラスタを削除
+	IF 0 < _depth THEN
+		delete from bb_user_cluster_vector where cluster_id in
+			(select id from bb_user_cluster where depth=_depth);;
+		SET hasNext = 1;;
+		OPEN cur;;
+		WHILE hasNext DO
+			FETCH cur INTO _parent_cluster_id;;
+			update bb_user_cluster set parent_id = NULL where parent_id = _parent_cluster_id;; 
+		END WHILE;;
+		CLOSE cur;;
+		delete from bb_user_cluster where depth=_depth;;
+	END IF;;
+	
+--	引数の _k よりも子クラスタが少なければ k をその数にする	
 	select min(n) from
 		(select count(id) n from bb_user_cluster where depth=(_depth-1) union select _k n) t
 	into k;;
 	
-	IF k >= 1 THEN
-		delete from bb_user_cluster_vector where cluster_id in
-			(select id from bb_user_cluster where depth=_depth);;
-		delete from bb_user_cluster where depth=_depth;;
-		
+--	親クラスタ作成
+	IF 0 < _depth and 1 <= k THEN
 		select id from bb_user_cluster order by rand() limit 1 into _child_cluster_id;;
-		CALL CreateParentCluster(_depth, _child_cluster_id);;
+		call CreateParentCluster(_depth, _child_cluster_id);;
 		
 		SET i=2;;
 		WHILE i <= k DO
@@ -168,7 +186,7 @@ BEGIN
 			limit 1
 			into _child_cluster_id, _d;;
 			
-			CALL CreateParentCluster(_depth, _child_cluster_id);;
+			call CreateParentCluster(_depth, _child_cluster_id);;
 			
 			SET i=i+1;;
 		END WHILE;;
@@ -176,15 +194,63 @@ BEGIN
 END;
 
 
-CREATE PROCEDURE ClassifyClustersFor(IN _depth INT)
+-- 第 depth-1 層の子クラスタを depth 層の親クラスタに分類
+CREATE PROCEDURE ClassifyClustersIn(IN _depth INT)
 BEGIN
+	DECLARE hasNext int;;
+	DECLARE changed bigint;;
+	DECLARE _child_cluster_id bigint;;
+	DECLARE _parent_cluster_id1 bigint;;
+	DECLARE _parent_cluster_id2 bigint;;
+	DECLARE _d double;;
+	DECLARE cur CURSOR FOR
+		select id,parent_id from bb_user_cluster where depth=_depth-1;;
+	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
 	
+	IF 0 < _depth THEN
+		REPEAT
+			SET changed = 0;;
+			
+			SET hasNext = 1;;
+			OPEN cur;;
+			WHILE hasNext DO
+				FETCH cur INTO _child_cluster_id, _parent_cluster_id1;;
+--				自分から一番近い親クラスタを見つける
+				select id, feature_distance(_child_cluster_id, id) d from
+					(select id from bb_user_cluster where depth=_depth) t
+				order by d asc
+				limit 1
+				into _parent_cluster_id2, _d;;
+--				見つかった最近傍の親クラスタが今の親クラスタでなければ変更
+				IF _parent_cluster_id1 IS NULL OR _parent_cluster_id1 != _parent_cluster_id2 THEN
+					call SetParentCluster(_child_cluster_id, _parent_cluster_id2);;
+					SET changed=changed+1;;
+					call UpdateClusterFeature(_parent_cluster_id1);;
+					call UpdateClusterFeature(_parent_cluster_id2);;
+				END IF;;
+			END WHILE;;
+			CLOSE cur;;
+		UNTIL changed <= 0
+		END REPEAT;;
+	END IF;;
 END;
 
 
 CREATE PROCEDURE ClassifyClusters()
 BEGIN
-	SET `max_sp_recursion_depth` = 255;;
+	DECLARE hasNext int;;
+	DECLARE _depth int;;
+	DECLARE cur CURSOR FOR
+		select distinct depth from bb_user_cluster order by depth asc;;
+	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
+	
+	SET hasNext = 1;;
+	OPEN cur;;
+	WHILE hasNext DO
+		FETCH cur INTO _depth;;
+		call ClassifyClustersIn(_depth);;
+	END WHILE;;
+	CLOSE cur;;
 END;
 
 # --- !Downs
@@ -200,8 +266,9 @@ DROP PROCEDURE IF EXISTS GetClusterFeature;
 DROP PROCEDURE IF EXISTS UpdateClusterFeature;
 DROP PROCEDURE IF EXISTS SetParentCluster;
 DROP PROCEDURE IF EXISTS CreateParentCluster;
+DROP PROCEDURE IF EXISTS InitKMeansIn;
 DROP PROCEDURE IF EXISTS InitKMeans;
-DROP PROCEDURE IF EXISTS ClassifyClustersFor;
+DROP PROCEDURE IF EXISTS ClassifyClustersIn;
 DROP PROCEDURE IF EXISTS ClassifyClusters;
 
 SET FOREIGN_KEY_CHECKS=1;
