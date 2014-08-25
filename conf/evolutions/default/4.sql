@@ -11,18 +11,33 @@ BEGIN
 	DECLARE _post_id bigint;;
 	DECLARE _v double;;
     DECLARE cur CURSOR FOR
+--		select 
+--		    post_id, (c - avg) / (std * std) v
+--		from
+--		    (select t1.post_id, t1.c, t2.avg, t2.std from
+--		    	(select post_id,count(id) c from
+--		    		(select id,post_id from bb_history where nitech_user_id=_nitech_user_id) t
+--		    	group by post_id) t1 join 
+--		    	(select avg(n) avg, std(n) std from
+--		        	(select t1.post_id, if(t2.n is null, 0, t2.n) n from
+--		        		(select post_id from bb_possession where nitech_user_id=_nitech_user_id) t1 left join
+--		    			(select post_id, count(id) n from bb_history where nitech_user_id=_nitech_user_id group by post_id) t2
+--		    		ON t1.post_id = t2.post_id) t) t2) t;;
 		select 
-		    post_id, (c - avg) / (std * std) v
-		from
-		    (select t1.post_id, t1.c, t2.avg, t2.std from
-		    	(select post_id,count(id) c from
-		    		(select id,post_id from bb_history where nitech_user_id=_nitech_user_id) t
-		    	group by post_id) t1 join 
-		    	(select avg(n) avg, std(n) std from
-		        	(select t1.post_id, if(t2.n is null, 0, t2.n) n from
-		        		(select post_id from bb_possession where nitech_user_id=_nitech_user_id) t1 left join
-		    			(select post_id, count(id) n from bb_history where nitech_user_id=_nitech_user_id group by post_id) t2
-		    		ON t1.post_id = t2.post_id) t) t2) t;;
+			post_id, (c - avg) / (std * std) v
+				from
+				    (select t1.post_id, t1.c, t2.avg, t2.std from
+						(select post_id, c from
+				        	(select t1.post_id, if(t2.n is null, 0, t2.n) c from
+				        		(select post_id from bb_possession where nitech_user_id=_nitech_user_id) t1 left join
+				    			(select post_id, count(id) n from bb_history where nitech_user_id=_nitech_user_id group by post_id) t2
+				    		ON t1.post_id = t2.post_id) t) t1
+					join 
+				    	(select avg(n) avg, std(n) std from
+				        	(select t1.post_id, if(t2.n is null, 0, t2.n) n from
+				        		(select post_id from bb_possession where nitech_user_id=_nitech_user_id) t1 left join
+				    			(select post_id, count(id) n from bb_history where nitech_user_id=_nitech_user_id group by post_id) t2
+				    		ON t1.post_id = t2.post_id) t) t2) t;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
 
 	SET hasNext = 1;;

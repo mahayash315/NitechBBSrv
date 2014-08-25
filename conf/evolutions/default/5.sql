@@ -264,7 +264,7 @@ BEGIN
 	OPEN cur;;
 	WHILE hasNext DO
 		FETCH cur INTO _depth;;
-		call ClassifyClustersIn(_depth);;
+		call ClassifyClustersFor(_depth);;
 	END WHILE;;
 	CLOSE cur;;
 END;

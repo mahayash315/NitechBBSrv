@@ -25,7 +25,7 @@ public class Possession extends Model {
 	@MapsId("postId")
 	private Post post;
 	
-	@Column(name="class")
+	@Column(name="class", columnDefinition="tinyint default null")
 	private Boolean clazz;
 	
 	@Embeddable

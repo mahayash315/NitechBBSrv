@@ -19,7 +19,7 @@ public class Word extends Model {
 	@Column(name="id")
 	private Long id;
 	
-	@Column(name="base_form", length=197)
+	@Column(name="base_form", length=191)
 	private String baseForm;
 	
 	
