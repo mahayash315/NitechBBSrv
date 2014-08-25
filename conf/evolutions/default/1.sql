@@ -105,7 +105,7 @@ create table nitech_user (
 create table bb_possession (
   nitech_user_id            bigint,
   post_id                   bigint,
-  is_interesting            tinyint(1) default 0,
+  class                     tinyint(1) default 0,
   constraint pk_bb_possession primary key (nitech_user_id, post_id))
 ;
 
@@ -134,9 +134,10 @@ create table bb_user_cluster (
 
 create table bb_user_cluster_vector (
   cluster_id                bigint,
+  class                     tinyint(1) default 0,
   word_id                   bigint,
   value                     double,
-  constraint pk_bb_user_cluster_vector primary key (cluster_id, word_id))
+  constraint pk_bb_user_cluster_vector primary key (cluster_id, class, word_id))
 ;
 
 create table bb_word (

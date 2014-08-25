@@ -1,0 +1,123 @@
+--# --- !Ups
+--
+--CREATE FUNCTION feature_multiply(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+--BEGIN
+--	IF (select count(`value`) from bb_user_cluster_vector where cluster_id=_cluster_id1)
+--		= (select count(`value`) from bb_user_cluster_vector where cluster_id=_cluster_id2) THEN
+--		return
+--			(select sum(v) from
+--				(select v1.v*v2.v v from
+--					(select `class`,`word_id`,`value` v from bb_user_cluster_vector where cluster_id =_cluster_id1) v1
+--					join
+--					(select `class`,`word_id`,`value` v from bb_user_cluster_vector where cluster_id =_cluster_id2) v2
+--					on v1.`class`=v2.`class` and v1.`word_id`=v2.`word_id`) t);;
+--	END IF;;
+--	RETURN 0;;
+--END;
+--
+--
+--CREATE FUNCTION feature_length( _cluster_id bigint) RETURNS DOUBLE
+--BEGIN
+--	RETURN
+--		(select sqrt(sum) length from
+--			(select sum(v) sum from
+--				(select POW(`value`,2) v from bb_user_cluster_vector where cluster_id=_cluster_id) t) t);;
+--END;
+--
+--
+--CREATE FUNCTION feature_cos(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+--BEGIN
+--	RETURN (select feature_multiply(_cluster_id1,_cluster_id2) / (feature_length(_cluster_id1)*feature_length(_cluster_id2)));;
+--END;
+--
+--
+--CREATE FUNCTION feature_distance(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+--BEGIN
+--	RETURN (select 1+(-feature_cos(_cluster_id1,_cluster_id2)));;
+--END;
+--
+--
+--CREATE PROCEDURE GetFeature(IN _cluster_id BIGINT)
+--BEGIN
+--	select `class`,`word_id`,`value` from bb_user_cluster_vector where cluster_id=_cluster_id;;
+--END;
+--
+--
+--CREATE PROCEDURE CreateParentCluster(IN _depth INT, IN _child_cluster_id BIGINT)
+--BEGIN
+--	DECLARE hasNext int;;
+--	DECLARE _parent_cluster_id bigint;;
+--	DECLARE _class int;;
+--	DECLARE _word_id bigint;;
+--	DECLARE _value double;;
+--	DECLARE cur CURSOR FOR
+--		select `class`,`word_id`,`value` from bb_user_cluster_vector where cluster_id=_child_cluster_id;;
+--	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
+--	
+--	insert into bb_user_cluster (depth) values (_depth);;
+--	select last_insert_id() into _parent_cluster_id;;
+--	
+--	SET hasNext=1;;
+--	OPEN cur;;
+--	WHILE hasNext DO
+--		FETCH cur INTO _class,_word_id,_value;;
+--		insert into bb_user_cluster_vector (`cluster_id`,`class`,`word_id`,`value`) values (_parent_cluster_id,_class,_word_id,_value);;
+--	END WHILE;;
+--	CLOSE cur;;
+--END;
+--
+--
+--CREATE PROCEDURE InitKMeans(IN _depth INT, IN _k INT)
+--BEGIN
+--	DECLARE hasNext int;;
+--	DECLARE i int;;
+--	DECLARE k int;;
+--	DECLARE _parent_cluster_id bigint;;
+--	DECLARE _child_cluster_id bigint;;
+--	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
+--	select min(n) from
+--		(select count(id) n from bb_user_cluster where depth=(_depth-1) union select _k n) t
+--	into k;;
+--	
+--	IF k >= 1 THEN
+--		delete from bb_user_cluster where depth=_depth;;
+--		
+--		select id from bb_user_cluster order by rand() limit 1 into _child_cluster_id;;
+--		call CreateParentCluster(_depth,_child_cluster_id);
+--		
+--		SET i=2;;
+--		WHILE i <= k DO
+--			
+--			SET i=i+1;;
+--		END WHILE;;
+--	END IF;;
+--END;
+--
+--
+--CREATE PROCEDURE ClassifyClustersFor(IN _depth INT)
+--BEGIN
+--	
+--END;
+--
+--
+--
+--
+--CREATE PROCEDURE ClassifyClusters()
+--BEGIN
+--	
+--END;
+--
+--# --- !Downs
+--SET FOREIGN_KEY_CHECKS=0;
+--
+--DROP FUNCTION IF EXISTS feature_multiply;
+--DROP FUNCTION IF EXISTS feature_length;
+--DROP FUNCTION IF EXISTS feature_cos;
+--DROP FUNCTION IF EXISTS feature_distance;
+--DROP PROCEDURE IF EXISTS GetFeature;
+--DROP PROCEDURE IF EXISTS CreateParentCluster;
+--DROP PROCEDURE IF EXISTS InitKMeans;
+--DROP PROCEDURE IF EXISTS ClassifyClustersFor;
+--DROP PROCEDURE IF EXISTS ClassifyClusters;
+--
+--SET FOREIGN_KEY_CHECKS=1;
