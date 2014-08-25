@@ -61,7 +61,7 @@ BEGIN
 	DECLARE wid INT;;
 	select (select count(id) from `nitech_user`)*(select count(id) from `bb_post`) into n;;
 	SET x=1;;
-	WHILE x  <= n DO
+	WHILE x <= n DO
 		select (select id from `nitech_user` order by rand() limit 1) into nid;;
 		select (select id from `bb_post` order by rand() limit 1) into pid;;
 		insert ignore into bb_possession(nitech_user_id, post_id) VALUES(nid,pid);;
@@ -69,7 +69,7 @@ BEGIN
 	END WHILE;;
 	
 	SET x=1;;
-	WHILE x  <= n DO
+	WHILE x <= n DO
 		select (select id from `nitech_user` order by rand() limit 1) into nid;;
 		select (select post_id from `bb_possession` where nitech_user_id=nid order by rand() limit 1) into pid;;
 		insert ignore into bb_history(nitech_user_id, post_id) VALUES(nid,pid);;
@@ -78,7 +78,7 @@ BEGIN
 	
 	select (select count(id) from `bb_post`)*(select count(id) from `bb_word`) into n;;
 	SET x=1;;
-	WHILE x  <= n DO
+	WHILE x <= n DO
 		select (select id from `bb_post` order by rand() limit 1) into pid;;
 		select (select id from `bb_word` order by rand() limit 1) into wid;;
 		insert ignore into bb_word_in_post(post_id, word_id, `value`) VALUES(pid,wid,true);;
@@ -105,5 +105,14 @@ alter table `bb_history` auto_increment=1;
 
 delete from `bb_word`;
 alter table `bb_word` auto_increment=1;
+
+delete from `bb_word_in_post`;
+alter table `bb_word_in_post` auto_increment=1;
+
+delete from `bb_user_cluster`;
+alter table `bb_user_cluster` auto_increment=1;
+
+delete from `bb_user_cluster_vector`;
+alter table `bb_user_cluster_vector` auto_increment=1;
 
 SET FOREIGN_KEY_CHECKS=1;
