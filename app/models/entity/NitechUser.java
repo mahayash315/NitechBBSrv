@@ -55,10 +55,7 @@ public class NitechUser extends Model {
 	public List<Post> findPossessingPosts() {
 		return modelService.findPossessingPosts(this);
 	}
-	public Map<Word,Double> getFeatureVector(List<Long> postIds) {
-		return modelService.getFeatureVector(this, postIds);
-	}
-	
+
 	@Override
 	public void save() {
 		store();

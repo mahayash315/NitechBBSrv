@@ -76,7 +76,7 @@ BEGIN
 		SET x = x+1;;
 	END WHILE;;
 	
-	select (select count(id) from `bb_post`)*(select count(id) from `bb_word`) into n;;
+	select (select count(id) from `bb_post`)*(select count(id) from `bb_word`)/2 into n;;
 	SET x=1;;
 	WHILE x <= n DO
 		select (select id from `bb_post` order by rand() limit 1) into pid;;

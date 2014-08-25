@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import play.db.ebean.Model;
 
@@ -21,6 +22,10 @@ public class UserClusterVector extends Model {
 	@MapsId("clusterId")
 	public UserCluster cluster;
 	
+	@Transient
+	@MapsId("clazz")
+	public Boolean clazz;
+	
 	@ManyToOne
 	@MapsId("wordId")
 	public Word word;
@@ -33,6 +38,9 @@ public class UserClusterVector extends Model {
 		@Column(name="cluster_id")
 		public Long clusterId;
 		
+		@Column(name="class")
+		public Boolean clazz;
+		
 		@Column(name="word_id")
 		public Long wordId;
 
@@ -40,6 +48,7 @@ public class UserClusterVector extends Model {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
 			result = prime * result
 					+ ((clusterId == null) ? 0 : clusterId.hashCode());
 			result = prime * result
@@ -56,6 +65,11 @@ public class UserClusterVector extends Model {
 			if (getClass() != obj.getClass())
 				return false;
 			PK other = (PK) obj;
+			if (clazz == null) {
+				if (other.clazz != null)
+					return false;
+			} else if (!clazz.equals(other.clazz))
+				return false;
 			if (clusterId == null) {
 				if (other.clusterId != null)
 					return false;

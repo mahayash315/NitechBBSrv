@@ -5,6 +5,7 @@ BEGIN
     select concat("** ", msg) AS '** DEBUG:';;
 END;
 
+
 CREATE PROCEDURE PrepareTrainDataFor(IN _nitech_user_id BIGINT, IN threshold DOUBLE)
 BEGIN
 	DECLARE hasNext int;;
@@ -30,11 +31,14 @@ BEGIN
 	WHILE hasNext DO
 		FETCH cur INTO _post_id, _v;;
 		IF _v >= threshold THEN
-			update bb_possession set `is_interesting` = 1 where nitech_user_id=_nitech_user_id and post_id=_post_id;;
+			update bb_possession set `class` = 1 where nitech_user_id=_nitech_user_id and post_id=_post_id;;
+		ELSE
+			update bb_possession set `class` = 0 where nitech_user_id=_nitech_user_id and post_id=_post_id;;
 		END IF;;
 	END WHILE;;
 	CLOSE cur;;
 END;
+
 
 CREATE PROCEDURE PrepareTrainData(IN threshold DOUBLE)
 BEGIN
@@ -54,27 +58,50 @@ BEGIN
 END;
 
 
-CREATE PROCEDURE TrainFor(IN _nitech_user_id BIGINT, IN _is_interesting TINYINT)
+CREATE PROCEDURE TrainFor(IN _nitech_user_id BIGINT, IN _class TINYINT)
 BEGIN
 	DECLARE hasNext int;;
 	DECLARE _cluster_id bigint;;
 	DECLARE _word_id bigint;;
 	DECLARE _v double;;
     DECLARE cur CURSOR FOR
-		select 
-		    t1.word_id, if(t1.sum is null, 0, t1.sum/t2.n) v
-		from
-		    (select t1.id word_id, t2.sum sum from bb_word t1 left join
-		        (select t2.word_id, sum(t2.value) sum from
-		        	(select post_id from bb_possession where nitech_user_id = _nitech_user_id and is_interesting = _is_interesting) t1
-		    	join bb_word_in_post t2 ON t1.post_id = t2.post_id group by t2.word_id) t2
-		    	ON t1.id = t2.word_id) t1
+--		select 
+--		    t1.word_id, if(t1.sum is null, 0, t1.sum/t2.n) v
+--		from
+--		    (select t1.id word_id, t2.sum sum from bb_word t1
+--		    left join
+--		        (select t2.word_id, sum(t2.value) sum from
+--		        	(select post_id from bb_possession where nitech_user_id = _nitech_user_id and `class` = _class) t1
+--		    	join
+--		    		bb_word_in_post t2 ON t1.post_id = t2.post_id group by t2.word_id) t2
+--		    ON t1.id = t2.word_id) t1
+--		join
+--	    	(select count(t1.post_id) as n from
+--	        	(select post_id from bb_possession where nitech_user_id = _nitech_user_id and `class` = _class) t1
+--	   		join
+--	    		(select post_id from bb_history where nitech_user_id = _nitech_user_id) t2
+--	    	ON t1.post_id = t2.post_id) t2;;
+		select t1.id, if(t2.n = 0, 0, t1.v/t2.n) v from
+			(select t1.id, t1.base_form, if(t2.v is null, 0, t2.v) v from
+				bb_word t1
+			left join
+				(select t2.word_id, sum(t1.n*t2.value) v from
+					(select t1.post_id post_id, t2.n n from
+						(select post_id from bb_possession where nitech_user_id=_nitech_user_id and `class`=_class) t1
+					join
+						(select count(id) n, post_id from bb_history where nitech_user_id=_nitech_user_id group by post_id) t2
+					on t1.post_id=t2.post_id) t1
+				join
+					bb_word_in_post t2
+				on t1.post_id=t2.post_id
+				group by t2.word_id) t2
+			on t1.id=t2.word_id) t1
 		join
-	    	(select count(t1.post_id) as n from
-	        	(select post_id from bb_possession where nitech_user_id = _nitech_user_id and is_interesting = _is_interesting) t1
-	   		join
-	    		(select post_id from bb_history where nitech_user_id = _nitech_user_id) t2
-	    	ON t1.post_id = t2.post_id) t2;;
+			(select count(t1.post_id) as n from
+				(select post_id from bb_possession where nitech_user_id = _nitech_user_id and `class`=_class) t1
+			join
+				(select post_id from bb_history where nitech_user_id = _nitech_user_id) t2
+			on t1.post_id = t2.post_id) t2;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
 
 	SET hasNext = 1;;
@@ -83,11 +110,9 @@ BEGIN
 		FETCH cur INTO _word_id, _v;;
 		IF NOT EXISTS (select id from bb_user_cluster where nitech_user_id=_nitech_user_id) THEN
 			insert ignore into bb_user_cluster (nitech_user_id,depth,parent_id) values (_nitech_user_id,0,null);;
-			select last_insert_id() into _cluster_id;;
-		ELSE 
-			select id from bb_user_cluster where nitech_user_id=_nitech_user_id into _cluster_id;;
 		END IF;;
-		insert into bb_user_cluster_vector (cluster_id,word_id,value) values (_cluster_id,_word_id,_v)
+		select id from bb_user_cluster where nitech_user_id=_nitech_user_id into _cluster_id;;
+		insert into bb_user_cluster_vector (`cluster_id`,`class`,`word_id`,value) values (_cluster_id,_class,_word_id,_v)
 			on duplicate key update value = _v;;
 	END WHILE;;
 	CLOSE cur;;
@@ -112,10 +137,11 @@ BEGIN
 	CLOSE cur;;
 END;
 
+
 CREATE FUNCTION feature_multiply(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
 BEGIN
-	IF (select count(id) from bb_user_cluster_vector where cluster_id=_cluster_id1)
-		= (select count(id) from bb_user_cluster_vector where cluster_id=_cluster_id2) THEN
+	IF (select count(`value`) from bb_user_cluster_vector where cluster_id=_cluster_id1)
+		= (select count(`value`) from bb_user_cluster_vector where cluster_id=_cluster_id2) THEN
 		return
 			(select sum(v) from
 				(select v1.v*v2.v v from
@@ -127,6 +153,7 @@ BEGIN
 	RETURN 0;;
 END;
 
+
 CREATE FUNCTION feature_length(_cluster_id bigint) RETURNS DOUBLE
 BEGIN
 	RETURN
@@ -135,12 +162,20 @@ BEGIN
 				(select POW(`value`,2) v from bb_user_cluster_vector where cluster_id=_cluster_id) t) t);;
 END;
 
-CREATE FUNCTION feature_distance(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+
+CREATE FUNCTION feature_cos(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
 BEGIN
-	RETURN (select feature_multiply(_cluster_id1,_cluster_id2) / feature_length(_cluster_id1)*feature_length(_cluster_id2));;
+	RETURN (select feature_multiply(_cluster_id1,_cluster_id2) / (feature_length(_cluster_id1)*feature_length(_cluster_id2)));;
 END;
 
-CREATE PROCEDURE KMeans()
+
+CREATE FUNCTION feature_distance(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+BEGIN
+	RETURN (select 1+(-feature_cos(_cluster_id1,_cluster_id2)));;
+END;
+
+
+CREATE PROCEDURE ClassifyClusters(IN _depth INT, IN k INT)
 BEGIN
 	
 END;
@@ -154,9 +189,11 @@ DROP PROCEDURE IF EXISTS PrepareTrainData;
 DROP PROCEDURE IF EXISTS TrainFor;
 DROP PROCEDURE IF EXISTS Train;
 
+
 DROP FUNCTION IF EXISTS feature_multiply;
 DROP FUNCTION IF EXISTS feature_length;
+DROP FUNCTION IF EXISTS feature_cos;
 DROP FUNCTION IF EXISTS feature_distance;
-DROP PROCEDURE IF EXISTS KMeans;
+DROP PROCEDURE IF EXISTS ClassifyClusters;
 
 SET FOREIGN_KEY_CHECKS=1;
