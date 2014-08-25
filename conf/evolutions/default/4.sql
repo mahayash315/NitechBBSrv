@@ -92,7 +92,7 @@ BEGIN
 	WHILE hasNext DO
 		FETCH cur INTO _word_id, _v;;
 		IF NOT EXISTS (select id from bb_user_cluster where nitech_user_id=_nitech_user_id) THEN
-			insert ignore into bb_user_cluster (nitech_user_id,depth,parent_id) values (_nitech_user_id,0,null);;
+			insert ignore into bb_user_cluster (nitech_user_id,depth,weight,parent_id) values (_nitech_user_id,0,1,null);;
 		END IF;;
 		select id from bb_user_cluster where nitech_user_id=_nitech_user_id into _cluster_id;;
 		insert into bb_user_cluster_vector (`cluster_id`,`class`,`word_id`,value) values (_cluster_id,_class,_word_id,_v)

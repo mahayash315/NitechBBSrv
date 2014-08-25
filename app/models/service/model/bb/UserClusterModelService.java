@@ -47,6 +47,9 @@ public class UserClusterModelService implements ModelService<Long, UserCluster> 
 	
 	public List<UserCluster> findList(Integer depth) {
 		ExpressionList<UserCluster> expr = UserCluster.find.where();
+		if (depth != null) {
+			expr.eq("depth", depth);
+		}
 		return expr.findList();
 	}
 }

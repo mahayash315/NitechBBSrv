@@ -34,11 +34,14 @@ public class UserCluster extends Model {
 	@Column(name="depth")
 	private Integer depth;
 	
+	@Column(name="weight")
+	private long weight;
+	
 	@ManyToOne
 	@Column(name="parent_cluster_id")
 	private UserCluster parent; 
 
-	@OneToMany(mappedBy="cluster",cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="cluster",cascade=CascadeType.ALL)
 	private List<UserClusterVector> vector;
 	
 	
@@ -97,6 +100,15 @@ public class UserCluster extends Model {
 	}
 	public void setDepth(int depth) {
 		this.depth = depth;
+	}
+	public void setDepth(Integer depth) {
+		this.depth = depth;
+	}
+	public long getWeight() {
+		return weight;
+	}
+	public void setWeight(long weight) {
+		this.weight = weight;
 	}
 	public UserCluster getParent() {
 		return parent;
