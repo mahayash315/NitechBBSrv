@@ -127,6 +127,7 @@ create table bb_user_cluster (
   id                        bigint auto_increment not null,
   nitech_user_id            bigint,
   depth                     integer,
+  weight                    bigint,
   parent_id                 bigint,
   constraint uq_bb_user_cluster_1 unique (nitech_user_id),
   constraint pk_bb_user_cluster primary key (id))
