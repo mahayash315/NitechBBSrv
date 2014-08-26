@@ -1,7 +1,6 @@
 package models.entity;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +9,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import models.entity.bb.Post;
-import models.entity.bb.Word;
 import models.service.model.NitechUserModelService;
 import play.db.ebean.Model;
 
@@ -51,6 +49,9 @@ public class NitechUser extends Model {
 	}
 	public NitechUser store() {
 		return modelService.save(this);
+	}
+	public List<NitechUser> findList() {
+		return modelService.findList();
 	}
 	public List<Post> findPossessingPosts() {
 		return modelService.findPossessingPosts(this);

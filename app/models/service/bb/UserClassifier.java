@@ -21,13 +21,13 @@ public class UserClassifier {
 		Ebean.beginTransaction();
 		try {
 			for (int i = 0; i < BBSetting.CLUSTER_SIZES.length; ++i) {
-				CallableSql cSql1 = Ebean.createCallableSql("{call InitKMeansFor(?,?)}");
-				cSql1.setParameter(1, i+1);
-				cSql1.setParameter(2, BBSetting.CLUSTER_SIZES[i]);
+				CallableSql cSql1 = Ebean.createCallableSql("{call InitKMeansFor(?,?)}")
+										 .setParameter(1, i+1)
+										 .setParameter(2, BBSetting.CLUSTER_SIZES[i]);
 				Ebean.execute(cSql1);
 				
-				CallableSql cSql2 = Ebean.createCallableSql("{call ClassifyClustersFor(?)}");
-				cSql2.setParameter(1, i+1);
+				CallableSql cSql2 = Ebean.createCallableSql("{call ClassifyClustersFor(?)}")
+										 .setParameter(1, i+1);
 				Ebean.execute(cSql2);
 			}
             Ebean.execute(Ebean.createCallableSql("commit;"));

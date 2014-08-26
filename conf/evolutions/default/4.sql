@@ -136,51 +136,82 @@ BEGIN
 END;
 
 
-CREATE FUNCTION p_of_class_given_words(_nitech_user_id bigint, _post_id bigint, _class tinyint) RETURNS DOUBLE
+-- ユーザ別の事前確率(の log)を返す
+CREATE FUNCTION p_of_class(_nitech_user_id bigint, _class tinyint) RETURNS DOUBLE
 BEGIN
-	DECLARE _cluster_id bigint;;
-	DECLARE prior double;;
-	DECLARE posteriors double;;
-	select id from bb_user_cluster where nitech_user_id=_nitech_user_id into _cluster_id;; 
-	select log(t1.n/t2.n) from
-		(select count(post_id) n from bb_possession where nitech_user_id=_nitech_user_id and class=_class) t1
-	join
-		(select count(post_id) n from bb_possession where nitech_user_id=_nitech_user_id) t2
-	into prior;;
-	
-	select sum(p) from
-		(select
-			case
-				when v  = 0  then log(1-t2.`value`)
-				when 1 <= v then log(t2.`value`)
-			end p
-		from
-			(select t1.id word_id, if(t2.`value` is null, 0, t2.value) v from
-				bb_word t1
-			left join
-				(select word_id,`value` from bb_word_in_post where post_id=_post_id) t2
-			on t1.id=t2.word_id) t1
+	RETURN
+		(select log(t1.n/t2.n) from
+			(select count(post_id) n from bb_possession where nitech_user_id=_nitech_user_id and class=_class) t1
 		join
-			(select word_id,`value` from bb_user_cluster_vector where cluster_id = _cluster_id and class=_class) t2
-		on t1.word_id=t2.word_id) t
-	into posteriors;;
+			(select count(post_id) n from bb_possession where nitech_user_id=_nitech_user_id) t2);;
+END;
+
+-- クラスタ別の条件付き確率(の log)を返す
+CREATE FUNCTION p_of_words_given_class(_cluster_id bigint, _post_id bigint, _class tinyint) RETURNS DOUBLE
+BEGIN
+	RETURN
+		(select sum(p) from
+			(select
+				case
+					when v  = 0  then log(1-t2.`value`)
+					when 1 <= v then log(t2.`value`)
+				end p
+			from
+				(select t1.id word_id, if(t2.`value` is null, 0, t2.value) v from
+					bb_word t1
+				left join
+					(select word_id,`value` from bb_word_in_post where post_id=_post_id) t2
+				on t1.id=t2.word_id) t1
+			join
+				(select word_id,`value` from bb_user_cluster_vector where cluster_id = _cluster_id and class=_class) t2
+			on t1.word_id=t2.word_id) t);;
+END;
+
+
+-- ユーザ、クラスタごとの事後確率を返す
+CREATE FUNCTION p_of_class_given_words(_nitech_user_id bigint, _cluster_id bigint, _post_id bigint, _class int) RETURNS DOUBLE
+BEGIN
+	RETURN (select p_of_class(_nitech_user_id, _class)+p_of_words_given_class(_cluster_id, _post_id, _class));;
+END;
+
+
+-- 掲示のクラスを推定する（再帰用）
+CREATE PROCEDURE EstimateFor(IN _nitech_user_id BIGINT, IN _cluster_id BIGINT, IN _post_id BIGINT)
+BEGIN
+	DECLARE _depth bigint;;
+	DECLARE _parent_cluster_id bigint;;
+	DECLARE _v double;;
+	select depth,parent_id from bb_user_cluster where id=_cluster_id into _depth, _parent_cluster_id;;
 	
-	RETURN (select prior+posteriors);;
+	select _cluster_id,_parent_cluster_id;;
+	
+	IF NOT EXISTS (select `class` from bb_estimation where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id) THEN
+		insert into bb_estimation (nitech_user_id,depth,post_id,class,liklihood) values (_nitech_user_id,_depth,_post_id,null,null);;
+	END IF;;
+	
+	select p_of_class_given_words(_nitech_user_id,_cluster_id,_post_id,1) - p_of_class_given_words(_nitech_user_id,_cluster_id,_post_id,0) into _v;;
+	IF _v >= 0 THEN
+--		クラス 1
+		update bb_estimation set class=1, liklihood= _v where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id;;
+	ELSE
+--		クラス 2
+		update bb_estimation set class=0, liklihood=-_v where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id;;
+	END IF;;
+	
+	IF _parent_cluster_id IS NOT NULL AND _cluster_id != _parent_cluster_id THEN
+		call EstimateFor(_nitech_user_id, _parent_cluster_id, _post_id);;
+	END IF;;
 END;
 
 
 -- 掲示のクラスを推定する
 CREATE PROCEDURE Estimate(IN _nitech_user_id BIGINT, IN _post_id BIGINT)
 BEGIN
-	DECLARE _v double;;
-	select p_of_class_given_words(_nitech_user_id,_post_id,1) - p_of_class_given_words(_nitech_user_id,_post_id,0) into _v;;
-	IF _v >= 0 THEN
---		クラス 1
-		update bb_possession set estimation=1, estimation_liklihood= _v where nitech_user_id=_nitech_user_id and post_id=_post_id;;
-	ELSE
---		クラス 2
-		update bb_possession set estimation=0, estimation_liklihood=-_v where nitech_user_id=_nitech_user_id and post_id=_post_id;;
-	END IF;;
+	DECLARE _cluster_id bigint;;
+	select id from bb_user_cluster where nitech_user_id=_nitech_user_id into _cluster_id;; 
+	SET `max_sp_recursion_depth` = 255;;
+	
+	call EstimateFor(_nitech_user_id, _cluster_id, _post_id);;
 END;
 
 
@@ -192,7 +223,10 @@ DROP PROCEDURE IF EXISTS PrepareTrainDataFor;
 DROP PROCEDURE IF EXISTS PrepareTrainData;
 DROP PROCEDURE IF EXISTS TrainFor;
 DROP PROCEDURE IF EXISTS Train;
+DROP FUNCTION IF EXISTS p_of_class;
+DROP FUNCTION IF EXISTS p_of_words_given_class;
 DROP FUNCTION IF EXISTS p_of_class_given_words;
+DROP PROCEDURE IF EXISTS EstimateFor;
 DROP PROCEDURE IF EXISTS Estimate;
 
 SET FOREIGN_KEY_CHECKS=1;

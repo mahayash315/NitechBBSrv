@@ -12,14 +12,17 @@ import models.entity.NitechUser;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name="bb_possession")
-public class Possession extends Model {
+@Table(name="bb_estimation")
+public class Estimation extends Model {
 	@EmbeddedId
 	private PK id;
-	
+
 	@ManyToOne
 	@MapsId("nitechUserId")
 	private NitechUser nitechUser;
+	
+	@MapsId("depth")
+	private Integer depth;
 	
 	@ManyToOne
 	@MapsId("postId")
@@ -28,10 +31,17 @@ public class Possession extends Model {
 	@Column(name="class", columnDefinition="tinyint default null")
 	private Boolean clazz;
 	
+	@Column(name="liklihood")
+	private Double liklihood;
+	
+	
 	@Embeddable
 	public static class PK {
 		@Column(name="nitech_user_id")
 		private Long nitechUserId;
+		
+		@Column(name="depth")
+		private Integer depth;
 		
 		@Column(name="post_id")
 		private Long postId;
@@ -68,11 +78,5 @@ public class Possession extends Model {
 				return false;
 			return true;
 		}
-	}
-	
-	public static Finder<Possession.PK,Possession> find = new Finder<Possession.PK,Possession>(Possession.PK.class,Possession.class);
-
-	public Boolean getClazz() {
-		return clazz;
 	}
 }

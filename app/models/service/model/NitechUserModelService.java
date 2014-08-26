@@ -1,15 +1,11 @@
 package models.service.model;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import models.entity.NitechUser;
 import models.entity.bb.Post;
-import models.entity.bb.Word;
 
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.SqlRow;
 
 public class NitechUserModelService implements ModelService<Long, NitechUser> {
 	
@@ -45,6 +41,10 @@ public class NitechUserModelService implements ModelService<Long, NitechUser> {
 			return NitechUser.find.where().eq("hashedId", hashedId).findUnique();
 		}
 		return null;
+	}
+	
+	public List<NitechUser> findList() {
+		return NitechUser.find.findList();
 	}
 	
 	public List<Post> findPossessingPosts(NitechUser nitechUser) {
