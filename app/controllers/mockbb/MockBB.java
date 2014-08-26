@@ -1,4 +1,4 @@
-package controllers;
+package controllers.mockbb;
 
 import models.request.mockbb.GetDetailRequest;
 import models.request.mockbb.GetListRequest;
@@ -12,11 +12,11 @@ import play.mvc.Result;
 public class MockBB extends Controller {
 
 	public static Result redirectToIndex() {
-		return redirect(controllers.routes.MockBB.index());
+		return redirect(controllers.mockbb.routes.MockBB.index());
 	}
 	
 	public static Result index() {
-		return redirect(controllers.routes.MockBB.getList());
+		return redirect(controllers.mockbb.routes.MockBB.getList());
 	}
 	
 	

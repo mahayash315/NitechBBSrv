@@ -21,12 +21,12 @@ POST	/bbanalyzer/postReadHistory.json 	controllers.api.BBAnalyzer.postReadHistor
 GET		/bbanalyzer/classifyItem.json		controllers.api.BBAnalyzer.classifyItem(uid ?= null, id_date ?= null, id_index ?= null)
 
 # Mock BB
-GET		/mockbb								controllers.MockBB.redirectToIndex()
-GET		/mockbb/							controllers.MockBB.index()
-POST	/mockbb/list						controllers.MockBB.getList()
-GET		/mockbb/list						controllers.MockBB.getList()
-GET		/mockbb/detail						controllers.MockBB.getDetail()
-POST	/mockbb/detail						controllers.MockBB.getDetail()
+GET		/mockbb								controllers.mockbb.MockBB.redirectToIndex()
+GET		/mockbb/							controllers.mockbb.MockBB.index()
+POST	/mockbb/list						controllers.mockbb.MockBB.getList()
+GET		/mockbb/list						controllers.mockbb.MockBB.getList()
+GET		/mockbb/detail						controllers.mockbb.MockBB.getDetail()
+POST	/mockbb/detail						controllers.mockbb.MockBB.getDetail()
 GET		/mockbb/admin						controllers.mockbb.Admin.redirectToIndex()
 GET		/mockbb/admin/						controllers.mockbb.Admin.index()
 GET		/mockbb/admin/manage				controllers.mockbb.Admin.manage(p:Int ?= 1, s ?= null, o ?= null, f ?= null)
@@ -35,6 +35,14 @@ POST	/mockbb/admin/create				controllers.mockbb.Admin.create()
 GET		/mockbb/admin/edit/:id				controllers.mockbb.Admin.editItemForm(id:models.entity.mockbb.MockBBItem.MockBBItemPK)
 POST	/mockbb/admin/edit/:id				controllers.mockbb.Admin.edit(id:models.entity.mockbb.MockBBItem.MockBBItemPK)
 POST	/mockbb/admin/delete/:id			controllers.mockbb.Admin.delete(id:models.entity.mockbb.MockBBItem.MockBBItemPK)
+
+# BB API
+GET		/bb/word_list.json					controllers.api.BB.wordList()
+POST	/bb/add_possessions.json			controllers.api.BB.addPossessions()
+DELETE	/bb/delete_possessions.json			controllers.api.BB.deletePossessions()
+POST	/bb/store_histories.json			controllers.api.BB.storeHistories()
+GET		/bb/suggestions.json				controllers.api.BB.suggestions()
+GET		/bb/relevants.json					controllers.api.BB.relevants()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file						controllers.Assets.at(path="/public", file)

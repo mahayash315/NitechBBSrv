@@ -392,7 +392,7 @@
 	</script>
 </head>
 <body style="margin: 5px;" onload="onLoad();">
-@helper.form(action = controllers.routes.MockBB.getList, 'target -> "_self", 'name -> "form1") {
+@helper.form(action = controllers.mockbb.routes.MockBB.getList, 'target -> "_self", 'name -> "form1") {
 <input type="hidden" name="uri" value="keijiban"><input type="hidden" name="next_uri" value=""><input type="hidden" name="event_code" value="">
 	@if(dto.noReadFlag) {
 		<input type="hidden" name="no_read" value="true" >
