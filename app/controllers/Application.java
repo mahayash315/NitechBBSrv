@@ -11,7 +11,7 @@ public class Application extends Controller {
 
     public static Result index() throws SQLException {
     	
-    	UserClassifier.use().initClusters();
+    	UserClassifier.use().classify();;
     	
         return ok(index.render("Your new application is ready."));
     }

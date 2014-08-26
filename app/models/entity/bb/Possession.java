@@ -28,6 +28,12 @@ public class Possession extends Model {
 	@Column(name="class", columnDefinition="tinyint default null")
 	private Boolean clazz;
 	
+	@Column(name="estimation", columnDefinition="tinyint default null")
+	private Boolean estimation;
+	
+	@Column(name="estimation_liklihood")
+	private Double estimationLiklihood;
+	
 	@Embeddable
 	public static class PK {
 		@Column(name="nitech_user_id")
@@ -74,5 +80,11 @@ public class Possession extends Model {
 
 	public Boolean getClazz() {
 		return clazz;
+	}
+	public Boolean getEstimation() {
+		return estimation;
+	}
+	public Double getEstimationLiklihood() {
+		return estimationLiklihood;
 	}
 }
