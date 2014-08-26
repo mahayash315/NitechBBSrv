@@ -110,7 +110,7 @@ BEGIN
 			insert ignore into bb_user_cluster (nitech_user_id,depth,weight,parent_id) values (_nitech_user_id,0,1,null);;
 		END IF;;
 		select id from bb_user_cluster where nitech_user_id=_nitech_user_id into _cluster_id;;
-		IF NOT EXISTS (select id from bb_user_cluster_vector where cluster_id=_cluster_id and class=_class and word_id=_word_id) THEN
+		IF NOT EXISTS (select `value` from bb_user_cluster_vector where cluster_id=_cluster_id and class=_class and word_id=_word_id) THEN
 			insert into bb_user_cluster_vector (cluster_id,class,word_id,`value`) values (_cluster_id,_class,_word_id,null);;
 		END IF;;
 		update bb_user_cluster_vector set `value` = _v;;
