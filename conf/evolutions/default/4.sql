@@ -80,7 +80,7 @@ BEGIN
 	DECLARE _v double;;
     DECLARE cur CURSOR FOR
 		select t1.id, if(t2.n = 0, 0, t1.v/t2.n) v from
-			(select t1.id, t1.base_form, if(t2.v is null, 0, t2.v) v from
+			(select t1.id, t1.base_form, if(t2.v is null, 1, 1+t2.v) v from
 				bb_word t1
 			left join
 				(select t2.word_id, sum(t1.n*t2.value) v from
@@ -110,8 +110,10 @@ BEGIN
 			insert ignore into bb_user_cluster (nitech_user_id,depth,weight,parent_id) values (_nitech_user_id,0,1,null);;
 		END IF;;
 		select id from bb_user_cluster where nitech_user_id=_nitech_user_id into _cluster_id;;
-		insert into bb_user_cluster_vector (`cluster_id`,`class`,`word_id`,value) values (_cluster_id,_class,_word_id,_v)
-			on duplicate key update value = _v;;
+		IF NOT EXISTS (select id from bb_user_cluster_vector where cluster_id=_cluster_id and class=_class and word_id=_word_id) THEN
+			insert into bb_user_cluster_vector (cluster_id,class,word_id,`value`) values (_cluster_id,_class,_word_id,null);;
+		END IF;;
+		update bb_user_cluster_vector set `value` = _v;;
 	END WHILE;;
 	CLOSE cur;;
 END;
