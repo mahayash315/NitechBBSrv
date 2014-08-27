@@ -1,6 +1,6 @@
 # --- !Ups
 
-CREATE FUNCTION feature_multiply(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+CREATE FUNCTION cluster_vector_multiply(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
 BEGIN
 	IF (select count(`value`) from bb_user_cluster_vector where cluster_id=_cluster_id1)
 		= (select count(`value`) from bb_user_cluster_vector where cluster_id=_cluster_id2) THEN
@@ -16,7 +16,7 @@ BEGIN
 END;
 
 
-CREATE FUNCTION feature_length( _cluster_id bigint) RETURNS DOUBLE
+CREATE FUNCTION cluster_vector_length( _cluster_id bigint) RETURNS DOUBLE
 BEGIN
 	RETURN
 		(select sqrt(sum) length from
@@ -25,15 +25,15 @@ BEGIN
 END;
 
 
-CREATE FUNCTION feature_cos(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+CREATE FUNCTION cluster_vector_cos(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
 BEGIN
-	RETURN (select feature_multiply(_cluster_id1,_cluster_id2) / (feature_length(_cluster_id1)*feature_length(_cluster_id2)));;
+	RETURN (select cluster_vector_multiply(_cluster_id1,_cluster_id2) / (cluster_vector_length(_cluster_id1)*cluster_vector_length(_cluster_id2)));;
 END;
 
 
-CREATE FUNCTION feature_distance(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
+CREATE FUNCTION cluster_vector_distance(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
 BEGIN
-	RETURN (select 1+(-feature_cos(_cluster_id1,_cluster_id2)));;
+	RETURN (select 1+(-cluster_vector_cos(_cluster_id1,_cluster_id2)));;
 END;
 
 
@@ -194,7 +194,7 @@ BEGIN
 		SET i=2;;
 		WHILE i <= k DO
 			select id2, min(d) mind from
-				(select id1, id2, feature_distance(id1,id2) d from
+				(select id1, id2, cluster_vector_distance(id1,id2) d from
 					(select t1.id id1, t2.id id2 from
 						(select id from bb_user_cluster where depth=_depth) t1
 					join
@@ -232,7 +232,7 @@ BEGIN
 			WHILE hasNext DO
 				FETCH cur INTO _child_cluster_id, _parent_cluster_id1;;
 --				自分から一番近い親クラスタを見つける
-				select id, feature_distance(_child_cluster_id, id) d from
+				select id, cluster_vector_distance(_child_cluster_id, id) d from
 					(select id from bb_user_cluster where depth=_depth) t
 				order by d asc
 				limit 1
@@ -272,11 +272,10 @@ END;
 # --- !Downs
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP FUNCTION IF EXISTS feature_multiply;
-DROP FUNCTION IF EXISTS feature_length;
-DROP FUNCTION IF EXISTS feature_cos;
-DROP FUNCTION IF EXISTS feature_distance;
-DROP FUNCTION IF EXISTS cluster_weight;
+DROP FUNCTION IF EXISTS cluster_vector_multiply;
+DROP FUNCTION IF EXISTS cluster_vector_length;
+DROP FUNCTION IF EXISTS cluster_vector_cos;
+DROP FUNCTION IF EXISTS cluster_vector_distance;
 DROP PROCEDURE IF EXISTS PropagateClusterWeight;
 DROP PROCEDURE IF EXISTS GetClusterFeature;
 DROP PROCEDURE IF EXISTS UpdateClusterFeature;

@@ -6,6 +6,43 @@ BEGIN
 END;
 
 
+CREATE FUNCTION feature_multiply(post_id1 bigint, post_id2 bigint) RETURNS DOUBLE
+BEGIN
+	IF (select count(`value`) from bb_user_cluster_vector where cluster_id=post_id1)
+		= (select count(`value`) from bb_user_cluster_vector where cluster_id=post_id2) THEN
+		return
+			(select sum(v) from
+				(select v1.v*v2.v v from
+					(select `class`,`word_id`,`value` v from bb_user_cluster_vector where cluster_id =post_id1) v1
+					join
+					(select `class`,`word_id`,`value` v from bb_user_cluster_vector where cluster_id =post_id2) v2
+					on v1.`class`=v2.`class` and v1.`word_id`=v2.`word_id`) t);;
+	END IF;;
+	RETURN 0;;
+END;
+
+
+CREATE FUNCTION feature_length( _cluster_id bigint) RETURNS DOUBLE
+BEGIN
+	RETURN
+		(select sqrt(sum) length from
+			(select sum(v) sum from
+				(select POW(`value`,2) v from bb_user_cluster_vector where cluster_id=_cluster_id) t) t);;
+END;
+
+
+CREATE FUNCTION feature_cos(post_id1 bigint, post_id2 bigint) RETURNS DOUBLE
+BEGIN
+	RETURN (select feature_multiply(post_id1,post_id2) / (feature_length(post_id1)*feature_length(post_id2)));;
+END;
+
+
+CREATE FUNCTION feature_distance(_post_id1 bigint, post_id2 bigint) RETURNS DOUBLE
+BEGIN
+	RETURN (select 1+(-feature_cos(_post_id1,post_id2)));;
+END;
+
+
 -- ユーザ1人についてその閲覧履歴を基に掲示クラスを定め、学習データを準備する
 CREATE PROCEDURE PrepareTrainDataFor(IN _nitech_user_id BIGINT, IN threshold DOUBLE)
 BEGIN
@@ -218,6 +255,10 @@ END;
 # --- !Downs
 SET FOREIGN_KEY_CHECKS=0;
 
+DROP FUNCTION IF EXISTS feature_multiply;
+DROP FUNCTION IF EXISTS feature_length;
+DROP FUNCTION IF EXISTS feature_cos;
+DROP FUNCTION IF EXISTS feature_distance;
 DROP PROCEDURE IF EXISTS debugMsg;
 DROP PROCEDURE IF EXISTS PrepareTrainDataFor;
 DROP PROCEDURE IF EXISTS PrepareTrainData;
