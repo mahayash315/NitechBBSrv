@@ -6,40 +6,101 @@ BEGIN
 END;
 
 
-CREATE FUNCTION feature_multiply(post_id1 bigint, post_id2 bigint) RETURNS DOUBLE
+CREATE FUNCTION feature_multiply(_post_id1 bigint, _post_id2 bigint) RETURNS DOUBLE
 BEGIN
-	IF (select count(`value`) from bb_user_cluster_vector where cluster_id=post_id1)
-		= (select count(`value`) from bb_user_cluster_vector where cluster_id=post_id2) THEN
-		return
-			(select sum(v) from
+	return
+		(select if(v is null, 0, v) from
+			(select sum(v) v from
 				(select v1.v*v2.v v from
-					(select `class`,`word_id`,`value` v from bb_user_cluster_vector where cluster_id =post_id1) v1
+					(select `word_id`,`value` v from bb_word_in_post where post_id =_post_id1) v1
 					join
-					(select `class`,`word_id`,`value` v from bb_user_cluster_vector where cluster_id =post_id2) v2
-					on v1.`class`=v2.`class` and v1.`word_id`=v2.`word_id`) t);;
-	END IF;;
-	RETURN 0;;
+					(select `word_id`,`value` v from bb_word_in_post where post_id =_post_id2) v2
+					on v1.`word_id`=v2.`word_id`) t) t);;
 END;
 
 
-CREATE FUNCTION feature_length( _cluster_id bigint) RETURNS DOUBLE
+CREATE FUNCTION feature_length(_post_id bigint) RETURNS DOUBLE
 BEGIN
 	RETURN
 		(select sqrt(sum) length from
 			(select sum(v) sum from
-				(select POW(`value`,2) v from bb_user_cluster_vector where cluster_id=_cluster_id) t) t);;
+				(select `value`*`value` v from bb_word_in_post where post_id=_post_id) t) t);;
 END;
 
 
-CREATE FUNCTION feature_cos(post_id1 bigint, post_id2 bigint) RETURNS DOUBLE
+CREATE FUNCTION feature_cos(_post_id1 bigint, _post_id2 bigint) RETURNS DOUBLE
 BEGIN
-	RETURN (select feature_multiply(post_id1,post_id2) / (feature_length(post_id1)*feature_length(post_id2)));;
+	RETURN (select feature_multiply(_post_id1,_post_id2) / (feature_length(_post_id1)*feature_length(_post_id2)));;
 END;
 
 
-CREATE FUNCTION feature_distance(_post_id1 bigint, post_id2 bigint) RETURNS DOUBLE
+CREATE FUNCTION feature_distance(_post_id1 bigint, _post_id2 bigint) RETURNS DOUBLE
 BEGIN
-	RETURN (select 1+(-feature_cos(_post_id1,post_id2)));;
+	RETURN (select 1-feature_cos(_post_id1,_post_id2));;
+END;
+
+
+-- 掲示の距離を計算して格納する
+CREATE PROCEDURE CalculatePostDistance(IN _post_id BIGINT)
+BEGIN
+	DECLARE hasNext int;;
+	DECLARE _from bigint;;
+	DECLARE _to bigint;;
+	DECLARE _distance double;;
+    DECLARE cur CURSOR FOR
+    	select id1,id2,feature_distance(id1,id2) v from
+			(select
+				case
+					when _post_id < id then _post_id
+					when _post_id > id then id
+				end id1,
+				case
+					when _post_id < id then id
+					when _post_id > id then _post_id
+				end id2
+			from
+				bb_post
+			where _post_id != id) t;;
+	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
+
+	SET hasNext = 1;;
+	OPEN cur;;
+	WHILE hasNext DO
+		FETCH cur INTO _from, _to, _distance;;
+		IF NOT EXISTS (select distance from bb_post_distance where `from_post_id`=_from and `to_post_id`=_to) THEN
+			insert into bb_post_distance (`from_post_id`,`to_post_id`) values (_from,_to);;
+		END IF;;
+		update bb_post_distance set distance=_distance where `from_post_id`=_from and `to_post_id`=_to;;
+	END WHILE;;
+	CLOSE cur;;
+END;
+
+
+-- 全ての掲示の距離を計算して格納する
+CREATE PROCEDURE CalculatePostDistances()
+BEGIN
+	DECLARE hasNext int;;
+	DECLARE _from bigint;;
+	DECLARE _to bigint;;
+	DECLARE _distance double;;
+    DECLARE cur CURSOR FOR
+		select t1.id,t2.id,feature_distance(t1.id,t2.id) from
+			(select id from bb_post) t1
+		join
+			(select id from bb_post) t2
+		where t1.id < t2.id;;
+	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
+
+	SET hasNext = 1;;
+	OPEN cur;;
+	WHILE hasNext DO
+		FETCH cur INTO _from, _to, _distance;;
+		IF NOT EXISTS (select distance from bb_post_distance where `from_post_id`=_from and `to_post_id`=_to) THEN
+			insert into bb_post_distance (`from_post_id`,`to_post_id`) values (_from,_to);;
+		END IF;;
+		update bb_post_distance set distance=_distance where `from_post_id`=_from and `to_post_id`=_to;;
+	END WHILE;;
+	CLOSE cur;;
 END;
 
 
@@ -183,6 +244,7 @@ BEGIN
 			(select count(post_id) n from bb_possession where nitech_user_id=_nitech_user_id) t2);;
 END;
 
+
 -- クラスタ別の条件付き確率(の log)を返す
 CREATE FUNCTION p_of_words_given_class(_cluster_id bigint, _post_id bigint, _class tinyint) RETURNS DOUBLE
 BEGIN
@@ -260,6 +322,8 @@ DROP FUNCTION IF EXISTS feature_length;
 DROP FUNCTION IF EXISTS feature_cos;
 DROP FUNCTION IF EXISTS feature_distance;
 DROP PROCEDURE IF EXISTS debugMsg;
+DROP PROCEDURE IF EXISTS CalculatePostDistance;
+DROP PROCEDURE IF EXISTS CalculatePostDistances;
 DROP PROCEDURE IF EXISTS PrepareTrainDataFor;
 DROP PROCEDURE IF EXISTS PrepareTrainData;
 DROP PROCEDURE IF EXISTS TrainFor;

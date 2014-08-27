@@ -21,7 +21,7 @@ BEGIN
 	RETURN
 		(select sqrt(sum) length from
 			(select sum(v) sum from
-				(select POW(`value`,2) v from bb_user_cluster_vector where cluster_id=_cluster_id) t) t);;
+				(select `value`*`value` v from bb_user_cluster_vector where cluster_id=_cluster_id) t) t);;
 END;
 
 
@@ -33,7 +33,7 @@ END;
 
 CREATE FUNCTION cluster_vector_distance(_cluster_id1 bigint, _cluster_id2 bigint) RETURNS DOUBLE
 BEGIN
-	RETURN (select 1+(-cluster_vector_cos(_cluster_id1,_cluster_id2)));;
+	RETURN (select 1-cluster_vector_cos(_cluster_id1,_cluster_id2));;
 END;
 
 

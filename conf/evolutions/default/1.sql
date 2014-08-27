@@ -126,6 +126,13 @@ create table bb_post (
   constraint pk_bb_post primary key (id))
 ;
 
+create table bb_post_distance (
+  from_post_id              bigint,
+  to_post_id                bigint,
+  distance                  double,
+  constraint pk_bb_post_distance primary key (from_post_id, to_post_id))
+;
+
 create table user (
   id                        bigint auto_increment not null,
   hashed_nitech_id          varchar(191),
@@ -189,18 +196,22 @@ alter table bb_possession add constraint fk_bb_possession_nitechUser_12 foreign 
 create index ix_bb_possession_nitechUser_12 on bb_possession (nitech_user_id);
 alter table bb_possession add constraint fk_bb_possession_post_13 foreign key (post_id) references bb_post (id) on delete restrict on update restrict;
 create index ix_bb_possession_post_13 on bb_possession (post_id);
-alter table bb_user_cluster add constraint fk_bb_user_cluster_nitechUser_14 foreign key (nitech_user_id) references nitech_user (id) on delete restrict on update restrict;
-create index ix_bb_user_cluster_nitechUser_14 on bb_user_cluster (nitech_user_id);
-alter table bb_user_cluster add constraint fk_bb_user_cluster_parent_15 foreign key (parent_id) references bb_user_cluster (id) on delete restrict on update restrict;
-create index ix_bb_user_cluster_parent_15 on bb_user_cluster (parent_id);
-alter table bb_user_cluster_vector add constraint fk_bb_user_cluster_vector_cluster_16 foreign key (cluster_id) references bb_user_cluster (id) on delete restrict on update restrict;
-create index ix_bb_user_cluster_vector_cluster_16 on bb_user_cluster_vector (cluster_id);
-alter table bb_user_cluster_vector add constraint fk_bb_user_cluster_vector_word_17 foreign key (word_id) references bb_word (id) on delete restrict on update restrict;
-create index ix_bb_user_cluster_vector_word_17 on bb_user_cluster_vector (word_id);
-alter table bb_word_in_post add constraint fk_bb_word_in_post_post_18 foreign key (post_id) references bb_post (id) on delete restrict on update restrict;
-create index ix_bb_word_in_post_post_18 on bb_word_in_post (post_id);
-alter table bb_word_in_post add constraint fk_bb_word_in_post_word_19 foreign key (word_id) references bb_word (id) on delete restrict on update restrict;
-create index ix_bb_word_in_post_word_19 on bb_word_in_post (word_id);
+alter table bb_post_distance add constraint fk_bb_post_distance_fromPost_14 foreign key (from_post_id) references bb_post (id) on delete restrict on update restrict;
+create index ix_bb_post_distance_fromPost_14 on bb_post_distance (from_post_id);
+alter table bb_post_distance add constraint fk_bb_post_distance_toPost_15 foreign key (to_post_id) references bb_post (id) on delete restrict on update restrict;
+create index ix_bb_post_distance_toPost_15 on bb_post_distance (to_post_id);
+alter table bb_user_cluster add constraint fk_bb_user_cluster_nitechUser_16 foreign key (nitech_user_id) references nitech_user (id) on delete restrict on update restrict;
+create index ix_bb_user_cluster_nitechUser_16 on bb_user_cluster (nitech_user_id);
+alter table bb_user_cluster add constraint fk_bb_user_cluster_parent_17 foreign key (parent_id) references bb_user_cluster (id) on delete restrict on update restrict;
+create index ix_bb_user_cluster_parent_17 on bb_user_cluster (parent_id);
+alter table bb_user_cluster_vector add constraint fk_bb_user_cluster_vector_cluster_18 foreign key (cluster_id) references bb_user_cluster (id) on delete restrict on update restrict;
+create index ix_bb_user_cluster_vector_cluster_18 on bb_user_cluster_vector (cluster_id);
+alter table bb_user_cluster_vector add constraint fk_bb_user_cluster_vector_word_19 foreign key (word_id) references bb_word (id) on delete restrict on update restrict;
+create index ix_bb_user_cluster_vector_word_19 on bb_user_cluster_vector (word_id);
+alter table bb_word_in_post add constraint fk_bb_word_in_post_post_20 foreign key (post_id) references bb_post (id) on delete restrict on update restrict;
+create index ix_bb_word_in_post_post_20 on bb_word_in_post (post_id);
+alter table bb_word_in_post add constraint fk_bb_word_in_post_word_21 foreign key (word_id) references bb_word (id) on delete restrict on update restrict;
+create index ix_bb_word_in_post_word_21 on bb_word_in_post (word_id);
 
 
 
@@ -233,6 +244,8 @@ drop table nitech_user;
 drop table bb_possession;
 
 drop table bb_post;
+
+drop table bb_post_distance;
 
 drop table user;
 
