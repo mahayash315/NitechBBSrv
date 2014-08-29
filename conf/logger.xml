@@ -50,8 +50,33 @@
 	</encoder>
   </appender>
   
+      <appender name="API_BB_STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%coloredLevel - %message%n%xException{5}</pattern>
+    </encoder>
+  </appender>
+  <appender name="API_BB_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+  	<file>${application.home}/logs/application.api.bb.log</file>
+  	<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+  		<fileNamePattern>${application.home}/logs/application.api.bb.%i.log.zip</fileNamePattern>
+  		<minIndex>1</minIndex>
+  		<maxIndex>5</maxIndex>
+	</rollingPolicy>
+	<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+		<maxFileSize>5MB</maxFileSize>
+	</triggeringPolicy>
+	<encoder>
+		<pattern>%date - %message%n%xException%n</pattern>
+	</encoder>
+  </appender>
+  
   <logger name="accesslog" level="INFO" additivity="false">
   	<appender-ref ref="ACCESS_LOG_FILE" />
+  </logger>
+  
+  <logger name="api.bb" level="INFO" additivity="false">
+  	<appender-ref ref="API_BB_STDOUT" />
+  	<appender-ref ref="API_BB_FILE" />
   </logger>
   
   <logger name="bbanalyzer" level="INFO" additivity="false">

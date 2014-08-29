@@ -1,8 +1,15 @@
 package controllers.api;
 
+import models.request.api.bb.AddPossessionsRequest;
+import models.response.api.bb.AddPossessionResponse;
+import models.response.api.bb.WordListResponse;
+import models.service.api.bb.BBService;
+import models.setting.bb.api.BBStatusSetting;
+import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+import utils.api.bb.LogUtil;
 
 public class BB extends Controller {
 
@@ -12,7 +19,17 @@ public class BB extends Controller {
 	 */
 	@BodyParser.Of(BodyParser.Json.class)
 	public static Result wordList() {
-		return TODO;
+		WordListResponse response = null;
+		
+		try {
+			response = BBService.use().procWordList();
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new WordListResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+		}
+		
+		return ok(Json.toJson(response));
 	}
 	
 	/**
@@ -21,7 +38,18 @@ public class BB extends Controller {
 	 */
 	@BodyParser.Of(BodyParser.Json.class)
 	public static Result addPossessions() {
-		return TODO;
+		AddPossessionResponse response = null;
+		
+		try {
+			AddPossessionsRequest json = Json.fromJson(request().body().asJson(), AddPossessionsRequest.class);
+			response = BBService.use().procAddPossessions(json);
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new AddPossessionResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+		}
+		
+		return ok(Json.toJson(response));
 	}
 	
 	/**

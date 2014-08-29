@@ -33,4 +33,14 @@ public class PostModelService implements ModelService<Long, Post> {
 		}
 	}
 	
+	/**
+	 * idDate と idIndex で行を見つける
+	 * @param idDate
+	 * @param idIndex
+	 * @return
+	 */
+	public Post findByIdDateIdIndex(String idDate, int idIndex) { 
+		return Post.find.where().eq("idDate", idDate).eq("idIndex", idIndex).findUnique();
+	}
+	
 }

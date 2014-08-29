@@ -1,4 +1,4 @@
-package models.response.bb;
+package models.response.api.bb;
 
 import java.util.ArrayList;
 import java.util.List;

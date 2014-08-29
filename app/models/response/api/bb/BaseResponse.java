@@ -1,4 +1,4 @@
-package models.response.bb;
+package models.response.api.bb;
 
 import models.setting.bb.api.BBStatusSetting;
 

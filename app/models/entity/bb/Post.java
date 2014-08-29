@@ -49,6 +49,24 @@ public class Post extends Model {
 	public Post() {
 		
 	}
+	public Post(Long id) {
+		this.id = id;
+	}
+	public Post(String idDate, int idIndex) {
+		this.idDate = idDate;
+		this.idIndex = idIndex;
+	}
+	
+	public Post unique() {
+		Post o = null;
+		if ((o = modelService.findById(id)) != null) {
+			return o;
+		}
+		if ((o = modelService.findByIdDateIdIndex(idDate, idIndex)) != null) {
+			return o;
+		}
+		return null;
+	}
 	
 
 	public Long getId() {

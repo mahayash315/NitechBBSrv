@@ -1,4 +1,4 @@
-package models.response.bb;
+package models.response.api.bb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,22 +6,22 @@ import java.util.List;
 import models.entity.bb.Post;
 import models.setting.bb.api.BBStatusSetting;
 
-public class RelevantsResponse extends BaseResponse {
+public class SuggestionsResponse extends BaseResponse {
 	
 	public List<Entry> posts = new ArrayList<Entry>();
 
-	public RelevantsResponse() {
+	public SuggestionsResponse() {
 		super();
 	}
-	public RelevantsResponse(BBStatusSetting val) {
+	public SuggestionsResponse(BBStatusSetting val) {
 		super(val);
 	}
 	
-	public void add(Post o, double distance){
+	public void add(Post o, double value){
 		Entry e = new Entry();
 		e.idDate = o.getIdDate();
 		e.idIndex = o.getIdIndex();
-		e.distance = distance;
+		e.value = value;
 		posts.add(e);
 	}
 	
@@ -29,7 +29,7 @@ public class RelevantsResponse extends BaseResponse {
 	public class Entry {
 		public String idDate;
 		public int idIndex;
-		public double distance;
+		public double value;
 	}
 
 }

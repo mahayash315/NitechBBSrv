@@ -7,8 +7,10 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import models.entity.NitechUser;
+import models.service.model.bb.PossessionModelService;
 import play.db.ebean.Model;
 
 @Entity
@@ -35,6 +37,11 @@ public class Possession extends Model {
 		
 		@Column(name="post_id")
 		private Long postId;
+		
+		protected PK(NitechUser nitechUser, Post post) {
+			this.nitechUserId = nitechUser.getId();
+			this.postId = post.getId();
+		}
 
 		@Override
 		public int hashCode() {
@@ -70,8 +77,60 @@ public class Possession extends Model {
 		}
 	}
 	
+	@Transient
+	protected PossessionModelService modelService = new PossessionModelService();
+	
 	public static Finder<Possession.PK,Possession> find = new Finder<Possession.PK,Possession>(Possession.PK.class,Possession.class);
+	
+	
+	public Possession() {
+		
+	}
+	public Possession(NitechUser nitechUser, Post post) {
+		this.id = new PK(nitechUser, post);
+		this.nitechUser = nitechUser;
+		this.post = post;
+	}
+	
+	public Possession unique() {
+		Possession o = null;
+		if ((o = modelService.findById(id)) != null) {
+			return o;
+		}
+		return null;
+	}
+	public Possession store() {
+		return modelService.save(this);
+	}
+	
+	@Override
+	public void save() {
+		modelService.save(this);
+	}
+	@Override
+	public void delete() {
+		modelService.delete(this);
+	}
 
+	
+	public PK getId() {
+		return id;
+	}
+	public void setId(PK id) {
+		this.id = id;
+	}
+	public NitechUser getNitechUser() {
+		return nitechUser;
+	}
+	public void setNitechUser(NitechUser nitechUser) {
+		this.nitechUser = nitechUser;
+	}
+	public Post getPost() {
+		return post;
+	}
+	public void setPost(Post post) {
+		this.post = post;
+	}
 	public Boolean getClazz() {
 		return clazz;
 	}
