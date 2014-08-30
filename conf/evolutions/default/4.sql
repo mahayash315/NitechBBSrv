@@ -282,8 +282,6 @@ BEGIN
 	DECLARE _v double;;
 	select depth,parent_id from bb_user_cluster where id=_cluster_id into _depth, _parent_cluster_id;;
 	
-	select _cluster_id,_parent_cluster_id;;
-	
 	IF NOT EXISTS (select `class` from bb_estimation where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id) THEN
 		insert into bb_estimation (nitech_user_id,depth,post_id,class,liklihood) values (_nitech_user_id,_depth,_post_id,null,null);;
 	END IF;;

@@ -4,9 +4,9 @@ import java.util.List;
 
 public class StoreHistoriesRequest {
 	public String nitechId;
-	public List<Entry> posts;
+	public List<Entry> histories;
 	
-	public class Entry {
+	public static class Entry {
 		public String idDate;
 		public int idIndex;
 		public long timestamp;

@@ -24,7 +24,7 @@ public class Word extends Model {
 	private String baseForm;
 	
 	@OneToMany(mappedBy="word", cascade={})
-	private List<WordInPost> wordsInPost;
+	private List<WordInPost> posts;
 	
 	
 	@Transient

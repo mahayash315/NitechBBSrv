@@ -2,6 +2,8 @@ package models.service.api.bb;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import models.entity.NitechUser;
 import models.entity.bb.Estimation;
@@ -30,7 +32,7 @@ public class BBService {
 	 * 単語リストを返す
 	 * @return
 	 */
-	public WordListResponse procWordList() {
+	public WordListResponse procWordList() throws Exception {
 		WordListResponse response = new WordListResponse(BBStatusSetting.OK);
 		
 		List<Word> list = new Word().findList();
@@ -45,17 +47,15 @@ public class BBService {
 	 * 掲示保持リストにエントリを追加する
 	 * @return
 	 */
-	public AddPossessionResponse procAddPossessions(AddPossessionsRequest request) {
+	public AddPossessionResponse procAddPossessions(AddPossessionsRequest request) throws Exception {
 		AddPossessionResponse response = null;
 		
 		if (request.nitechId == null) {
-			response = new AddPossessionResponse(BBStatusSetting.BadRequest);
-			response.setMessage("null nitech id");
+			throw new InvalidParameterException("null nitech id");
 		} else {
 			NitechUser nitechUser = new NitechUser(request.nitechId).unique();
 			if (nitechUser == null) {
-				response = new AddPossessionResponse(BBStatusSetting.BadRequest);
-				response.setMessage("invalid nitech user id");
+				throw new InvalidParameterException("invalid nitech user id");
 			} else {
 				response = new AddPossessionResponse(BBStatusSetting.OK);
 				for (AddPossessionsRequest.Entry e : request.possessions) {
@@ -78,19 +78,18 @@ public class BBService {
 	 * @param _idIndexes
 	 * @return
 	 */
-	public DeletePossessionResponse procDeletePossessions(String hashedNitechId, String _idDates, String _idIndexes) {
+	public DeletePossessionResponse procDeletePossessions(String hashedNitechId, String _idDates, String _idIndexes) throws Exception {
 		DeletePossessionResponse response = null;
 		
 		String[] idDates = _idDates.split(",");
 		String[] idIndexes = _idIndexes.split(",");
 		NitechUser nitechUser = new NitechUser(hashedNitechId).unique();
 		if (nitechUser == null) {
-			response = new DeletePossessionResponse(BBStatusSetting.BadRequest);
-			response.setMessage("idvalid nitech user id");
+			throw new InvalidParameterException("idvalid nitech user id");
 		} else if (idDates.length != idIndexes.length) {
-			response = new DeletePossessionResponse(BBStatusSetting.BadRequest);
-			response.setMessage("idvalid parameters: parameter sizes does not match");
+			throw new InvalidParameterException("idvalid parameters: parameter sizes does not match");
 		} else {
+			response = new DeletePossessionResponse(BBStatusSetting.OK);
 			for (int i = 0; i < idDates.length; ++i) {
 				String idDate = idDates[i];
 				int idIndex = Integer.parseInt(idIndexes[i]);
@@ -111,20 +110,18 @@ public class BBService {
 	 * 掲示閲覧履歴にエントリを追加する
 	 * @return
 	 */
-	public StoreHistoriesResponse procStoreHistories(StoreHistoriesRequest request) {
+	public StoreHistoriesResponse procStoreHistories(StoreHistoriesRequest request) throws Exception {
 		StoreHistoriesResponse response = null;
 		
 		if (request.nitechId == null) {
-			response = new StoreHistoriesResponse(BBStatusSetting.BadRequest);
-			response.setMessage("null nitech id");
+			throw new InvalidParameterException("null nitech id");
 		} else {
 			NitechUser nitechUser = new NitechUser(request.nitechId).unique();
 			if (nitechUser == null) {
-				response = new StoreHistoriesResponse(BBStatusSetting.BadRequest);
-				response.setMessage("invalid nitech user id");
+				throw new InvalidParameterException("invalid nitech user id");
 			} else {
 				response = new StoreHistoriesResponse(BBStatusSetting.OK);
-				for (StoreHistoriesRequest.Entry e : request.posts) {
+				for (StoreHistoriesRequest.Entry e : request.histories) {
 					Post post = new Post(e.idDate, e.idIndex).unique();
 					if (post != null) {
 						new History(nitechUser, post, e.timestamp).store();
@@ -141,17 +138,15 @@ public class BBService {
 	 * @param hashedNitechId
 	 * @return
 	 */
-	public SuggestionsResponse procSuggestions(String hashedNitechId) {
+	public SuggestionsResponse procSuggestions(String hashedNitechId) throws Exception {
 		SuggestionsResponse response = null;
 		
 		if (hashedNitechId == null) {
-			response = new SuggestionsResponse(BBStatusSetting.BadRequest);
-			response.setMessage("null nitechId given");
+			throw new InvalidParameterException("null nitechId given");
 		} else {
 			NitechUser nitechUser = new NitechUser(hashedNitechId).unique();
 			if (nitechUser == null) {
-				response = new SuggestionsResponse(BBStatusSetting.BadRequest);
-				response.setMessage("invalid nitech user id");
+				throw new InvalidParameterException("invalid nitech user id");
 			} else {
 				response = new SuggestionsResponse(BBStatusSetting.OK);
 				List<Estimation> suggestions = new Estimation(nitechUser).findSuggestions();
@@ -169,22 +164,39 @@ public class BBService {
 	 * @param hashedNitechId
 	 * @return
 	 */
-	public RelevantsResponse procRelevants(String idDate, int idIndex) {
+	public RelevantsResponse procRelevants(String idDate, int idIndex) throws Exception {
 		RelevantsResponse response = null;
 		
 		Post post = new Post(idDate,idIndex).unique();
 		
 		if (post == null) {
-			response = new RelevantsResponse(BBStatusSetting.BadRequest);
-			response.setMessage("invalid parameters given: found no such post");
+			throw new InvalidParameterException("invalid parameters given: found no such post");
 		} else {
 			response = new RelevantsResponse(BBStatusSetting.OK);
 			Map<Post, Double> relevants = post.findRelevants();
-			for (Post relevant : relevants.keySet()) {
-				response.add(relevant, relevants.get(relevant));
+			Set<Entry<Post,Double>> entrySet = relevants.entrySet();
+			for (Entry<Post,Double> entry : entrySet) {
+				response.add(entry.getKey(), entry.getValue());
 			}
 		}
 		
 		return response;
+	}
+	
+	
+	public class InvalidParameterException extends Exception {
+		public InvalidParameterException() {
+			super();
+		}
+		public InvalidParameterException(String detailMessage,
+				Throwable throwable) {
+			super(detailMessage, throwable);
+		}
+		public InvalidParameterException(String detailMessage) {
+			super(detailMessage);
+		}
+		public InvalidParameterException(Throwable throwable) {
+			super(throwable);
+		}
 	}
 }

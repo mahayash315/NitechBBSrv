@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
@@ -16,29 +17,13 @@ import play.db.ebean.Model;
 @Entity
 @Table(name="bb_possession")
 public class Possession extends Model {
-	@EmbeddedId
-	private PK id;
-	
-	@ManyToOne
-	@MapsId("nitechUserId")
-	private NitechUser nitechUser;
-	
-	@ManyToOne
-	@MapsId("postId")
-	private Post post;
-	
-	@Column(name="class", columnDefinition="tinyint default null")
-	private Boolean clazz;
-	
 	@Embeddable
 	public static class PK {
-		@Column(name="nitech_user_id")
 		private Long nitechUserId;
 		
-		@Column(name="post_id")
 		private Long postId;
 		
-		protected PK(NitechUser nitechUser, Post post) {
+		private PK(NitechUser nitechUser, Post post) {
 			this.nitechUserId = nitechUser.getId();
 			this.postId = post.getId();
 		}
@@ -75,7 +60,40 @@ public class Possession extends Model {
 				return false;
 			return true;
 		}
+
+		public Long getNitechUserId() {
+			return nitechUserId;
+		}
+
+		public void setNitechUserId(Long nitechUserId) {
+			this.nitechUserId = nitechUserId;
+		}
+
+		public Long getPostId() {
+			return postId;
+		}
+
+		public void setPostId(Long postId) {
+			this.postId = postId;
+		}
+
 	}
+	
+	@EmbeddedId
+	private PK id;
+	
+	@ManyToOne
+	@MapsId("id.nitechUserId")
+	@JoinColumn(name="nitech_user_id", insertable=false, updatable=false)
+	private NitechUser nitechUser;
+
+	@ManyToOne
+	@MapsId("id.postId")
+	@JoinColumn(name="post_id", insertable=false, updatable=false)
+	private Post post;
+	
+	@Column(name="class", columnDefinition="tinyint(1) default null")
+	private Boolean clazz;
 	
 	@Transient
 	protected PossessionModelService modelService = new PossessionModelService();
@@ -130,12 +148,14 @@ public class Possession extends Model {
 		return nitechUser;
 	}
 	public void setNitechUser(NitechUser nitechUser) {
+		this.id.nitechUserId = nitechUser.getId();
 		this.nitechUser = nitechUser;
 	}
 	public Post getPost() {
 		return post;
 	}
 	public void setPost(Post post) {
+		this.id.postId = post.getId();
 		this.post = post;
 	}
 	public Boolean getClazz() {

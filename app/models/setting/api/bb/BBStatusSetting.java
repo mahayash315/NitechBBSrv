@@ -2,8 +2,8 @@ package models.setting.api.bb;
 
 public enum BBStatusSetting {
 	OK(20, "ok"),
-	NotFound(40, "not found"),
-	BadRequest(41, "bad request"),
+	BadRequest(40, "bad request"),
+	NotFound(41, "not found"),
 	InternalServerError(50, "internal server error")
 	;
 

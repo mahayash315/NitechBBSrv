@@ -14,6 +14,13 @@ import views.html.index;
 public class Application extends Controller {
 
     public static Result index() throws SQLException {
+    	
+//    	NitechUser nitechUser = new NitechUser("user1").unique();
+//    	Post post = new Post("2014-08-24", 6).unique();
+//    	Possession possession = new Possession(nitechUser, post).unique();
+//    	System.out.println("possession.class="+possession.getClazz());
+    	
+    	
     	UserClassifier userClassifier = new UserClassifier();
     	PostClassifier postClassifier = new PostClassifier();
     	

@@ -4,9 +4,9 @@ import models.setting.api.bb.BBStatusSetting;
 
 public class BaseResponse {
 
-	private Integer code;
-	private String status;
-	private String message;
+	public Integer code;
+	public String status;
+	public String message;
 	
 	public BaseResponse() {
 		

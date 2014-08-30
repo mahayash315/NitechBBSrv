@@ -114,7 +114,7 @@ create table nitech_user (
 create table bb_possession (
   nitech_user_id            bigint,
   post_id                   bigint,
-  class                     tinyint default null,
+  class                     tinyint(1) default null,
   constraint pk_bb_possession primary key (nitech_user_id, post_id))
 ;
 

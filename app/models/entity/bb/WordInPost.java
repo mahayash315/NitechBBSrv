@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
@@ -13,21 +14,6 @@ import play.db.ebean.Model;
 @Entity
 @Table(name="bb_word_in_post")
 public class WordInPost extends Model {
-
-	@EmbeddedId
-	private PK id;
-	
-	@ManyToOne
-	@MapsId("postId")
-	private Post post;
-	
-	@ManyToOne
-	@MapsId("wordId")
-	private Word word;
-	
-	@Column(name="value")
-	private boolean value;
-	
 	@Embeddable
 	public static class PK {
 		@Column(name="post_id")
@@ -69,6 +55,22 @@ public class WordInPost extends Model {
 			return true;
 		}
 	}
+
+	@EmbeddedId
+	private PK id;
+	
+	@ManyToOne
+	@MapsId("postId")
+	@JoinColumn(name="post_id", insertable=false, updatable=false)
+	private Post post;
+	
+	@ManyToOne
+	@MapsId("wordId")
+	@JoinColumn(name="word_id", insertable=false, updatable=false)
+	private Word word;
+	
+	@Column(name="value")
+	private boolean value;
 
 	public PK getId() {
 		return id;

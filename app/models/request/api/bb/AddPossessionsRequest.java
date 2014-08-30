@@ -6,7 +6,7 @@ public class AddPossessionsRequest {
 	public String nitechId;
 	public List<Entry> possessions;
 	
-	public class Entry {
+	public static class Entry {
 		public String idDate;
 		public int idIndex;
 	}

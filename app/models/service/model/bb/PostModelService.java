@@ -8,6 +8,7 @@ import models.entity.bb.Post;
 import models.entity.bb.PostDistance;
 import models.entity.bb.Word;
 import models.service.model.ModelService;
+import models.setting.api.bb.BBSetting;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
@@ -66,7 +67,10 @@ public class PostModelService implements ModelService<Long, Post> {
 		List<PostDistance> list = PostDistance.find
 			.where()
 				.or(Expr.eq("fromPost", post), Expr.eq("toPost", post))
+				.add(Expr.isNotNull("distance"))
+				.add(Expr.le("distance", BBSetting.RELEVANT_POST_DISTANCE_THRESHOLD))
 			.order("distance asc")
+			.setMaxRows(BBSetting.RELEVANT_POST_MAX_ROW_NUM)
 			.findList();
 		for (PostDistance e : list) {
 			if (e.getFromPost().equals(post)) {
