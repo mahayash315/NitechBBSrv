@@ -1,6 +1,6 @@
 package models.response.api.bb;
 
-import models.setting.bb.api.BBStatusSetting;
+import models.setting.api.bb.BBStatusSetting;
 
 public class BaseResponse {
 

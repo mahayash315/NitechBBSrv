@@ -3,8 +3,8 @@ package models.response.api.bb;
 import java.util.ArrayList;
 import java.util.List;
 
-import models.entity.bb.Post;
-import models.setting.bb.api.BBStatusSetting;
+import models.entity.bb.Estimation;
+import models.setting.api.bb.BBStatusSetting;
 
 public class SuggestionsResponse extends BaseResponse {
 	
@@ -17,11 +17,11 @@ public class SuggestionsResponse extends BaseResponse {
 		super(val);
 	}
 	
-	public void add(Post o, double value){
+	public void add(Estimation o){
 		Entry e = new Entry();
-		e.idDate = o.getIdDate();
-		e.idIndex = o.getIdIndex();
-		e.value = value;
+		e.idDate = o.getPost().getIdDate();
+		e.idIndex = o.getPost().getIdIndex();
+		e.value = o.getLiklihood();
 		posts.add(e);
 	}
 	

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import models.entity.bb.Word;
-import models.setting.bb.api.BBStatusSetting;
+import models.setting.api.bb.BBStatusSetting;
 
 public class WordListResponse extends BaseResponse {
 

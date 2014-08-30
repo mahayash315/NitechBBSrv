@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -21,6 +22,9 @@ public class Word extends Model {
 	
 	@Column(name="base_form", length=191)
 	private String baseForm;
+	
+	@OneToMany(mappedBy="word", cascade={})
+	private List<WordInPost> wordsInPost;
 	
 	
 	@Transient

@@ -1,4 +1,4 @@
-package models.setting.bb.api;
+package models.setting.api.bb;
 
 public enum BBStatusSetting {
 	OK(20, "ok"),

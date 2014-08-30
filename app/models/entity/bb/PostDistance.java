@@ -70,10 +70,20 @@ public class PostDistance extends Model {
 		}
 	}
 	
+	public static Finder<PostDistance.PK,PostDistance> find = new Finder<PostDistance.PK,PostDistance>(PostDistance.PK.class,PostDistance.class);
+	
+	
 	public PostDistance() {
 		
 	}
 
+
+	public Post getFromPost() {
+		return fromPost;
+	}
+	public Post getToPost() {
+		return toPost;
+	}
 	public Double getDistance() {
 		return distance;
 	}

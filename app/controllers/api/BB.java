@@ -1,10 +1,15 @@
 package controllers.api;
 
 import models.request.api.bb.AddPossessionsRequest;
+import models.request.api.bb.StoreHistoriesRequest;
 import models.response.api.bb.AddPossessionResponse;
+import models.response.api.bb.DeletePossessionResponse;
+import models.response.api.bb.RelevantsResponse;
+import models.response.api.bb.StoreHistoriesResponse;
+import models.response.api.bb.SuggestionsResponse;
 import models.response.api.bb.WordListResponse;
 import models.service.api.bb.BBService;
-import models.setting.bb.api.BBStatusSetting;
+import models.setting.api.bb.BBStatusSetting;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
@@ -57,8 +62,18 @@ public class BB extends Controller {
 	 * @return
 	 */
 	@BodyParser.Of(BodyParser.Json.class)
-	public static Result deletePossessions() {
-		return TODO;
+	public static Result deletePossessions(String hashedNitechId, String idDates, String idIndexes) {
+		DeletePossessionResponse response = null;
+		
+		try {
+			response = BBService.use().procDeletePossessions(hashedNitechId, idDates, idIndexes);
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new DeletePossessionResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+		}
+		
+		return ok(Json.toJson(response));
 	}
 	
 	/**
@@ -67,7 +82,18 @@ public class BB extends Controller {
 	 */
 	@BodyParser.Of(BodyParser.Json.class)
 	public static Result storeHistories() {
-		return TODO;
+		StoreHistoriesResponse response = null;
+		
+		try {
+			StoreHistoriesRequest json = Json.fromJson(request().body().asJson(), StoreHistoriesRequest.class);
+			response = BBService.use().procStoreHistories(json);
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new StoreHistoriesResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+		}
+		
+		return ok(Json.toJson(response));
 	}
 	
 	/**
@@ -75,8 +101,18 @@ public class BB extends Controller {
 	 * @return
 	 */
 	@BodyParser.Of(BodyParser.Json.class)
-	public static Result suggestions() {
-		return TODO;
+	public static Result suggestions(String hashedNitechId) {
+		SuggestionsResponse response = null;
+		
+		try {
+			response = BBService.use().procSuggestions(hashedNitechId);
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new SuggestionsResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+		}
+		
+		return ok(Json.toJson(response));
 	}
 	
 	/**
@@ -84,7 +120,17 @@ public class BB extends Controller {
 	 * @return
 	 */
 	@BodyParser.Of(BodyParser.Json.class)
-	public static Result relevants() {
-		return TODO;
+	public static Result relevants(String idDate, int idIndex) {
+		RelevantsResponse response = null;
+		
+		try {
+			response = BBService.use().procRelevants(idDate, idIndex);
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new RelevantsResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+		}
+		
+		return ok(Json.toJson(response));
 	}
 }

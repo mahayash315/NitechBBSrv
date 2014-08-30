@@ -1,9 +1,16 @@
 package models.service.model.bb;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import models.entity.bb.Post;
+import models.entity.bb.PostDistance;
+import models.entity.bb.Word;
 import models.service.model.ModelService;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
 
 public class PostModelService implements ModelService<Long, Post> {
 	
@@ -41,6 +48,35 @@ public class PostModelService implements ModelService<Long, Post> {
 	 */
 	public Post findByIdDateIdIndex(String idDate, int idIndex) { 
 		return Post.find.where().eq("idDate", idDate).eq("idIndex", idIndex).findUnique();
+	}
+	
+	public List<Word> findWordsInPost(Post post) {
+		if (post == null) {
+			return null;
+		}
+		return Word.find.where().eq("posts.post", post).findList();
+	}
+	
+	public Map<Post,Double> findRelevants(Post post) {
+		if (post == null) {
+			return null;
+		}
+		
+		Map<Post,Double> map = new LinkedHashMap<Post, Double>();
+		List<PostDistance> list = PostDistance.find
+			.where()
+				.or(Expr.eq("fromPost", post), Expr.eq("toPost", post))
+			.order("distance asc")
+			.findList();
+		for (PostDistance e : list) {
+			if (e.getFromPost().equals(post)) {
+				map.put(e.getToPost(), e.getDistance());
+			} else {
+				map.put(e.getFromPost(), e.getDistance());
+			}
+		}
+		
+		return map;
 	}
 	
 }

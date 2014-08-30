@@ -102,6 +102,13 @@ public class Possession extends Model {
 	public Possession store() {
 		return modelService.save(this);
 	}
+	public Possession uniqueOrStore() {
+		Possession o = unique();
+		if (o == null) {
+			o = store();
+		}
+		return o;
+	}
 	
 	@Override
 	public void save() {

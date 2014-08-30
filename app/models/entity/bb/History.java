@@ -46,6 +46,11 @@ public class History extends Model {
 	public History(NitechUser nitechUser) {
 		this.nitechUser = nitechUser;
 	}
+	public History(NitechUser nitechUser, Post post, long timestamp) {
+		this.nitechUser = nitechUser;
+		this.post = post;
+		this.timestamp = timestamp;
+	}
 	
 	
 	public History unique() {

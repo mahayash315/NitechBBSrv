@@ -1,6 +1,7 @@
 package models.entity.bb;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -38,7 +39,6 @@ public class Post extends Model {
 	private List<Possession> possessions;
 	
 	
-	
 	@Transient
 	private PostModelService modelService = new PostModelService();
 	
@@ -66,6 +66,35 @@ public class Post extends Model {
 			return o;
 		}
 		return null;
+	}
+	public Post store() {
+		modelService.save(this);
+		if (getId() != null) {
+			return this;
+		}
+		return null;
+	}
+	public Post uniqueOrStore() {
+		Post o = unique();
+		if (o == null) {
+			o = store();
+		}
+		return o;
+	}
+	
+	@Override
+	public void save() {
+		modelService.save(this);
+	}
+	public void delete() {
+		modelService.delete(this);
+	}
+	
+	public List<Word> findWordsInPost() {
+		return modelService.findWordsInPost(this);
+	}
+	public Map<Post,Double> findRelevants() {
+		return modelService.findRelevants(this);
 	}
 	
 

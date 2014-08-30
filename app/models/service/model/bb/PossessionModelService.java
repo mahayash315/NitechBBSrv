@@ -11,7 +11,10 @@ public class PossessionModelService implements
 
 	@Override
 	public Possession findById(PK id) {
-		return Possession.find.byId(id);
+		if (id != null) {
+			return Possession.find.byId(id);
+		}
+		return null;
 	}
 
 	@Override
@@ -27,7 +30,9 @@ public class PossessionModelService implements
 
 	@Override
 	public void delete(Possession entry) {
-		Ebean.delete(entry);
+		if (entry != null) {
+			Ebean.delete(entry);
+		}
 	}
 
 }

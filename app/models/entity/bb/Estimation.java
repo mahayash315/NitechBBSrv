@@ -1,5 +1,7 @@
 package models.entity.bb;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
@@ -7,8 +9,10 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import models.entity.NitechUser;
+import models.service.model.bb.EstimationModelService;
 import play.db.ebean.Model;
 
 @Entity
@@ -78,5 +82,87 @@ public class Estimation extends Model {
 				return false;
 			return true;
 		}
+	}
+	
+	
+	@Transient
+	protected EstimationModelService modelService = new EstimationModelService();
+	
+	
+	public static Finder<Estimation.PK,Estimation> find = new Finder<Estimation.PK,Estimation>(Estimation.PK.class, Estimation.class);
+	
+	
+	public Estimation() {
+		
+	}
+	public Estimation(NitechUser nitechUser) {
+		this.nitechUser = nitechUser;
+	}
+	
+	
+	public Estimation unique() {
+		Estimation o = null;
+		if ((o = modelService.findById(id)) != null) {
+			return o;
+		}
+		return o;
+	}
+	public Estimation store() {
+		return modelService.save(this);
+	}
+	
+	@Override
+	public void save() {
+		modelService.save(this);
+	}
+	@Override
+	public void delete() {
+		modelService.delete(this);
+	}
+	
+	/**
+	 * おすすめ記事のエントリを返す
+	 * @return
+	 */
+	public List<Estimation> findSuggestions() {
+		return modelService.findSuggestions(nitechUser);
+	}
+	
+	
+	public PK getId() {
+		return id;
+	}
+	public void setId(PK id) {
+		this.id = id;
+	}
+	public NitechUser getNitechUser() {
+		return nitechUser;
+	}
+	public void setNitechUser(NitechUser nitechUser) {
+		this.nitechUser = nitechUser;
+	}
+	public Integer getDepth() {
+		return depth;
+	}
+	public void setDepth(Integer depth) {
+		this.depth = depth;
+	}
+	public Post getPost() {
+		return post;
+	}
+	public void setPost(Post post) {
+		this.post = post;
+	}
+	public Boolean getClazz() {
+		return clazz;
+	}
+	public void setClazz(Boolean clazz) {
+		this.clazz = clazz;
+	}
+	public Double getLiklihood() {
+		return liklihood;
+	}
+	public void setLiklihood(Double liklihood) {
+		this.liklihood = liklihood;
 	}
 }
