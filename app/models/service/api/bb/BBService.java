@@ -58,7 +58,7 @@ public class BBService {
 				throw new InvalidParameterException("invalid nitech user id");
 			} else {
 				response = new AddPossessionResponse(BBStatusSetting.OK);
-				for (AddPossessionsRequest.Entry e : request.possessions) {
+				for (AddPossessionsRequest.Entry e : request.posts) {
 					Post post = new Post(e.idDate, e.idIndex).uniqueOrStore();
 					Possession possession = new Possession(nitechUser, post).uniqueOrStore();
 					if (post.findWordsInPost().isEmpty()) {

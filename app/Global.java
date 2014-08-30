@@ -12,7 +12,7 @@ import play.api.mvc.Handler;
 import play.mvc.Action;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
-import controllers.task.BBAnalyzerTaskActorBase;
+import controllers.task.BBTaskActorBase;
 
 
 public class Global extends GlobalSettings {
@@ -26,8 +26,15 @@ public class Global extends GlobalSettings {
 		super.onStart(arg0);
 		
 		// バッチ処理のスケジュール設定
+//		try {
+//			BBAnalyzerTaskActorBase.getInstance().start();
+//		} catch (ParseException e) {
+//			e.printStackTrace();
+//		}
+		
+		// BB バッチ処理のスケジュール設定
 		try {
-			BBAnalyzerTaskActorBase.getInstance().start();
+			BBTaskActorBase.getInstance().start();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -65,7 +72,7 @@ public class Global extends GlobalSettings {
 		super.onStop(arg0);
 		
 		// バッチ処理を停止
-		BBAnalyzerTaskActorBase.getInstance().shutdown();
+//		BBAnalyzerTaskActorBase.getInstance().shutdown();
 	}
 	
 	

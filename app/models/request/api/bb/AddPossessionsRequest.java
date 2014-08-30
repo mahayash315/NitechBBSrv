@@ -4,7 +4,7 @@ import java.util.List;
 
 public class AddPossessionsRequest {
 	public String nitechId;
-	public List<Entry> possessions;
+	public List<Entry> posts;
 	
 	public static class Entry {
 		public String idDate;
