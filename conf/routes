@@ -10,15 +10,15 @@ GET		/bbanalyzer							controllers.BBAnalyzer.redirectToIndex()
 GET		/bbanalyzer/						controllers.BBAnalyzer.index()
 GET		/bbanalyzer/kuromoji				controllers.BBAnalyzer.kuromoji()
 POST	/bbanalyzer/kuromoji				controllers.BBAnalyzer.procKuromoji()
-POST	/bbanalyzer/analyzeBody				controllers.BBAnalyzer.analyzeBody()
-#GET		/bbanalyzer/calc					controllers.BBAnalyzer.calcNaiveBayesParams()
-GET		/bbanalyzer/classify				controllers.BBAnalyzer.classifyAllUsers()
-GET		/bbanalyzer/train					controllers.BBAnalyzer.trainAllItemClassifiers()
+#POST	/bbanalyzer/analyzeBody				controllers.BBAnalyzer.analyzeBody()
+##GET		/bbanalyzer/calc					controllers.BBAnalyzer.calcNaiveBayesParams()
+#GET		/bbanalyzer/classify				controllers.BBAnalyzer.classifyAllUsers()
+#GET		/bbanalyzer/train					controllers.BBAnalyzer.trainAllItemClassifiers()
 
 # BBAnalyzer API
-POST	/bbanalyzer/postNewItemHeads.json 	controllers.api.BBAnalyzer.postNewItemHeads()
-POST	/bbanalyzer/postReadHistory.json 	controllers.api.BBAnalyzer.postReadHistory()
-GET		/bbanalyzer/classifyItem.json		controllers.api.BBAnalyzer.classifyItem(uid ?= null, id_date ?= null, id_index ?= null)
+#POST	/bbanalyzer/postNewItemHeads.json 	controllers.api.BBAnalyzer.postNewItemHeads()
+#POST	/bbanalyzer/postReadHistory.json 	controllers.api.BBAnalyzer.postReadHistory()
+#GET		/bbanalyzer/classifyItem.json		controllers.api.BBAnalyzer.classifyItem(uid ?= null, id_date ?= null, id_index ?= null)
 
 # Mock BB
 GET		/mockbb								controllers.mockbb.MockBB.redirectToIndex()
@@ -37,6 +37,7 @@ POST	/mockbb/admin/edit/:id				controllers.mockbb.Admin.edit(id:models.entity.mo
 POST	/mockbb/admin/delete/:id			controllers.mockbb.Admin.delete(id:models.entity.mockbb.MockBBItem.MockBBItemPK)
 
 # BB API
+PUT		/bb/on_login.json					controllers.api.BB.onLogin()
 GET		/bb/word_list.json					controllers.api.BB.wordList()
 POST	/bb/add_possessions.json			controllers.api.BB.addPossessions()
 DELETE	/bb/delete_possessions.json			controllers.api.BB.deletePossessions(nitech_id:String, id_dates:String, id_indexes:String)

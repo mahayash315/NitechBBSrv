@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 
 import models.entity.bb.Post;
 import models.service.model.NitechUserModelService;
@@ -22,6 +23,13 @@ public class NitechUser extends Model {
 	
 	@Column(name = "hashed_id", length = 191)
 	private String hashedId;
+	
+	@Column(name = "last_login", nullable=true)
+	private Long lastLogin;
+	
+	@Version
+	@Column(name="OPTLOCK")
+	private Integer optLock;
 	
 	/* サービス */
 	@Transient
@@ -50,11 +58,12 @@ public class NitechUser extends Model {
 	public NitechUser store() {
 		return modelService.save(this);
 	}
-	public List<NitechUser> findList() {
-		return modelService.findList();
-	}
-	public List<Post> findPossessingPosts() {
-		return modelService.findPossessingPosts(this);
+	public NitechUser uniqueOrStore() {
+		NitechUser o = unique();
+		if (o == null) {
+			o = store();
+		}
+		return o;
 	}
 
 	@Override
@@ -67,7 +76,12 @@ public class NitechUser extends Model {
 		modelService.delete(this);
 	}
 	
-	
+	public List<NitechUser> findList() {
+		return modelService.findList();
+	}
+	public List<Post> findPossessingPosts() {
+		return modelService.findPossessingPosts(this);
+	}
 	
 	
 
@@ -84,5 +98,11 @@ public class NitechUser extends Model {
 	}
 	public void setHashedId(String hashedId) {
 		this.hashedId = hashedId;
+	}
+	public Long getLastLogin() {
+		return lastLogin;
+	}
+	public void setLastLogin(Long lastLogin) {
+		this.lastLogin = lastLogin;
 	}
 }

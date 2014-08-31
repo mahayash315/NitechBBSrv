@@ -1,13 +1,13 @@
 # --- !Ups
 
-INSERT INTO `nitech_user` (hashed_id) VALUES ('user1');
-INSERT INTO `nitech_user` (hashed_id) VALUES ('user2');
-INSERT INTO `nitech_user` (hashed_id) VALUES ('user3');
-INSERT INTO `nitech_user` (hashed_id) VALUES ('user4');
-INSERT INTO `nitech_user` (hashed_id) VALUES ('user5');
-INSERT INTO `nitech_user` (hashed_id) VALUES ('user6');
-INSERT INTO `nitech_user` (hashed_id) VALUES ('user7');
-INSERT INTO `nitech_user` (hashed_id) VALUES ('user8');
+INSERT INTO `nitech_user` (hashed_id,OPTLOCK) VALUES ('user1',1);
+INSERT INTO `nitech_user` (hashed_id,OPTLOCK) VALUES ('user2',1);
+INSERT INTO `nitech_user` (hashed_id,OPTLOCK) VALUES ('user3',1);
+INSERT INTO `nitech_user` (hashed_id,OPTLOCK) VALUES ('user4',1);
+INSERT INTO `nitech_user` (hashed_id,OPTLOCK) VALUES ('user5',1);
+INSERT INTO `nitech_user` (hashed_id,OPTLOCK) VALUES ('user6',1);
+INSERT INTO `nitech_user` (hashed_id,OPTLOCK) VALUES ('user7',1);
+INSERT INTO `nitech_user` (hashed_id,OPTLOCK) VALUES ('user8',1);
 
 INSERT INTO `bb_post` (id_date, id_index) VALUES ('2014-08-24',1);
 INSERT INTO `bb_post` (id_date, id_index) VALUES ('2014-08-24',2);

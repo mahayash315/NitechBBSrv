@@ -12,9 +12,11 @@ import models.entity.bb.Possession;
 import models.entity.bb.Post;
 import models.entity.bb.Word;
 import models.request.api.bb.AddPossessionsRequest;
+import models.request.api.bb.OnLoginRequest;
 import models.request.api.bb.StoreHistoriesRequest;
 import models.response.api.bb.AddPossessionResponse;
 import models.response.api.bb.DeletePossessionResponse;
+import models.response.api.bb.OnLoginResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
@@ -26,6 +28,29 @@ public class BBService {
 	
 	public static BBService use() {
 		return new BBService();
+	}
+	
+	/**
+	 * クライアントログイン時に呼ばれる
+	 * @return
+	 * @throws Exception
+	 */
+	public OnLoginResponse procOnLogin(OnLoginRequest request) throws Exception {
+		OnLoginResponse response = null;
+		
+		if (request.nitechId == null) {
+			throw new InvalidParameterException("null nitech id given");
+		}
+		
+		NitechUser nitechUser = new NitechUser(request.nitechId).uniqueOrStore();
+		Long lastLogin = nitechUser.getLastLogin();
+		nitechUser.setLastLogin(System.currentTimeMillis());
+		nitechUser.store();
+		
+		response = new OnLoginResponse(BBStatusSetting.OK);
+		response.lastLogin = lastLogin;
+		
+		return response;
 	}
 	
 	/**

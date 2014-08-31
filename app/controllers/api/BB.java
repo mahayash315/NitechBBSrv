@@ -1,9 +1,11 @@
 package controllers.api;
 
 import models.request.api.bb.AddPossessionsRequest;
+import models.request.api.bb.OnLoginRequest;
 import models.request.api.bb.StoreHistoriesRequest;
 import models.response.api.bb.AddPossessionResponse;
 import models.response.api.bb.DeletePossessionResponse;
+import models.response.api.bb.OnLoginResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
@@ -18,6 +20,32 @@ import play.mvc.Result;
 import utils.api.bb.LogUtil;
 
 public class BB extends Controller {
+
+	/**
+	 * クライアントが掲示板にログインした時に呼ぶ、NitechUser追加/更新用のアクション
+	 * @return
+	 */
+	@BodyParser.Of(BodyParser.Json.class)
+	public static Result onLogin() {
+		OnLoginResponse response = null;
+		
+		try {
+			OnLoginRequest json = Json.fromJson(request().body().asJson(), OnLoginRequest.class);
+			response = BBService.use().procOnLogin(json);
+		} catch (InvalidParameterException e) {
+			LogUtil.info("BB", e);
+			response = new OnLoginResponse(BBStatusSetting.BadRequest);
+			response.setMessage(e.getLocalizedMessage());
+			return badRequest(Json.toJson(response));
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new OnLoginResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+			return internalServerError(Json.toJson(response));
+		}
+		
+		return ok(Json.toJson(response));
+	}
 
 	/**
 	 * 単語リストを返すアクション
