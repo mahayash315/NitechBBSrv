@@ -39,6 +39,7 @@ POST	/mockbb/admin/delete/:id			controllers.mockbb.Admin.delete(id:models.entity
 # BB API
 PUT		/bb/on_login.json					controllers.api.BB.onLogin()
 GET		/bb/word_list.json					controllers.api.BB.wordList()
+PUT		/bb/update_posts.json				controllers.api.BB.updatePosts()
 POST	/bb/add_possessions.json			controllers.api.BB.addPossessions()
 DELETE	/bb/delete_possessions.json			controllers.api.BB.deletePossessions(nitech_id:String, id_dates:String, id_indexes:String)
 POST	/bb/store_histories.json			controllers.api.BB.storeHistories()

@@ -11,15 +11,18 @@ import models.entity.bb.History;
 import models.entity.bb.Possession;
 import models.entity.bb.Post;
 import models.entity.bb.Word;
+import models.entity.bb.WordInPost;
 import models.request.api.bb.AddPossessionsRequest;
 import models.request.api.bb.OnLoginRequest;
 import models.request.api.bb.StoreHistoriesRequest;
+import models.request.api.bb.UpdatePostsRequest;
 import models.response.api.bb.AddPossessionResponse;
 import models.response.api.bb.DeletePossessionResponse;
 import models.response.api.bb.OnLoginResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
+import models.response.api.bb.UpdatePostsResponse;
 import models.response.api.bb.WordListResponse;
 import models.setting.api.bb.BBStatusSetting;
 
@@ -69,27 +72,52 @@ public class BBService {
 	}
 	
 	/**
+	 * 掲示の情報を更新する
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public UpdatePostsResponse procUpdatePosts(UpdatePostsRequest request) throws Exception {
+		if (request == null || request.posts == null) {
+			throw new InvalidParameterException("null request or post list");
+		}
+		
+		UpdatePostsResponse response = new UpdatePostsResponse(BBStatusSetting.OK);
+		for (UpdatePostsRequest.PostEntry p : request.posts) {
+			Post post = new Post(p.idDate, p.idIndex).uniqueOrStore();
+			for (UpdatePostsRequest.PostEntry.WordEntry w : p.words) {
+				Word word = new Word(w.id).unique();
+				if (word != null) {
+					WordInPost wp = new WordInPost(post,word).uniqueOrStore();
+					wp.setValue(true);
+					wp.store();
+				}
+			}
+		}
+		
+		return response;
+	}
+	
+	/**
 	 * 掲示保持リストにエントリを追加する
 	 * @return
 	 */
 	public AddPossessionResponse procAddPossessions(AddPossessionsRequest request) throws Exception {
-		AddPossessionResponse response = null;
-		
 		if (request.nitechId == null) {
 			throw new InvalidParameterException("null nitech id");
-		} else {
-			NitechUser nitechUser = new NitechUser(request.nitechId).unique();
-			if (nitechUser == null) {
-				throw new InvalidParameterException("invalid nitech user id");
-			} else {
-				response = new AddPossessionResponse(BBStatusSetting.OK);
-				for (AddPossessionsRequest.Entry e : request.posts) {
-					Post post = new Post(e.idDate, e.idIndex).uniqueOrStore();
-					Possession possession = new Possession(nitechUser, post).uniqueOrStore();
-					if (post.findWordsInPost().isEmpty()) {
-						response.addFeatureLackingPost(post);
-					}
-				}
+		}
+
+		NitechUser nitechUser = new NitechUser(request.nitechId).unique();
+		if (nitechUser == null) {
+			throw new InvalidParameterException("invalid nitech user id");
+		}
+		
+		AddPossessionResponse response = new AddPossessionResponse(BBStatusSetting.OK);
+		for (AddPossessionsRequest.Entry e : request.posts) {
+			Post post = new Post(e.idDate, e.idIndex).uniqueOrStore();
+			Possession possession = new Possession(nitechUser, post).uniqueOrStore();
+			if (post.findWordsInPost().isEmpty()) {
+				response.addFeatureLackingPost(post);
 			}
 		}
 		
@@ -104,8 +132,6 @@ public class BBService {
 	 * @return
 	 */
 	public DeletePossessionResponse procDeletePossessions(String hashedNitechId, String _idDates, String _idIndexes) throws Exception {
-		DeletePossessionResponse response = null;
-		
 		String[] idDates = _idDates.split(",");
 		String[] idIndexes = _idIndexes.split(",");
 		NitechUser nitechUser = new NitechUser(hashedNitechId).unique();
@@ -113,17 +139,17 @@ public class BBService {
 			throw new InvalidParameterException("idvalid nitech user id");
 		} else if (idDates.length != idIndexes.length) {
 			throw new InvalidParameterException("idvalid parameters: parameter sizes does not match");
-		} else {
-			response = new DeletePossessionResponse(BBStatusSetting.OK);
-			for (int i = 0; i < idDates.length; ++i) {
-				String idDate = idDates[i];
-				int idIndex = Integer.parseInt(idIndexes[i]);
-				Post post = new Post(idDate,idIndex).unique();
-				if (post != null) {
-					Possession possession = new Possession(nitechUser, post).unique();
-					if (possession != null) {
-						possession.delete();
-					}
+		}
+
+		DeletePossessionResponse response = new DeletePossessionResponse(BBStatusSetting.OK);
+		for (int i = 0; i < idDates.length; ++i) {
+			String idDate = idDates[i];
+			int idIndex = Integer.parseInt(idIndexes[i]);
+			Post post = new Post(idDate,idIndex).unique();
+			if (post != null) {
+				Possession possession = new Possession(nitechUser, post).unique();
+				if (possession != null) {
+					possession.delete();
 				}
 			}
 		}
@@ -136,22 +162,20 @@ public class BBService {
 	 * @return
 	 */
 	public StoreHistoriesResponse procStoreHistories(StoreHistoriesRequest request) throws Exception {
-		StoreHistoriesResponse response = null;
-		
 		if (request.nitechId == null) {
 			throw new InvalidParameterException("null nitech id");
-		} else {
-			NitechUser nitechUser = new NitechUser(request.nitechId).unique();
-			if (nitechUser == null) {
-				throw new InvalidParameterException("invalid nitech user id");
-			} else {
-				response = new StoreHistoriesResponse(BBStatusSetting.OK);
-				for (StoreHistoriesRequest.Entry e : request.histories) {
-					Post post = new Post(e.idDate, e.idIndex).unique();
-					if (post != null) {
-						new History(nitechUser, post, e.timestamp).store();
-					}
-				}
+		}
+		
+		NitechUser nitechUser = new NitechUser(request.nitechId).unique();
+		if (nitechUser == null) {
+			throw new InvalidParameterException("invalid nitech user id");
+		}
+		
+		StoreHistoriesResponse response = new StoreHistoriesResponse(BBStatusSetting.OK);
+		for (StoreHistoriesRequest.Entry e : request.histories) {
+			Post post = new Post(e.idDate, e.idIndex).unique();
+			if (post != null) {
+				new History(nitechUser, post, e.timestamp).store();
 			}
 		}
 		
@@ -164,21 +188,19 @@ public class BBService {
 	 * @return
 	 */
 	public SuggestionsResponse procSuggestions(String hashedNitechId) throws Exception {
-		SuggestionsResponse response = null;
-		
 		if (hashedNitechId == null) {
 			throw new InvalidParameterException("null nitechId given");
-		} else {
-			NitechUser nitechUser = new NitechUser(hashedNitechId).unique();
-			if (nitechUser == null) {
-				throw new InvalidParameterException("invalid nitech user id");
-			} else {
-				response = new SuggestionsResponse(BBStatusSetting.OK);
-				List<Estimation> suggestions = new Estimation(nitechUser).findSuggestions();
-				for (Estimation estimation : suggestions) {
-					response.add(estimation);
-				}
-			}
+		}
+		
+		NitechUser nitechUser = new NitechUser(hashedNitechId).unique();
+		if (nitechUser == null) {
+			throw new InvalidParameterException("invalid nitech user id");
+		}
+		
+		SuggestionsResponse response = new SuggestionsResponse(BBStatusSetting.OK);
+		List<Estimation> suggestions = new Estimation(nitechUser).findSuggestions();
+		for (Estimation estimation : suggestions) {
+			response.add(estimation);
 		}
 		
 		return response;
@@ -190,19 +212,17 @@ public class BBService {
 	 * @return
 	 */
 	public RelevantsResponse procRelevants(String idDate, int idIndex) throws Exception {
-		RelevantsResponse response = null;
-		
 		Post post = new Post(idDate,idIndex).unique();
 		
 		if (post == null) {
 			throw new InvalidParameterException("invalid parameters given: found no such post");
-		} else {
-			response = new RelevantsResponse(BBStatusSetting.OK);
-			Map<Post, Double> relevants = post.findRelevants();
-			Set<Entry<Post,Double>> entrySet = relevants.entrySet();
-			for (Entry<Post,Double> entry : entrySet) {
-				response.add(entry.getKey(), entry.getValue());
-			}
+		}
+		
+		RelevantsResponse response = new RelevantsResponse(BBStatusSetting.OK);
+		Map<Post, Double> relevants = post.findRelevants();
+		Set<Entry<Post,Double>> entrySet = relevants.entrySet();
+		for (Entry<Post,Double> entry : entrySet) {
+			response.add(entry.getKey(), entry.getValue());
 		}
 		
 		return response;

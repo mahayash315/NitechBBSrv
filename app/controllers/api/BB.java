@@ -3,12 +3,14 @@ package controllers.api;
 import models.request.api.bb.AddPossessionsRequest;
 import models.request.api.bb.OnLoginRequest;
 import models.request.api.bb.StoreHistoriesRequest;
+import models.request.api.bb.UpdatePostsRequest;
 import models.response.api.bb.AddPossessionResponse;
 import models.response.api.bb.DeletePossessionResponse;
 import models.response.api.bb.OnLoginResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
+import models.response.api.bb.UpdatePostsResponse;
 import models.response.api.bb.WordListResponse;
 import models.service.api.bb.BBService;
 import models.service.api.bb.BBService.InvalidParameterException;
@@ -64,6 +66,32 @@ public class BB extends Controller {
 		} catch (Exception e) {
 			LogUtil.error("BB", e);
 			response = new WordListResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+			return internalServerError(Json.toJson(response));
+		}
+		
+		return ok(Json.toJson(response));
+	}
+	
+	/**
+	 * 掲示の情報を更新するアクション
+	 * @return
+	 */
+	@BodyParser.Of(BodyParser.Json.class)
+	public static Result updatePosts() {
+		UpdatePostsResponse response = null;
+		
+		try {
+			UpdatePostsRequest json = Json.fromJson(request().body().asJson(), UpdatePostsRequest.class);
+			response = BBService.use().procUpdatePosts(json);
+		} catch (InvalidParameterException e) {
+			LogUtil.info("BB", e);
+			response = new UpdatePostsResponse(BBStatusSetting.BadRequest);
+			response.setMessage(e.getLocalizedMessage());
+			return badRequest(Json.toJson(response));
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new UpdatePostsResponse(BBStatusSetting.InternalServerError);
 			response.setMessage(e.getLocalizedMessage());
 			return internalServerError(Json.toJson(response));
 		}

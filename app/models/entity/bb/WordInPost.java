@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
 
+import models.service.model.bb.WordInPostModelService;
 import play.db.ebean.Model;
 
 @Entity
@@ -21,6 +22,11 @@ public class WordInPost extends Model {
 		
 		@Column(name="word_id")
 		private Long wordId;
+		
+		private PK(Post post, Word word) {
+			postId = post.getId();
+			wordId = word.getId();
+		}
 
 		@Override
 		public int hashCode() {
@@ -60,17 +66,48 @@ public class WordInPost extends Model {
 	private PK id;
 	
 	@ManyToOne
-	@MapsId("postId")
+	@MapsId("id.postId")
 	@JoinColumn(name="post_id", insertable=false, updatable=false)
 	private Post post;
 	
 	@ManyToOne
-	@MapsId("wordId")
+	@MapsId("id.wordId")
 	@JoinColumn(name="word_id", insertable=false, updatable=false)
 	private Word word;
 	
 	@Column(name="value")
 	private boolean value;
+	
+	protected WordInPostModelService modelService = new WordInPostModelService();
+	
+	public static Finder<WordInPost.PK,WordInPost> find = new Finder<WordInPost.PK,WordInPost>(WordInPost.PK.class,WordInPost.class);
+	
+	public WordInPost() {
+		
+	}
+	public WordInPost(Post post, Word word) {
+		this.id = new WordInPost.PK(post, word);
+		this.post = post;
+		this.word = word;
+	}
+	
+	public WordInPost unique() {
+		WordInPost o = null;
+		if ((o = modelService.findById(id)) != null) {
+			return o;
+		}
+		return null;
+	}
+	public WordInPost store() {
+		return modelService.save(this);
+	}
+	public WordInPost uniqueOrStore() {
+		WordInPost o = unique();
+		if (o == null) {
+			o = store();
+		}
+		return o;
+	}
 
 	public PK getId() {
 		return id;
