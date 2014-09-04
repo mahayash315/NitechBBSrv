@@ -15,6 +15,7 @@ import models.response.api.bb.WordListResponse;
 import models.service.api.bb.BBService;
 import models.service.api.bb.BBService.InvalidParameterException;
 import models.setting.api.bb.BBStatusSetting;
+import play.db.ebean.Transactional;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
@@ -27,6 +28,7 @@ public class BB extends Controller {
 	 * クライアントが掲示板にログインした時に呼ぶ、NitechUser追加/更新用のアクション
 	 * @return
 	 */
+	@Transactional
 	@BodyParser.Of(BodyParser.Json.class)
 	public static Result onLogin() {
 		OnLoginResponse response = null;
@@ -77,6 +79,7 @@ public class BB extends Controller {
 	 * 掲示の情報を更新するアクション
 	 * @return
 	 */
+	@Transactional
 	@BodyParser.Of(BodyParser.Json.class)
 	public static Result updatePosts() {
 		UpdatePostsResponse response = null;
@@ -103,6 +106,7 @@ public class BB extends Controller {
 	 * 新規掲示を追加するアクション
 	 * @return
 	 */
+	@Transactional
 	@BodyParser.Of(BodyParser.Json.class)
 	public static Result addPossessions() {
 		AddPossessionResponse response = null;
@@ -129,6 +133,7 @@ public class BB extends Controller {
 	 * 掲示を消すアクション (invalidate)
 	 * @return
 	 */
+	@Transactional
 	public static Result deletePossessions(String hashedNitechId, String idDates, String idIndexes) {
 		DeletePossessionResponse response = null;
 		
@@ -153,6 +158,7 @@ public class BB extends Controller {
 	 * 掲示閲覧履歴を追加するアクション
 	 * @return
 	 */
+	@Transactional
 	@BodyParser.Of(BodyParser.Json.class)
 	public static Result storeHistories() {
 		StoreHistoriesResponse response = null;
