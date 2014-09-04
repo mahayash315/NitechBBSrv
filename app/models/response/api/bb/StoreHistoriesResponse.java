@@ -6,7 +6,7 @@ import java.util.List;
 import models.entity.bb.Word;
 import models.setting.api.bb.BBStatusSetting;
 
-public class StoreHistoriesResponse extends BaseResponse {
+public class StoreHistoriesResponse extends BBResponse {
 
 	public StoreHistoriesResponse() {
 		super();

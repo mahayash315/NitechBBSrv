@@ -2,16 +2,16 @@ package models.response.api.bb;
 
 import models.setting.api.bb.BBStatusSetting;
 
-public class BaseResponse {
+public class BBResponse {
 
 	public Integer code;
 	public String status;
 	public String message;
 	
-	public BaseResponse() {
+	public BBResponse() {
 		
 	}
-	public BaseResponse(BBStatusSetting val) {
+	public BBResponse(BBStatusSetting val) {
 		this.code = val.code;
 		this.status = val.status;
 	}

@@ -1,17 +1,18 @@
 package models.service.api.bb;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import models.entity.Configuration;
 import models.entity.NitechUser;
 import models.entity.bb.Estimation;
 import models.entity.bb.History;
 import models.entity.bb.Possession;
 import models.entity.bb.Post;
 import models.entity.bb.Word;
-import models.entity.bb.WordInPost;
 import models.request.api.bb.AddPossessionsRequest;
 import models.request.api.bb.OnLoginRequest;
 import models.request.api.bb.StoreHistoriesRequest;
@@ -24,7 +25,9 @@ import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
 import models.response.api.bb.UpdatePostsResponse;
 import models.response.api.bb.WordListResponse;
+import models.setting.BBSetting;
 import models.setting.api.bb.BBStatusSetting;
+import utils.bb.PostUtil;
 
 public class BBService {
 	// TODO API から利用するサービスを記述
@@ -83,16 +86,27 @@ public class BBService {
 		}
 		
 		UpdatePostsResponse response = new UpdatePostsResponse(BBStatusSetting.OK);
+		
+		boolean isWordListUpdated = false;
 		for (UpdatePostsRequest.PostEntry p : request.posts) {
 			Post post = new Post(p.idDate, p.idIndex).uniqueOrStore();
-			for (UpdatePostsRequest.PostEntry.WordEntry w : p.words) {
-				Word word = new Word(w.id).unique();
-				if (word != null) {
-					WordInPost wp = new WordInPost(post,word).uniqueOrStore();
-					wp.setValue(true);
-					wp.store();
+			post.setAuthor(p.author);
+			post.setTitle(p.title);
+			post.save();
+			
+			// 単語リストに含まれない特徴語があれば単語リストに追加
+			HashMap<String,Integer> map = PostUtil.use().findFeatureWordsInPost(post);
+			for (String baseForm : map.keySet()) {
+				Word word = new Word(baseForm);
+				if (word.unique() == null) {
+					word = word.store();
+					isWordListUpdated = true;
 				}
 			}
+		}
+		if (isWordListUpdated) {
+			// 単語リスト最終更新日時を更新
+			Configuration.putLong(BBSetting.CONFIGURATION_KEY_WORD_LIST_LAST_MODIFIED, System.currentTimeMillis());
 		}
 		
 		return response;
@@ -116,8 +130,8 @@ public class BBService {
 		for (AddPossessionsRequest.Entry e : request.posts) {
 			Post post = new Post(e.idDate, e.idIndex).uniqueOrStore();
 			Possession possession = new Possession(nitechUser, post).uniqueOrStore();
-			if (post.findWordsInPost().isEmpty()) {
-				response.addFeatureLackingPost(post);
+			if (post.getAuthor() == null || post.getAuthor().isEmpty() || post.getTitle() == null || post.getTitle().isEmpty()) {
+				response.addInfoLackingPost(post);
 			}
 		}
 		

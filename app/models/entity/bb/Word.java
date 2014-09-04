@@ -8,12 +8,15 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import models.service.model.bb.WordModelService;
 import play.db.ebean.Model;
 
 @Entity
-@Table(name="bb_word")
+@Table(name="bb_word", uniqueConstraints={
+	@UniqueConstraint(columnNames={"base_form"})
+})
 public class Word extends Model {
 
 	@Id
@@ -38,6 +41,9 @@ public class Word extends Model {
 	}
 	public Word(Long id) {
 		this.id = id;
+	}
+	public Word(String baseForm) {
+		this.baseForm = baseForm;
 	}
 
 	public Word unique() {

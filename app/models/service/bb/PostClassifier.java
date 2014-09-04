@@ -1,9 +1,15 @@
 package models.service.bb;
 
+import java.util.HashMap;
+import java.util.List;
+
 import models.entity.NitechUser;
 import models.entity.bb.Post;
+import models.entity.bb.Word;
+import models.entity.bb.WordInPost;
 import models.setting.BBSetting;
 import play.Logger;
+import utils.bb.PostUtil;
 
 import com.avaje.ebean.CallableSql;
 import com.avaje.ebean.Ebean;
@@ -13,6 +19,29 @@ public class PostClassifier {
 
 	public static PostClassifier use() {
 		return new PostClassifier();
+	}
+	
+	/**
+	 * 掲示の特徴量を更新する
+	 * @param post
+	 */
+	public void calcPostFeature(Post post) {
+		HashMap<Word,Integer> feature = PostUtil.use().getPostFeature(post);
+		
+		// WordInPost エントリ更新
+		List<Word> words = new Word().findList();
+		for (Word word : words) {
+			if (feature.containsKey(word)) {
+				WordInPost wip = new WordInPost(post,word).uniqueOrStore();
+				wip.setValue(true);
+				wip.save();
+			} else {
+				WordInPost wip = new WordInPost(post,word).unique();
+				if (wip != null) {
+					wip.delete();
+				}
+			}
+		}
 	}
 	
 	/**

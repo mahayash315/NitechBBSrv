@@ -51,6 +51,10 @@ public class PostModelService implements ModelService<Long, Post> {
 		return Post.find.where().eq("idDate", idDate).eq("idIndex", idIndex).findUnique();
 	}
 	
+	public List<Post> findList() {
+		return Post.find.findList();
+	}
+	
 	public List<Word> findWordsInPost(Post post) {
 		if (post == null) {
 			return null;

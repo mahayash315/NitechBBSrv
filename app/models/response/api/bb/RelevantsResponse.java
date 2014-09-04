@@ -6,7 +6,7 @@ import java.util.List;
 import models.entity.bb.Post;
 import models.setting.api.bb.BBStatusSetting;
 
-public class RelevantsResponse extends BaseResponse {
+public class RelevantsResponse extends BBResponse {
 	
 	public List<Entry> posts = new ArrayList<Entry>();
 

@@ -1,5 +1,6 @@
 package models.entity.bb;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 
 import models.service.model.bb.PostModelService;
 import play.db.ebean.Model;
@@ -32,11 +34,20 @@ public class Post extends Model {
 	@Column(name="id_index")
 	private int idIndex;
 	
+	@Column(name="author")
+	private String author;
+	
+	@Column(name="title")
+	private String title;
+	
 	@OneToMany(mappedBy="post",cascade={CascadeType.ALL},fetch=FetchType.LAZY)
 	private List<WordInPost> wordsInPost;
 	
 	@OneToMany(mappedBy="post",cascade={CascadeType.REMOVE},fetch=FetchType.LAZY)
 	private List<Possession> possessions;
+	
+	@Version
+	private Date lastModified;
 	
 	
 	@Transient
@@ -90,6 +101,9 @@ public class Post extends Model {
 		modelService.delete(this);
 	}
 	
+	public List<Post> findList() {
+		return modelService.findList();
+	}
 	public List<Word> findWordsInPost() {
 		return modelService.findWordsInPost(this);
 	}
@@ -116,11 +130,26 @@ public class Post extends Model {
 	public void setIdIndex(int idIndex) {
 		this.idIndex = idIndex;
 	}
+	public String getAuthor() {
+		return author;
+	}
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
 	public List<WordInPost> getWordsInPost() {
 		return wordsInPost;
 	}
 	public void setWordsInPost(List<WordInPost> wordsInPost) {
 		this.wordsInPost = wordsInPost;
+	}
+	public Date getLastModified() {
+		return lastModified;
 	}
 	
 	@Override

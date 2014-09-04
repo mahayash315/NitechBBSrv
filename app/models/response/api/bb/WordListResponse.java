@@ -6,7 +6,7 @@ import java.util.List;
 import models.entity.bb.Word;
 import models.setting.api.bb.BBStatusSetting;
 
-public class WordListResponse extends BaseResponse {
+public class WordListResponse extends BBResponse {
 
 	public List<Entry> words = new ArrayList<Entry>();
 	

@@ -6,8 +6,8 @@ import java.util.List;
 import models.entity.bb.Post;
 import models.setting.api.bb.BBStatusSetting;
 
-public class AddPossessionResponse extends BaseResponse {
-	public List<Entry> featureLackingPosts = new ArrayList<Entry>();
+public class AddPossessionResponse extends BBResponse {
+	public List<Entry> infoLackingPosts = new ArrayList<Entry>();
 
 	public AddPossessionResponse() {
 		super();
@@ -16,11 +16,11 @@ public class AddPossessionResponse extends BaseResponse {
 		super(val);
 	}
 	
-	public void addFeatureLackingPost(Post o) {
+	public void addInfoLackingPost(Post o) {
 		Entry e = new Entry();
 		e.idDate = o.getIdDate();
 		e.idIndex = o.getIdIndex();
-		featureLackingPosts.add(e);
+		infoLackingPosts.add(e);
 	}
 
 	public class Entry {

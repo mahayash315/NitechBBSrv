@@ -74,6 +74,14 @@ create table bba_word (
   constraint pk_bba_word primary key (id))
 ;
 
+create table configuration (
+  id                        bigint auto_increment not null,
+  conf_key                  varchar(191),
+  conf_value                longtext,
+  constraint uq_configuration_1 unique (conf_key),
+  constraint pk_configuration primary key (id))
+;
+
 create table bb_estimation (
   nitech_user_id            bigint,
   depth                     integer,
@@ -108,6 +116,8 @@ create table mock_bb_item (
 create table nitech_user (
   id                        bigint auto_increment not null,
   hashed_id                 varchar(191),
+  last_login                bigint,
+  OPTLOCK                   integer not null,
   constraint pk_nitech_user primary key (id))
 ;
 
@@ -122,6 +132,9 @@ create table bb_post (
   id                        bigint auto_increment not null,
   id_date                   varchar(10),
   id_index                  integer,
+  author                    varchar(255),
+  title                     varchar(255),
+  last_modified             datetime not null,
   constraint uq_bb_post_1 unique (id_date,id_index),
   constraint pk_bb_post primary key (id))
 ;
@@ -160,6 +173,7 @@ create table bb_user_cluster_vector (
 create table bb_word (
   id                        bigint auto_increment not null,
   base_form                 varchar(191),
+  constraint uq_bb_word_1 unique (base_form),
   constraint pk_bb_word primary key (id))
 ;
 
@@ -232,6 +246,8 @@ drop table bba_read_history;
 drop table bba_user_cluster;
 
 drop table bba_word;
+
+drop table configuration;
 
 drop table bb_estimation;
 

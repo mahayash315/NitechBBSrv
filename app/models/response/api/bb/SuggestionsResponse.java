@@ -6,7 +6,7 @@ import java.util.List;
 import models.entity.bb.Estimation;
 import models.setting.api.bb.BBStatusSetting;
 
-public class SuggestionsResponse extends BaseResponse {
+public class SuggestionsResponse extends BBResponse {
 	
 	public List<Entry> posts = new ArrayList<Entry>();
 

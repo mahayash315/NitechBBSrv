@@ -8,11 +8,7 @@ public class UpdatePostsRequest {
 	public static class PostEntry {
 		public String idDate;
 		public int idIndex;
-		public List<WordEntry> words;
-		
-		public static class WordEntry {
-			public Long id;
-			public int value;
-		}
+		public String author;
+		public String title;
 	}
 }
