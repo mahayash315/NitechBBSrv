@@ -2,6 +2,7 @@ package utils.bb;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import models.entity.Configuration;
 import models.entity.bb.Post;
@@ -16,6 +17,8 @@ public class PostUtil {
 	private static Tokenizer sTokenizer = Tokenizer.builder().build();
 	private static HashMap<String,Long> sWordList = new HashMap<String,Long>();
 	private static long sWordListLastUpdated = 0;
+	private static Pattern sNumberPattern = Pattern.compile("[0-9]+|[０-９]+");
+	private static Pattern sSymbolPattern = Pattern.compile("[!\"#$%&'-=^~\\`@;:,./?_！”＃＄％＆’＝＾～￥｜｀＠；：、。・？＿]");
 	
 	public static PostUtil use() {
 		return new PostUtil();
@@ -82,9 +85,29 @@ public class PostUtil {
 			// 投稿者を形態素解析
 			List<Token> tAuthor = sTokenizer.tokenize(post.getAuthor());
 			for (Token t : tAuthor) {
-				String f = t.getAllFeaturesArray()[0];
-				if (f.equals("名詞") || f.equals("動詞")) {
+				String f0 = t.getAllFeaturesArray()[0];
+				String f1 = t.getAllFeaturesArray()[1];
+				if (f0.equals("名詞")) {
 					String baseForm = t.getBaseForm();
+					
+					// 空文字は特徴語としない
+					if (baseForm == null || baseForm.isEmpty()) {
+						continue;
+					}
+					
+					// 数字を含んでいたら特徴語としない
+					if (sNumberPattern.matcher(baseForm).find()) {
+						continue;
+					}
+					if (f1.equals("数")) {
+						continue;
+					}
+					
+					// 記号を含んでいたら特徴語としない
+					if (sSymbolPattern.matcher(baseForm).find()) {
+						continue;
+					}
+					
 					Integer count = map.get(baseForm);
 					if (count == null) {
 						count = Integer.valueOf(0);
@@ -96,9 +119,29 @@ public class PostUtil {
 			// 件名を形態素解析
 			List<Token> tTitle = sTokenizer.tokenize(post.getTitle());
 			for (Token t : tTitle) {
-				String f = t.getAllFeaturesArray()[0];
-				if (f.equals("名詞") || f.equals("動詞")) {
+				String f0 = t.getAllFeaturesArray()[0];
+				String f1 = t.getAllFeaturesArray()[1];
+				if (f0.equals("名詞")) {
 					String baseForm = t.getBaseForm();
+
+					// 空文字は特徴語としない
+					if (baseForm == null || baseForm.isEmpty()) {
+						continue;
+					}
+					
+					// 数字を含んでいたら特徴語としない
+					if (sNumberPattern.matcher(baseForm).find()) {
+						continue;
+					}
+					if (f1.equals("数")) {
+						continue;
+					}
+					
+					// 記号を含んでいたら特徴語としない
+					if (sSymbolPattern.matcher(baseForm).find()) {
+						continue;
+					}
+					
 					Integer count = map.get(baseForm);
 					if (count == null) {
 						count = Integer.valueOf(0);

@@ -97,10 +97,12 @@ public class BBService {
 			// 単語リストに含まれない特徴語があれば単語リストに追加
 			HashMap<String,Integer> map = PostUtil.use().findFeatureWordsInPost(post);
 			for (String baseForm : map.keySet()) {
-				Word word = new Word(baseForm);
-				if (word.unique() == null) {
-					word = word.store();
-					isWordListUpdated = true;
+				if (baseForm != null && !baseForm.isEmpty()) {
+					Word word = new Word(baseForm);
+					if (word.unique() == null) {
+						word = word.store();
+						isWordListUpdated = true;
+					}
 				}
 			}
 		}
