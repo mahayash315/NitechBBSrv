@@ -16,12 +16,14 @@ public class BBTest {
 	public void test1() {
 		running(fakeApplication(), new Runnable() {
 			public void run() {
-				NitechUser user = new NitechUser("user1").unique();
+				NitechUser user = new NitechUser("testUser1").uniqueOrStore();
 				assertThat(user).isNotNull();
 				List<Post> posts = user.findPossessingPosts();
 				assertThat(posts).isNotNull();
-				
-				System.out.println("possessing "+posts.size()+" posts");
+				List<NitechUser> users = new NitechUser().findList();
+				assertThat(users).isNotNull();
+				user.delete();
+				assertThat(new NitechUser("testUser1").unique()).isNull();
 			}
 		});
 	}
