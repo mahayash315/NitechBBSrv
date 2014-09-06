@@ -27,3 +27,6 @@ libraryDependencies ++= Seq(
 
 fork in (Test) := false
 
+
+// dist 時の出力ファイル名を変更
+name in Universal := name.value
