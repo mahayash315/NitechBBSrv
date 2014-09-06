@@ -1,6 +1,7 @@
 import static org.fest.assertions.Assertions.*;
 import static play.test.Helpers.*;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,14 +14,32 @@ import models.service.bbanalyzer.BBAnalyzerService;
 import models.service.bbanalyzer.ItemClassifier;
 import models.service.bbanalyzer.UserClassifier;
 import models.service.bbanalyzer.UserCluster;
+
+import org.junit.Before;
+
+import play.Configuration;
 import play.Logger;
 import utils.bbanalyzer.BBAnalyzerUtil;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+
 public class BBAnalyzerTest {
+	private Configuration additionalConfigurations;
+	
+	/**
+	 * テスト用設定ファイルを読み込む
+	 * fakeApplication(additionalConfigurations.asMap()) として使う
+	 */
+	@Before
+	public void initialize(){
+	    Config additionalConfig = ConfigFactory.parseFile(new File("conf/application-test.conf"));
+	    additionalConfigurations = new Configuration(additionalConfig);
+	}
 
 //	@Test
 	public void test1() {
-		running(fakeApplication(), new Runnable() {
+		running(fakeApplication(additionalConfigurations.asMap()), new Runnable() {
 			public void run() {
 				Logger.info("BBAnalyzerTest#test1(): begin");
 				
