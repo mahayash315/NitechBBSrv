@@ -107,8 +107,8 @@ public class Post extends Model {
 	public List<Word> findWordsInPost() {
 		return modelService.findWordsInPost(this);
 	}
-	public Map<Post,Double> findRelevants() {
-		return modelService.findRelevants(this);
+	public Map<Post,Double> findRelevants(Double threshold, Integer limit) {
+		return modelService.findRelevants(this, threshold, limit);
 	}
 	
 

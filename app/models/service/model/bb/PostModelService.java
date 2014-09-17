@@ -12,6 +12,7 @@ import models.setting.api.bb.BBSetting;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
+import com.avaje.ebean.Query;
 
 public class PostModelService implements ModelService<Long, Post> {
 	
@@ -62,20 +63,26 @@ public class PostModelService implements ModelService<Long, Post> {
 		return Word.find.where().eq("posts.post", post).findList();
 	}
 	
-	public Map<Post,Double> findRelevants(Post post) {
+	public Map<Post,Double> findRelevants(Post post, Double threshold, Integer limit) {
 		if (post == null) {
 			return null;
 		}
+		if (threshold == null) {
+			threshold = BBSetting.RELEVANT_POST_DISTANCE_THRESHOLD;
+		};
 		
 		Map<Post,Double> map = new LinkedHashMap<Post, Double>();
-		List<PostDistance> list = PostDistance.find
+		Query<PostDistance> q = PostDistance.find
 			.where()
 				.or(Expr.eq("fromPost", post), Expr.eq("toPost", post))
 				.add(Expr.isNotNull("distance"))
-				.add(Expr.le("distance", BBSetting.RELEVANT_POST_DISTANCE_THRESHOLD))
-			.order("distance asc")
-			.setMaxRows(BBSetting.RELEVANT_POST_MAX_ROW_NUM)
-			.findList();
+				.add(Expr.le("distance", threshold))
+			.order("distance asc");
+		if (limit != null && 0 <= limit) {
+			q.setMaxRows(limit);
+		}
+		List<PostDistance> list	= q.findList();
+		
 		for (PostDistance e : list) {
 			if (e.getFromPost().equals(post)) {
 				map.put(e.getToPost(), e.getDistance());

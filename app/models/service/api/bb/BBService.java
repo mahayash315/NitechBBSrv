@@ -227,7 +227,7 @@ public class BBService {
 	 * @param hashedNitechId
 	 * @return
 	 */
-	public RelevantsResponse procRelevants(String idDate, int idIndex) throws Exception {
+	public RelevantsResponse procRelevants(String idDate, int idIndex, Double threshold, Integer limit) throws Exception {
 		Post post = new Post(idDate,idIndex).unique();
 		
 		if (post == null) {
@@ -235,7 +235,7 @@ public class BBService {
 		}
 		
 		RelevantsResponse response = new RelevantsResponse(BBStatusSetting.OK);
-		Map<Post, Double> relevants = post.findRelevants();
+		Map<Post, Double> relevants = post.findRelevants(threshold, limit);
 		Set<Entry<Post,Double>> entrySet = relevants.entrySet();
 		for (Entry<Post,Double> entry : entrySet) {
 			response.add(entry.getKey(), entry.getValue());

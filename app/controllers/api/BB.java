@@ -209,11 +209,11 @@ public class BB extends Controller {
 	 * 関連掲示を返すアクション
 	 * @return
 	 */
-	public static Result relevants(String idDate, int idIndex) {
+	public static Result relevants(String idDate, int idIndex, Double threshold, Integer limit) {
 		RelevantsResponse response = null;
 		
 		try {
-			response = BBService.use().procRelevants(idDate, idIndex);
+			response = BBService.use().procRelevants(idDate, idIndex, threshold, limit);
 		} catch (InvalidParameterException e) {
 			LogUtil.info("BB", e);
 			response = new RelevantsResponse(BBStatusSetting.BadRequest);
