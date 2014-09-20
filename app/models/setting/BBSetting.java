@@ -6,7 +6,7 @@ public class BBSetting {
 	public static final int CLUSTER_SIZES[] = new int[]{5, 1};
 	
 	/** 学習データ作成の際に、「興味あり」と判定する掲示閲覧回数のしきい値 (標準化されたとき) */
-	public static final double TRAIN_DATA_CLASSIFICATION_THRESHOLD = 0;
+	public static final double TRAIN_DATA_CLASSIFICATION_THRESHOLD = 0.98;
 
 	/** ユーザクラスタの初期化が必要かどうか */
 	public static final String CONFIGURATION_KEY_REQUIRE_USER_CLUSTER_INITIALIZATION = "bb_require_user_cluster_initialization";
