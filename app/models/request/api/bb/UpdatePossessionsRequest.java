@@ -2,7 +2,7 @@ package models.request.api.bb;
 
 import java.util.List;
 
-public class AddPossessionsRequest {
+public class UpdatePossessionsRequest {
 	public String nitechId;
 	public List<Entry> posts;
 	

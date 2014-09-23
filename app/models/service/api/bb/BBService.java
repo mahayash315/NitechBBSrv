@@ -16,6 +16,7 @@ import models.entity.bb.Word;
 import models.request.api.bb.AddPossessionsRequest;
 import models.request.api.bb.OnLoginRequest;
 import models.request.api.bb.StoreHistoriesRequest;
+import models.request.api.bb.UpdatePossessionsRequest;
 import models.request.api.bb.UpdatePostsRequest;
 import models.response.api.bb.AddPossessionResponse;
 import models.response.api.bb.DeletePossessionResponse;
@@ -23,6 +24,7 @@ import models.response.api.bb.OnLoginResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
+import models.response.api.bb.UpdatePossessionResponse;
 import models.response.api.bb.UpdatePostsResponse;
 import models.response.api.bb.WordListResponse;
 import models.setting.BBSetting;
@@ -132,8 +134,41 @@ public class BBService {
 		for (AddPossessionsRequest.Entry e : request.posts) {
 			Post post = new Post(e.idDate, e.idIndex).uniqueOrStore();
 			Possession possession = new Possession(nitechUser, post).uniqueOrStore();
+			possession.setIsFavorite(e.isFavorite);
+			possession.save();
 			if (post.getAuthor() == null || post.getAuthor().isEmpty() || post.getTitle() == null || post.getTitle().isEmpty()) {
 				response.addInfoLackingPost(post);
+			}
+		}
+		
+		return response;
+	}
+	
+	/**
+	 * 掲示保持リストの更新リクエストを処理する
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	public UpdatePossessionResponse procUpdatePossessions(UpdatePossessionsRequest request) throws Exception {
+		if (request.nitechId == null) {
+			throw new InvalidParameterException("null nitech id");
+		}
+
+		NitechUser nitechUser = new NitechUser(request.nitechId).unique();
+		if (nitechUser == null) {
+			throw new InvalidParameterException("invalid nitech user id");
+		}
+		
+		UpdatePossessionResponse response = new UpdatePossessionResponse(BBStatusSetting.OK);
+		for (UpdatePossessionsRequest.Entry e : request.posts) {
+			Post post = new Post(e.idDate, e.idIndex).unique();
+			if (post != null) {
+				Possession possession = new Possession(nitechUser, post);
+				if (possession != null) {
+					possession.setIsFavorite(e.isFavorite);
+					possession.save();
+				}
 			}
 		}
 		

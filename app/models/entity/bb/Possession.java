@@ -92,6 +92,9 @@ public class Possession extends Model {
 	@JoinColumn(name="post_id", insertable=false, updatable=false)
 	private Post post;
 	
+	@Column(name="is_favorite", columnDefinition="tinyint(1) default null")
+	private Boolean isFavorite;
+	
 	@Column(name="class", columnDefinition="tinyint(1) default null")
 	private Boolean clazz;
 	
@@ -153,6 +156,12 @@ public class Possession extends Model {
 	}
 	public Post getPost() {
 		return post;
+	}
+	public Boolean getIsFavorite() {
+		return isFavorite;
+	}
+	public void setIsFavorite(Boolean isFavorite) {
+		this.isFavorite = isFavorite;
 	}
 	public void setPost(Post post) {
 		this.id.postId = post.getId();

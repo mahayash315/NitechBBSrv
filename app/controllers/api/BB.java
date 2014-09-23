@@ -3,6 +3,7 @@ package controllers.api;
 import models.request.api.bb.AddPossessionsRequest;
 import models.request.api.bb.OnLoginRequest;
 import models.request.api.bb.StoreHistoriesRequest;
+import models.request.api.bb.UpdatePossessionsRequest;
 import models.request.api.bb.UpdatePostsRequest;
 import models.response.api.bb.AddPossessionResponse;
 import models.response.api.bb.DeletePossessionResponse;
@@ -10,6 +11,7 @@ import models.response.api.bb.OnLoginResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
+import models.response.api.bb.UpdatePossessionResponse;
 import models.response.api.bb.UpdatePostsResponse;
 import models.response.api.bb.WordListResponse;
 import models.service.api.bb.BBService;
@@ -122,6 +124,33 @@ public class BB extends Controller {
 		} catch (Exception e) {
 			LogUtil.error("BB", e);
 			response = new AddPossessionResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+			return internalServerError(Json.toJson(response));
+		}
+		
+		return ok(Json.toJson(response));
+	}
+	
+	/**
+	 * 掲示保持リストを更新するアクション
+	 * @return
+	 */
+	@Transactional
+	@BodyParser.Of(BodyParser.Json.class)
+	public static Result updatePossessions() {
+		UpdatePossessionResponse response = null;
+		
+		try {
+			UpdatePossessionsRequest json = Json.fromJson(request().body().asJson(), UpdatePossessionsRequest.class);
+			response = BBService.use().procUpdatePossessions(json);
+		} catch (InvalidParameterException e) {
+			LogUtil.info("BB", e);
+			response = new UpdatePossessionResponse(BBStatusSetting.BadRequest);
+			response.setMessage(e.getLocalizedMessage());
+			return badRequest(Json.toJson(response));
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new UpdatePossessionResponse(BBStatusSetting.InternalServerError);
 			response.setMessage(e.getLocalizedMessage());
 			return internalServerError(Json.toJson(response));
 		}
