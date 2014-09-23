@@ -120,7 +120,7 @@ BEGIN
 	DECLARE _v double;;
     DECLARE cur CURSOR FOR
 		select 
-			post_id, (c - avg) / (std * std) v
+			post_id, (c - avg) / std v
 				from
 				    (select t1.post_id, t1.c, t2.avg, t2.std from
 						(select post_id, c from
