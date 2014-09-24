@@ -165,6 +165,7 @@ BEGIN
 	WHILE hasNext DO
 		FETCH cur INTO _nitech_user_id;;
 		call PrepareTrainDataFor(_nitech_user_id, threshold);;
+		update bb_possession set `class` = 1 where nitech_user_id=_nitech_user_id and is_favorite=1;;
 	END WHILE;;
 	CLOSE cur;;
 END;
