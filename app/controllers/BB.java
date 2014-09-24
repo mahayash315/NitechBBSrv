@@ -86,7 +86,6 @@ public class BB extends Controller {
 	}
 	
 	public static Result process() {
-		init();
 		classify();
 		extract();
 		train();
