@@ -36,6 +36,16 @@ GET		/mockbb/admin/edit/:id				controllers.mockbb.Admin.editItemForm(id:models.e
 POST	/mockbb/admin/edit/:id				controllers.mockbb.Admin.edit(id:models.entity.mockbb.MockBBItem.MockBBItemPK)
 POST	/mockbb/admin/delete/:id			controllers.mockbb.Admin.delete(id:models.entity.mockbb.MockBBItem.MockBBItemPK)
 
+# BB
+GET		/bb									controllers.BB.redirectToIndex()
+GET		/bb/								controllers.BB.index()
+GET		/bb/init							controllers.BB.init()
+GET		/bb/classify						controllers.BB.classify()
+GET		/bb/extract							controllers.BB.extract()
+GET		/bb/train							controllers.BB.train()
+GET		/bb/estimate						controllers.BB.estimate()
+GET		/bb/process							controllers.BB.process()
+
 # BB API
 PUT		/bb/on_login.json					controllers.api.BB.onLogin()
 GET		/bb/word_list.json					controllers.api.BB.wordList()

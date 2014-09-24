@@ -58,3 +58,10 @@ a.myshow span {
   border:1px solid #cccccc; color:#000033;background-color:#ffffff;
  }
 a.myshow:hover span{ display:inline; position:absolute; }
+
+ul.mymenu {
+	
+}
+ul.mymenu li {
+	padding-top: 10px;
+}

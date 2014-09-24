@@ -1,0 +1,31 @@
+@()
+
+@main("BB") {
+
+    <div id="description">
+		<h2>HTML での利用</h2>
+		<div id="action" style="padding: 20px;">
+			<ul class="mymenu">
+				<li>
+					<input type="button" class="btn primary" href="javascript:void(0);" onClick="location.href='@routes.BB.init()'" value="KMeans クラスタ初期化" />
+				</li>
+				<li>
+					<input type="button" class="btn primary" href="javascript:void(0);" onClick="location.href='@routes.BB.classify()'" value="ユーザを分類" />
+				</li>
+				<li>
+					<input type="button" class="btn primary" href="javascript:void(0);" onClick="location.href='@routes.BB.extract()'" value="掲示の特徴量を抽出" />
+				</li>
+				<li>
+					<input type="button" class="btn primary" href="javascript:void(0);" onClick="location.href='@routes.BB.train()'" value="学習" />
+				</li>
+				<li>
+					<input type="button" class="btn primary" href="javascript:void(0);" onClick="location.href='@routes.BB.estimate()'" value="掲示クラスの推定" />
+				</li>
+				<li>
+					<input type="button" class="btn primary" href="javascript:void(0);" onClick="location.href='@routes.BB.process()'" value="全部実行" />
+				</li>
+			</ul>
+		</div>
+	</div>
+
+}
