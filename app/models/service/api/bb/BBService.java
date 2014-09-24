@@ -164,7 +164,7 @@ public class BBService {
 		for (UpdatePossessionsRequest.Entry e : request.posts) {
 			Post post = new Post(e.idDate, e.idIndex).unique();
 			if (post != null) {
-				Possession possession = new Possession(nitechUser, post);
+				Possession possession = new Possession(nitechUser, post).unique();
 				if (possession != null) {
 					possession.setIsFavorite(e.isFavorite);
 					possession.save();
