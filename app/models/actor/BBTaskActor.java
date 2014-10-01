@@ -1,7 +1,8 @@
-package controllers.task;
+package models.actor;
 
 import java.util.List;
 
+import controllers.task.BBTaskActorBase;
 import models.entity.Configuration;
 import models.entity.NitechUser;
 import models.entity.bb.Post;

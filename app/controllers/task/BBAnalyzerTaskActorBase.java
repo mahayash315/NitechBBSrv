@@ -2,6 +2,7 @@ package controllers.task;
 
 import java.text.ParseException;
 
+import models.actor.BBAnalyzerTaskActor;
 import play.libs.Akka;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;

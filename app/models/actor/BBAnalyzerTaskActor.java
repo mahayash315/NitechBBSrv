@@ -1,9 +1,10 @@
-package controllers.task;
+package models.actor;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import controllers.task.BBAnalyzerTaskActorBase;
 import models.service.bbanalyzer.BBAnalyzerService;
 import utils.bbanalyzer.LogUtil;
 import akka.actor.UntypedActor;
