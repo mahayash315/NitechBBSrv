@@ -274,8 +274,11 @@ public class BBService {
 		}
 		
 		PopularPostsResponse response = new PopularPostsResponse(BBStatusSetting.OK);
-		// TODO
-		Post.find.
+		Map<Post, Long> popularPosts = new Post().findPopularPosts(nitechUser, threshold, limit);
+		Set<Entry<Post,Long>> entrySet = popularPosts.entrySet();
+		for (Entry<Post,Long> entry : entrySet) {
+			response.add(entry.getKey(), entry.getValue());
+		}
 		
 		return response;
 	}

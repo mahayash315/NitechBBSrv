@@ -5,8 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Table;
-
 import models.entity.NitechUser;
 import models.entity.bb.Post;
 import models.entity.bb.PostDistance;
@@ -17,27 +15,21 @@ import models.setting.api.bb.BBSetting;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.Query;
-import com.avaje.ebean.RawSql;
-import com.avaje.ebean.RawSqlBuilder;
+import com.avaje.ebean.SqlQuery;
+import com.avaje.ebean.SqlRow;
 
 public class PostModelService implements ModelService<Long, Post> {
 	
 	private static final String SQL_SELECT_POPULAR_POSTS =
-				"select " +
-				"t1.id, t1.id_date, t1.id_index, t1.author, t1.title, t1.last_modified, sum(t2.post_id) n" +
-				"from post t1 " +
-				"join " +
-				"(select post_id,last_modified from history " +
-				" where last_modified > :minTimeout) t2 " +
-				"on t1.id=t2.post_id" +
-				"group by t1.id ";
+				"select" +
+				" t1.id, t1.id_date, t1.id_index, t1.author, t1.title, sum(t1.id) n" +
+				" from bb_post t1" +
+				" join" +
+				" (select post_id,timestamp from bb_history where timestamp > ?) t2" +
+				" on t1.id=t2.post_id" +
+				" group by t1.id" +
+				" having n > ?";
 	
-	@Table(name="popular_post")
-	protected class PopularPost {
-		Post post;
-		Long popularity;
-	}
-
 	@Override
 	public Post findById(Long id) {
 		if (id != null) {
@@ -96,36 +88,31 @@ public class PostModelService implements ModelService<Long, Post> {
 		if (nitechUser == null) {
 			return null;
 		}
-		if (threshold == null) {
-			threshold = BBSetting.POPULAR_POSTS_POPULARITY_THRESHOLD;
-		}
 		
 		Map<Post,Long> map = new HashMap<Post,Long>();
 		
 		long minTimestamp = System.currentTimeMillis() - BBSetting.POPULAR_POSTS_DELTA_TIMESTAMP;
-		Query<PopularPost> query = Ebean.createQuery(PopularPost.class);
-		query.setRawSql(
-			RawSqlBuilder.parse(SQL_SELECT_POPULAR_POSTS)
-						 .columnMapping("t1.id", "popular_post.post.id")
-						 .columnMapping("t1.id_date",  "popular_post.post.id_date")
-						 .columnMapping("t1.id_index", "popular_post.post.id_index")
-						 .columnMapping("t1.title", "popular_post.post.title")
-						 .columnMapping("t1.author", "popular_post.post.author")
-						 .columnMapping("t1.last_modified", "popular_post.post.last_modified")
-						 .create()
-		);
-		query.setParameter("minTimestamp", minTimestamp);
-		
-		if (threshold != null) {
-			query.having()
-				 .ge("n", threshold);
-		}
+		SqlQuery query = Ebean.createSqlQuery(SQL_SELECT_POPULAR_POSTS)
+							  .setParameter(1, minTimestamp)
+							  .setParameter(2, (threshold != null) ? threshold : BBSetting.POPULAR_POSTS_DEFAULT_THRESHOLD);
 		if (limit != null) {
 			query.setMaxRows(limit);
 		}
-		List<PopularPost> list = query.findList();
-		for (PopularPost item : list) {
-			map.put(item.post, item.popularity);
+		List<SqlRow> list = query.findList();
+		for (SqlRow row : list) {
+			Long id = row.getLong("id");
+			String idDate = row.getString("id_date");
+			Integer idIndex = row.getInteger("id_index");
+			String title = row.getString("title");
+			String author = row.getString("author");
+			Long n = row.getLong("n");
+			
+			final Post post = new Post(id);
+			post.setIdDate(idDate);
+			post.setIdIndex(idIndex);
+			post.setTitle(title);
+			post.setAuthor(author);
+			map.put(post, n);
 		}
 		
 		return map;
