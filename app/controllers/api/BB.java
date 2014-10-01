@@ -8,6 +8,7 @@ import models.request.api.bb.UpdatePostsRequest;
 import models.response.api.bb.AddPossessionResponse;
 import models.response.api.bb.DeletePossessionResponse;
 import models.response.api.bb.OnLoginResponse;
+import models.response.api.bb.PopularPostsResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
@@ -227,6 +228,33 @@ public class BB extends Controller {
 		} catch (Exception e) {
 			LogUtil.error("BB", e);
 			response = new SuggestionsResponse(BBStatusSetting.InternalServerError);
+			response.setMessage(e.getLocalizedMessage());
+			return internalServerError(Json.toJson(response));
+		}
+		
+		return ok(Json.toJson(response));
+	}
+	
+	/**
+	 * 人気掲示を返すアクション
+	 * @param hashedNitechId
+	 * @param threshold
+	 * @param limit
+	 * @return
+	 */
+	public static Result popularPosts(String hashedNitechId, Long threshold, Integer limit) {
+		PopularPostsResponse response = null;
+		
+		try {
+			response = BBService.use().procPopularPosts(hashedNitechId, threshold, limit);
+		} catch (InvalidParameterException e) {
+			LogUtil.info("BB", e);
+			response = new PopularPostsResponse(BBStatusSetting.BadRequest);
+			response.setMessage(e.getLocalizedMessage());
+			return badRequest(Json.toJson(response));
+		} catch (Exception e) {
+			LogUtil.error("BB", e);
+			response = new PopularPostsResponse(BBStatusSetting.InternalServerError);
 			response.setMessage(e.getLocalizedMessage());
 			return internalServerError(Json.toJson(response));
 		}

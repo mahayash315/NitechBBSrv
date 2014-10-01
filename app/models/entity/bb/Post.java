@@ -15,6 +15,8 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 
+import com.avaje.ebean.annotation.Formula;
+
 import models.service.model.bb.PostModelService;
 import play.db.ebean.Model;
 
@@ -45,6 +47,9 @@ public class Post extends Model {
 	
 	@OneToMany(mappedBy="post",cascade={CascadeType.REMOVE},fetch=FetchType.LAZY)
 	private List<Possession> possessions;
+	
+	@OneToMany(mappedBy="post",cascade={CascadeType.REMOVE},fetch=FetchType.LAZY)
+	private List<History> histories;
 	
 	@Version
 	private Date lastModified;

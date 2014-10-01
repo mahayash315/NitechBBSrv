@@ -21,6 +21,7 @@ import models.request.api.bb.UpdatePostsRequest;
 import models.response.api.bb.AddPossessionResponse;
 import models.response.api.bb.DeletePossessionResponse;
 import models.response.api.bb.OnLoginResponse;
+import models.response.api.bb.PopularPostsResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
@@ -253,6 +254,28 @@ public class BBService {
 		for (Estimation estimation : suggestions) {
 			response.add(estimation);
 		}
+		
+		return response;
+	}
+	
+	/**
+	 * 人気掲示を返す
+	 * @param hashedNitechId
+	 * @return
+	 */
+	public PopularPostsResponse procPopularPosts(String hashedNitechId, Long threshold, Integer limit) throws Exception {
+		if (hashedNitechId == null) {
+			throw new InvalidParameterException("null nitechId given");
+		}
+		
+		NitechUser nitechUser = new NitechUser(hashedNitechId).unique();
+		if (nitechUser == null) {
+			throw new InvalidParameterException("invalid nitech user id");
+		}
+		
+		PopularPostsResponse response = new PopularPostsResponse(BBStatusSetting.OK);
+		// TODO
+		Post.find.
 		
 		return response;
 	}
