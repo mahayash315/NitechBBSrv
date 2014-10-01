@@ -28,7 +28,8 @@ public class PostModelService implements ModelService<Long, Post> {
 				" (select post_id,timestamp from bb_history where timestamp > ?) t2" +
 				" on t1.id=t2.post_id" +
 				" group by t1.id" +
-				" having n > ?";
+				" having n > ?" +
+				" order by n desc";
 	
 	@Override
 	public Post findById(Long id) {
