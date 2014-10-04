@@ -2,6 +2,7 @@
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -11,8 +12,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import play.Logger;
+import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBody;
+import play.mvc.Http.RequestHeader;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -27,9 +30,95 @@ public class Debugger {
 	public static final int DEBUG_MAX_XML_VALUE_LENGTH = 100;
 
 
-	
-	public static void callOnRequest(Request request) {
+	/**
+	 * RequestHeader のデバッグ情報をログに出力する
+	 * @param requestHeader
+	 * @throws Throwable
+	 */
+	public void debug(RequestHeader requestHeader) throws Throwable {
+		// リモートホスト
+		String xForwardedFor = requestHeader.getHeader("X-Forwarded-For");
+		String remoteAddress = requestHeader.remoteAddress();
 
+		// Header
+		String header = debugHeader(requestHeader);
+
+		// デバッグ表示
+		StringBuilder out = new StringBuilder();
+		out.append("\n");
+		out.append("\n");
+		out.append("=====================================================");
+		out.append("\n");
+		out.append("[RouteRequest] "+(new Date()).toString());
+		out.append("\n");
+		out.append("[Remote Address] " + remoteAddress);
+		out.append("\n");
+		if (xForwardedFor != null) {
+			out.append("[X-Fowarded-For] " + xForwardedFor);
+			out.append("\n");
+		}
+		out.append("=====================================================");
+		out.append("\n");
+		out.append(header);
+		out.append("=====================================================");
+		out.append("\n");
+
+
+		Logger.debug(out.toString());
+	}
+
+
+	/**
+	 * Request のデバッグ情報をログに出力する
+	 * @param request
+	 * @throws Throwable
+	 */
+	public void debug(Request request) throws Throwable {
+		// リモートホスト
+		String xForwardedFor = request.getHeader("X-Forwarded-For");
+		String remoteAddress = request.remoteAddress();
+
+		// Header
+		String header = debugHeader(request);
+
+		// Body
+		String body = debugBody(request);
+
+		// デバッグ表示
+		StringBuilder out = new StringBuilder();
+		out.append("\n");
+		out.append("\n");
+		out.append("=====================================================");
+		out.append("\n");
+		out.append("[Request] "+(new Date()).toString());
+		out.append("\n");
+		out.append("[Remote Address] " + remoteAddress);
+		out.append("\n");
+		if (xForwardedFor != null) {
+			out.append("[X-Fowarded-For] " + xForwardedFor);
+			out.append("\n");
+		}
+		out.append("=====================================================");
+		out.append("\n");
+		out.append(header);
+		if (body != null && !body.isEmpty()) {
+			out.append("\n");
+			out.append(body);
+		}
+		out.append("=====================================================");
+		out.append("\n");
+
+
+		Logger.debug(out.toString());
+	}
+
+
+	/**
+	 * リクエストヘッダのデバッグ情報を返す
+	 * @param request
+	 * @return
+	 */
+	public String debugHeader(RequestHeader request) {
 		// リクエスト行
 		String requestLine = request.method() + " " + request.uri() + " " + request.version();
 
@@ -39,89 +128,10 @@ public class Debugger {
 		// Query String
 		Map<String, String[]> queryStringMap = request.queryString();
 
-		// Body
-		String method = request.method().toLowerCase();
-		RequestBody requestBody = request.body();
-		StringBuilder body = new StringBuilder("\n");
-		if( method.equals("post") || method.equals("put") ) {
-			if( requestBody.asFormUrlEncoded() != null ) {
-				// ContentType が application/x-www-form-urlencoded の場合
-				Map<String, String[]> bodyMap = requestBody.asFormUrlEncoded();
-
-				body.append("[Body] Form Url Encoded\n");
-				for(String key : bodyMap.keySet()) {
-					String[] values = bodyMap.get(key);
-					if( values.length == 1 ) {
-						body.append("+ ");
-						body.append(key);
-						body.append(": ");
-						body.append((values[0] == null) ? "(null)" : values[0]);
-						body.append("\n");
-					} else {
-						for(int i = 0; i < values.length; ++i) {
-							body.append("+ ");
-							body.append(key);
-							body.append("[" + i + "]: ");
-							body.append((values[i] == null) ? "(null)" : values[i]);
-							body.append("\n");
-						}
-					}
-				}
-
-			} else if( requestBody.asMultipartFormData() != null ) {
-				// ContentType が application/multipart/form-data の場合
-				Map<String, String[]> bodyMap = requestBody.asMultipartFormData().asFormUrlEncoded();
-
-				body.append("[Body] Multipart Form Data\n");
-				for(String key : bodyMap.keySet()) {
-					String[] values = bodyMap.get(key);
-					if( values.length == 1 ) {
-						body.append("+ ");
-						body.append(key);
-						body.append(": ");
-						body.append((values[0] == null) ? "(null)" : values[0]);
-						body.append("\n");
-					} else {
-						for(int i = 0; i < values.length; ++i) {
-							body.append("+ ");
-							body.append(key);
-							body.append("[" + i + "]: ");
-							body.append((values[i] == null) ? "(null)" : values[i]);
-							body.append("\n");
-						}
-					}
-				}
-
-			} else if( requestBody.asXml() != null ) {
-				// ContentType が text/xml の場合
-				Document document = requestBody.asXml();
-				body.append("[Body] XML\n");
-				body.append(convertXmlToString(document));
-
-			} else if( requestBody.asJson() != null ) {
-				// ContentType が application/json の場合
-				JsonNode node = requestBody.asJson();
-				body.append("[Body] JSON\n");
-				body.append(convertJsonToString(node));
-
-			} else if( requestBody.asText() != null ) {
-				// ContentType が text/* の場合
-				body.append("[Body] ");
-				body.append(requestBody.asText().substring(0, DEBUG_MAX_CONTENT_LENGTH));
-			} else {
-				body.append("[Body] ELIMINATED CONTENT " + request.getHeader("content-type"));
-			}
-		}
-
 		// デバッグ表示
 		StringBuilder out = new StringBuilder();
-		out.append("\n");
-		out.append("\n");
-		out.append("=====================================================");
-		out.append("\n");
-		out.append("Received Time: " + (new Date()).toString());
-		out.append("\n");
 		out.append("[Request] " + requestLine);
+		out.append("\n");
 		out.append("\n");
 
 		for (String key : headerMap.keySet()) {
@@ -150,22 +160,127 @@ public class Debugger {
 			}
 		}
 
-		out.append(body.toString());
-		out.append("\n");
-
-		out.append("=====================================================");
-		out.append("\n");
-
-
-		Logger.debug(out.toString());
+		return out.toString();
 	}
 
 
+	/**
+	 * リクエストボディのデバッグ情報を返す
+	 * @param request
+	 * @return
+	 */
+	public String debugBody(Request request) {
+		StringBuilder body = new StringBuilder();
+
+		String method = request.method().toLowerCase();
+		RequestBody requestBody = request.body();
+		if( method.equals("post") || method.equals("put") ) {
+			if( requestBody.asFormUrlEncoded() != null ) {
+				// ContentType が application/x-www-form-urlencoded の場合
+				Map<String, String[]> bodyMap = requestBody.asFormUrlEncoded();
+
+				body.append("[Body] Form Url Encoded\n");
+				for(String key : bodyMap.keySet()) {
+					String[] values = bodyMap.get(key);
+					if( values.length == 1 ) {
+						body.append("+ ");
+						body.append(key);
+						body.append(": ");
+						body.append((values[0] == null) ? "(null)" : values[0]);
+						body.append("\n");
+					} else {
+						for(int i = 0; i < values.length; ++i) {
+							body.append("+ ");
+							body.append(key);
+							body.append("[" + i + "]: ");
+							body.append((values[i] == null) ? "(null)" : values[i]);
+							body.append("\n");
+						}
+					}
+				}
+
+			} else if( requestBody.asMultipartFormData() != null ) {
+				// ContentType が multipart/form-data の場合
+				Map<String, String[]> bodyMap = requestBody.asMultipartFormData().asFormUrlEncoded();
+				List<FilePart> files = requestBody.asMultipartFormData().getFiles();
+
+				body.append("[Body] Multipart Form Data\n");
+				for (String key : bodyMap.keySet()) {
+					String[] values = bodyMap.get(key);
+					if( values.length == 1 ) {
+						body.append("+ ");
+						body.append(key);
+						body.append(": ");
+						body.append("\n--- begin "+key+" ---\n");
+						body.append((values[0] == null) ? "(null)" : values[0]);
+						body.append("\n---  end  "+key+" ---\n");
+					} else {
+						for(int i = 0; i < values.length; ++i) {
+							body.append("+ ");
+							body.append(key+"[" + i + "]");
+							body.append(": ");
+							body.append("\n  ");
+							body.append("\n--- begin "+key+"[" + i + "] ---\n");
+							body.append((values[i] == null) ? "(null)" : values[i]);
+							body.append("\n");
+							body.append("\n---  end  "+key+"[" + i + "] ---\n");
+						}
+					}
+				}
+				if (files != null) {
+					for (FilePart file : files) {
+						body.append("+ ");
+						body.append(file.getKey());
+						body.append(": ");
+						body.append(file.getContentType());
+						body.append("\n  ");
+						body.append(file.getFile().getAbsolutePath());
+						body.append("\n");
+					}
+				}
+
+			} else if( requestBody.asXml() != null ) {
+				// ContentType が text/xml の場合
+				Document document = requestBody.asXml();
+				body.append("[Body] XML\n");
+				body.append(convertXmlToString(document));
+
+			} else if( requestBody.asJson() != null ) {
+				// ContentType が application/json の場合
+				JsonNode node = requestBody.asJson();
+				body.append("[Body] JSON\n");
+				body.append(convertJsonToString(node));
+
+			} else if( requestBody.asText() != null ) {
+				// ContentType が text/* の場合
+				body.append("[Body] ");
+				String text = requestBody.asText();
+				if (DEBUG_MAX_CONTENT_LENGTH < text.length()) {
+					body.append(text.substring(0, DEBUG_MAX_CONTENT_LENGTH));
+				} else {
+					body.append(text);
+				}
+			} else if ( requestBody.asRaw() != null ) {
+				//
+				body.append("[Body] ");
+				byte[] raw = requestBody.asRaw().asBytes();
+				if (DEBUG_MAX_CONTENT_LENGTH < raw.length) {
+					for (int i = 0; i < DEBUG_MAX_CONTENT_LENGTH; ++i) {
+						body.append(raw[i]);
+					}
+				} else {
+					body.append(raw);
+				}
+			} else {
+				body.append("[Body] NO CONTENT " + request.getHeader("content-type"));
+			}
+		}
+
+		return body.toString();
+	}
 
 
-
-
-	private static String convertXmlToString(Document document) {
+	private String convertXmlToString(Document document) {
 		StringBuilder sb = new StringBuilder();
 
 		NodeList nodes = document.getChildNodes();
@@ -177,7 +292,7 @@ public class Debugger {
 
 		return sb.toString();
 	}
-	private static String convertXmlToString(Document document, Node parentNode, int depth) {
+	private String convertXmlToString(Document document, Node parentNode, int depth) {
 		StringBuilder sb = new StringBuilder();
 
 
@@ -230,7 +345,7 @@ public class Debugger {
 
 		return sb.toString();
 	}
-	private static String formatXmlValue(String value) {
+	private String formatXmlValue(String value) {
 		String val = value;
 
 		if( val == null ) return val;
@@ -243,19 +358,19 @@ public class Debugger {
 	}
 
 
-	private static String convertJsonToString(JsonNode node) {
+	private String convertJsonToString(JsonNode node) {
 		StringBuilder sb = new StringBuilder();
 
 		Iterator<Entry<String, JsonNode>> it = node.fields();
 		while(it.hasNext()) {
 			Entry<String, JsonNode> entry = it.next();
 
-			sb.append(convertJsonToString(entry.getKey(), entry.getValue(), 0));
+			convertJsonToString(entry.getKey(), entry.getValue(), 0);
 		}
 
 		return sb.toString();
 	}
-	private static String convertJsonToString(String key, JsonNode node, int depth) {
+	private String convertJsonToString(String key, JsonNode node, int depth) {
 		StringBuilder sb = new StringBuilder();
 
 		// 自ノードを出力
@@ -283,12 +398,12 @@ public class Debugger {
 
 
 
-	private static void addNewLine(StringBuilder sb, int depth) {
+	private void addNewLine(StringBuilder sb, int depth) {
 		sb.append("\n");
 		addIndent(sb, depth);
 		sb.append("  ");
 	}
-	private static void addIndent(StringBuilder sb, int depth) {
+	private void addIndent(StringBuilder sb, int depth) {
 		for(int i = 0; i < depth; ++i) {
 			sb.append(" ");
 		}

@@ -1,17 +1,16 @@
 import java.lang.reflect.Method;
 import java.text.ParseException;
-import java.util.List;
 
-import models.entity.bbanalyzer.BBItem;
-import models.service.bbanalyzer.BBItemWordCountService;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
 import play.Logger.ALogger;
 import play.api.mvc.Handler;
+import play.libs.F.Promise;
 import play.mvc.Action;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
+import play.mvc.Result;
 import controllers.task.BBTaskActorBase;
 
 
@@ -25,22 +24,20 @@ public class Global extends GlobalSettings {
 	public void onStart(Application arg0) {
 		super.onStart(arg0);
 		
-		// バッチ処理のスケジュール設定
-//		try {
-//			BBAnalyzerTaskActorBase.getInstance().start();
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//		}
-		
 		// BB バッチ処理のスケジュール設定
 		try {
 			BBTaskActorBase.getInstance().start();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void onStop(Application arg0) {
+		super.onStop(arg0);
 		
-		// initialize for debugging
-//		initForDebug();
+		// バッチ処理を停止
+//		BBAnalyzerTaskActorBase.getInstance().shutdown();
 	}
 
 	@Override
@@ -53,40 +50,32 @@ public class Global extends GlobalSettings {
 		}
 		accessLog.info(request.remoteAddress() + " (" + actionMethod.getName() + ") " + request.method() + " " + request.uri() + " [" + userAgent + "]");
 
-		// デバッグログ出力
-		Debugger.callOnRequest(request);
+		// デバッグ情報をコンソール表示出力
+		try {
+			new Debugger().debug(request);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 		
 		return super.onRequest(request, actionMethod);
 	}
 
 	@Override
-	public Handler onRouteRequest(RequestHeader request) {
-
-		Logger.debug("RouteRequest: "+request.uri());
-		
-		return super.onRouteRequest(request);
+	public Handler onRouteRequest(RequestHeader arg0) {
+		System.out.println("RouteRequest: "+arg0.method()+" "+arg0.path());
+		return super.onRouteRequest(arg0);
 	}
 
 	@Override
-	public void onStop(Application arg0) {
-		super.onStop(arg0);
-		
-		// バッチ処理を停止
-//		BBAnalyzerTaskActorBase.getInstance().shutdown();
-	}
-	
-	
-	
-	
-	
-	
-	
-	private void initForDebug() {
-		// BBAnalyzer
-		BBItemWordCountService bbItemWordCountService = new BBItemWordCountService();
-		List<BBItem> items = new BBItem().find.all();
-		for(BBItem item : items) {
-			bbItemWordCountService.updateBBItemWordCount(item);
+	public Promise<Result> onHandlerNotFound(RequestHeader arg0) {
+
+		// デバッグ情報をコンソール表示出力
+		try {
+			new Debugger().debug(arg0);
+		} catch (Throwable e) {
+			e.printStackTrace();
 		}
+
+		return super.onHandlerNotFound(arg0);
 	}
 }
