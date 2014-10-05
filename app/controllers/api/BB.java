@@ -3,6 +3,7 @@ package controllers.api;
 import models.request.api.bb.AddPossessionsRequest;
 import models.request.api.bb.OnLoginRequest;
 import models.request.api.bb.StoreHistoriesRequest;
+import models.request.api.bb.SyncPossessionsRequest;
 import models.request.api.bb.UpdatePossessionsRequest;
 import models.request.api.bb.UpdatePostsRequest;
 import models.response.api.bb.AddPossessionResponse;
@@ -12,6 +13,7 @@ import models.response.api.bb.PopularPostsResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
+import models.response.api.bb.SyncPossessionsResponse;
 import models.response.api.bb.UpdatePossessionResponse;
 import models.response.api.bb.UpdatePostsResponse;
 import models.response.api.bb.WordListResponse;
@@ -19,9 +21,12 @@ import models.service.api.bb.BBService;
 import models.service.api.bb.BBService.InvalidParameterException;
 import models.setting.api.bb.BBStatusSetting;
 import play.db.ebean.Transactional;
+import play.libs.F.Function0;
+import play.libs.F.Promise;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
+import play.mvc.Http.Request;
 import play.mvc.Result;
 import utils.api.bb.LogUtil;
 
@@ -182,6 +187,38 @@ public class BB extends Controller {
 		}
 		
 		return ok(Json.toJson(response));
+	}
+	
+	/**
+	 * 掲示保持リストを同期するアクション
+	 * @return
+	 */
+	public static Promise<Result> syncPossessions() {
+		final Request httpRequest = request();
+		
+		return Promise.promise(new Function0<Result>() {
+			@Override
+			public Result apply() throws Throwable {
+				SyncPossessionsResponse response = null;
+				
+				try {
+					SyncPossessionsRequest request = Json.fromJson(httpRequest.body().asJson(), SyncPossessionsRequest.class);
+					response = BBService.use().procSyncPossessions(request);
+				} catch (InvalidParameterException e) {
+					LogUtil.info("BB", e);
+					response = new SyncPossessionsResponse(BBStatusSetting.BadRequest);
+					response.setMessage(e.getLocalizedMessage());
+					return badRequest(Json.toJson(response));
+				} catch (Exception e) {
+					LogUtil.error("BB", e);
+					response = new SyncPossessionsResponse(BBStatusSetting.InternalServerError);
+					response.setMessage(e.getLocalizedMessage());
+					return internalServerError(Json.toJson(response));
+				}
+				
+				return ok(Json.toJson(response));
+			}
+		});
 	}
 	
 	/**

@@ -16,6 +16,7 @@ import models.entity.bb.Word;
 import models.request.api.bb.AddPossessionsRequest;
 import models.request.api.bb.OnLoginRequest;
 import models.request.api.bb.StoreHistoriesRequest;
+import models.request.api.bb.SyncPossessionsRequest;
 import models.request.api.bb.UpdatePossessionsRequest;
 import models.request.api.bb.UpdatePostsRequest;
 import models.response.api.bb.AddPossessionResponse;
@@ -25,12 +26,16 @@ import models.response.api.bb.PopularPostsResponse;
 import models.response.api.bb.RelevantsResponse;
 import models.response.api.bb.StoreHistoriesResponse;
 import models.response.api.bb.SuggestionsResponse;
+import models.response.api.bb.SyncPossessionsResponse;
 import models.response.api.bb.UpdatePossessionResponse;
 import models.response.api.bb.UpdatePostsResponse;
 import models.response.api.bb.WordListResponse;
 import models.setting.BBSetting;
 import models.setting.api.bb.BBStatusSetting;
 import utils.bb.PostUtil;
+
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.TxCallable;
 
 public class BBService {
 	// TODO API から利用するサービスを記述
@@ -205,6 +210,52 @@ public class BBService {
 				}
 			}
 		}
+		
+		return response;
+	}
+	
+	/**
+	 * 掲示保持リストにエントリを追加する
+	 * @return
+	 */
+	public SyncPossessionsResponse procSyncPossessions(final SyncPossessionsRequest request) throws Exception {
+		if (request.nitechId == null) {
+			throw new InvalidParameterException("null nitech id");
+		}
+
+		final NitechUser nitechUser = new NitechUser(request.nitechId).unique();
+		if (nitechUser == null) {
+			throw new InvalidParameterException("invalid nitech user id");
+		}
+		
+		SyncPossessionsResponse response = Ebean.execute(new TxCallable<SyncPossessionsResponse>() {
+			@Override
+			public SyncPossessionsResponse call() {
+				SyncPossessionsResponse response = new SyncPossessionsResponse(BBStatusSetting.OK);
+
+				// 現在ユーザが保持している掲示のリストを取得
+				List<Post> posts = nitechUser.findPossessingPosts();
+				
+				// 同期をとる
+				for (SyncPossessionsRequest.Entry e : request.posts) {
+					Post post = new Post(e.idDate, e.idIndex).uniqueOrStore();
+					posts.remove(post);
+					Possession possession = new Possession(nitechUser, post).uniqueOrStore();
+					possession.setIsFavorite(e.isFavorite);
+					possession.save();
+					if (post.getAuthor() == null || post.getAuthor().isEmpty() || post.getTitle() == null || post.getTitle().isEmpty()) {
+						response.addInfoLackingPost(post);
+					}
+				}
+				
+				// 同期リストに入っていない掲示を削除する
+				for (Post post : posts) {
+					post.delete();
+				}
+				
+				return response;
+			}
+		});
 		
 		return response;
 	}
