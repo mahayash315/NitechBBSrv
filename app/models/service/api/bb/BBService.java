@@ -250,7 +250,10 @@ public class BBService {
 				
 				// 同期リストに入っていない掲示を削除する
 				for (Post post : posts) {
-					post.delete();
+					Possession possession = new Possession(nitechUser, post).unique();
+					if (possession != null) {
+						possession.delete();
+					}
 				}
 				
 				return response;
