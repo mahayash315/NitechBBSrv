@@ -178,6 +178,8 @@ BEGIN
 	DECLARE hasNext int;;
 	DECLARE _cluster_id bigint;;
 	DECLARE _word_id bigint;;
+	DECLARE _c1 bigint;;
+	DECLARE _c0 bigint;;
 	DECLARE _v double;;
     DECLARE cur CURSOR FOR
 		select t1.id,
@@ -207,14 +209,27 @@ BEGIN
 				(select `post_id` from `bb_history` where `nitech_user_id` = _nitech_user_id) t2
 			on t1.`post_id` = t2.`post_id`) t2;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
-
+	
+--	ユーザクラスタが存在しなければ作成する
+	IF NOT EXISTS (select id from bb_user_cluster where `nitech_user_id`=_nitech_user_id) THEN
+		insert ignore into bb_user_cluster (`nitech_user_id`,`depth`,`weight`,`parent_id`) values (_nitech_user_id,0,1,null);;
+	END IF;;
+	
+--	ユーザクラスタの事前確率 p(c) を更新する
+	select
+		(select count(post_id) from bb_possession where nitech_user_id=_nitech_user_id and `class`=1),
+		(select count(post_id) from bb_possession where nitech_user_id=_nitech_user_id and `class`=0)
+	into _c1,_c0;;
+	update bb_user_cluster set
+		prior_1=_c1/(_c1+_c0),
+		prior_0=_c0/(_c1+_c0)
+	where nitech_user_id=_nitech_user_id;;
+	
+--	各単語について条件付き確率 p(w|c) を更新し、ユーザベクトルを更新する
 	SET hasNext = 1;;
 	OPEN cur;;
 	WHILE hasNext DO
 		FETCH cur INTO _word_id, _v;;
-		IF NOT EXISTS (select id from bb_user_cluster where `nitech_user_id`=_nitech_user_id) THEN
-			insert ignore into bb_user_cluster (`nitech_user_id`,`depth`,`weight`,`parent_id`) values (_nitech_user_id,0,1,null);;
-		END IF;;
 		select id from bb_user_cluster where `nitech_user_id`=_nitech_user_id into _cluster_id;;
 		IF NOT EXISTS (select `value` from bb_user_cluster_vector where `cluster_id`=_cluster_id and `class`=_class and `word_id`=_word_id) THEN
 			insert into bb_user_cluster_vector (`cluster_id`,`class`,`word_id`,`value`) values (_cluster_id,_class,_word_id,null);;

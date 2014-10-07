@@ -37,6 +37,12 @@ public class UserCluster extends Model {
 	@Column(name="weight")
 	private long weight;
 	
+	@Column(name="prior_1")
+	private Double prior1;
+	
+	@Column(name="prior_0")
+	private Double prior0;
+	
 	@ManyToOne
 	@Column(name="parent_cluster_id")
 	private UserCluster parent; 

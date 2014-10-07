@@ -42,14 +42,22 @@ END;
 
 
 -- 親クラスタへ weight の修正を伝搬
-DROP PROCEDURE IF EXISTS PropagateClusterWeight;
-CREATE PROCEDURE PropagateClusterWeight(IN _parent_cluster_id BIGINT, IN _diff DOUBLE)
+DROP PROCEDURE IF EXISTS PropagateClusterAttributes;
+CREATE PROCEDURE PropagateClusterAttributes(IN _parent_cluster_id BIGINT, IN _child_cluster_id BIGINT, IN _coeff TINYINT)
 BEGIN
 	DECLARE _id bigint;;
-	update bb_user_cluster set weight=weight+_diff where id=_parent_cluster_id;;
+	DECLARE _weight bigint;;
+	DECLARE _prior_1 DOUBLE;;
+	DECLARE _prior_0 DOUBLE;;
+	select weight,prior_1,prior_0 from bb_user_cluster where id=_child_cluster_id into _weight, _prior_1, _prior_0;;
+	update bb_user_cluster set
+		weight=weight+_coeff*_weight,
+		prior_1=(prior_1*weight+coeff*_prior_1*_weight)/(weight+coeff*_weight),
+		prior_0=(prior_0*weight+coeff*_prior_0*_weight)/(weight+coeff*_weight)
+	where id=_parent_cluster_id;;
 	select parent_id from bb_user_cluster where id=_parent_cluster_id into _id;; 
 	IF _id IS NOT NULL THEN
-		call PropagateClusterWeight(_id, _diff);;
+		call PropagateClusterAttributes(_id, _parent_cluster_id, _coeff);;
 	END IF;;
 END;
 
@@ -107,11 +115,11 @@ BEGIN
 	
 --	現在の parent から weight を引く
 	IF _id IS NOT NULL THEN
-		call PropagateClusterWeight(_id, -_w);;
+		call PropagateClusterAttributes(_id, _child_cluster_id, -1);;
 	END IF;;
 	
 --	新しい parent に weight を足す
-	call PropagateClusterWeight(_parent_cluster_id, _w);;
+	call PropagateClusterAttributes(_parent_cluster_id, _child_cluster_id, 1);;
 	
 --  親クラスタを設定
 	update bb_user_cluster set parent_id = _parent_cluster_id where id=_child_cluster_id;;
@@ -154,7 +162,7 @@ BEGIN
 	delete from bb_user_cluster_vector where cluster_id=_cluster_id;;
 	select weight,parent_id from bb_user_cluster where id=_cluster_id into _w,_parent_cluster_id;;
 	update bb_user_cluster set parent_id = NULL where parent_id = _cluster_id;; 
-	call PropagateClusterWeight(_parent_cluster_id, -_w);;
+	call PropagateClusterAttributes(_parent_cluster_id, _cluster_id, -1);;
 	delete from bb_user_cluster where id=_cluster_id;;
 END;
 
@@ -290,7 +298,7 @@ DROP FUNCTION IF EXISTS cluster_vector_multiply;
 DROP FUNCTION IF EXISTS cluster_vector_length;
 DROP FUNCTION IF EXISTS cluster_vector_cos;
 DROP FUNCTION IF EXISTS cluster_vector_distance;
-DROP PROCEDURE IF EXISTS PropagateClusterWeight;
+DROP PROCEDURE IF EXISTS PropagateClusterAttributes;
 DROP PROCEDURE IF EXISTS GetClusterFeature;
 DROP PROCEDURE IF EXISTS UpdateClusterFeature;
 DROP PROCEDURE IF EXISTS SetParentCluster;
