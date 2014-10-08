@@ -323,7 +323,7 @@ BEGIN
 	IF _v >= 0 THEN
 --		クラス 1
 		update bb_estimation set class=1, liklihood= _v where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id;;
-	ELSEIF _depth == 0 THEN
+	ELSEIF _depth = 0 THEN
 --		クラス 0
 		update bb_estimation set class=0, liklihood=-_v where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id;;
 	END IF;;
