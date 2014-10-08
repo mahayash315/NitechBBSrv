@@ -52,8 +52,8 @@ BEGIN
 	select weight,prior_1,prior_0 from bb_user_cluster where id=_child_cluster_id into _weight, _prior_1, _prior_0;;
 	update bb_user_cluster set
 		weight=weight+_coeff*_weight,
-		prior_1=(prior_1*weight+coeff*_prior_1*_weight)/(weight+coeff*_weight),
-		prior_0=(prior_0*weight+coeff*_prior_0*_weight)/(weight+coeff*_weight)
+		prior_1=(prior_1*weight+_coeff*_prior_1*_weight)/(weight+_coeff*_weight),
+		prior_0=(prior_0*weight+_coeff*_prior_0*_weight)/(weight+_coeff*_weight)
 	where id=_parent_cluster_id;;
 	select parent_id from bb_user_cluster where id=_parent_cluster_id into _id;; 
 	IF _id IS NOT NULL THEN
