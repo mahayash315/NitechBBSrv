@@ -49,6 +49,7 @@ public class PostClassifier {
 		
 		// 最終サンプル採取時刻を更新
 		post.setLastSampled(lastSampled);
+		post.save();
 	}
 	
 	/**
