@@ -27,9 +27,6 @@ public class BBTaskActor extends UntypedActor {
 	    		Configuration.putBoolean(BBSetting.CONFIGURATION_KEY_REQUIRE_USER_CLUSTER_INITIALIZATION, false);
 	    	}
 	    	
-	    	// ユーザを分類する
-	    	userClassifier.classify();
-	    	
 	    	// 掲示の特徴量を更新
 	    	calcPostFeatures(postClassifier);
 	    	
@@ -38,6 +35,9 @@ public class BBTaskActor extends UntypedActor {
 	    	
 	    	// パラメータを学習する
 	    	postClassifier.train();
+	    	
+	    	// ユーザを分類する
+	    	userClassifier.classify();
 	    	
 	    	// 掲示を分類する
 	    	List<NitechUser> users = new NitechUser().findList();

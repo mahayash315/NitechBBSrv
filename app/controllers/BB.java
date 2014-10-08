@@ -31,15 +31,6 @@ public class BB extends Controller {
 		return ok("OK");
 	}
 	
-	public static Result classify() {
-    	UserClassifier userClassifier = new UserClassifier();
-    	
-    	// ユーザを分類する
-    	userClassifier.classify();
-    	
-    	return ok("OK");
-	}
-	
 	public static Result extract() {
     	PostClassifier postClassifier = new PostClassifier();
     	
@@ -70,6 +61,15 @@ public class BB extends Controller {
 		return ok("OK");
 	}
 	
+	public static Result classify() {
+    	UserClassifier userClassifier = new UserClassifier();
+    	
+    	// ユーザを分類する
+    	userClassifier.classify();
+    	
+    	return ok("OK");
+	}
+	
 	public static Result estimate() {
     	PostClassifier postClassifier = new PostClassifier();
 
@@ -86,9 +86,9 @@ public class BB extends Controller {
 	}
 	
 	public static Result process() {
-		classify();
 		extract();
 		train();
+		classify();
 		estimate();
 		
 		return ok("OK");

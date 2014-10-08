@@ -263,13 +263,15 @@ END;
 
 -- ユーザ別の事前確率(の log)を返す
 DROP FUNCTION IF EXISTS p_of_class;
-CREATE FUNCTION p_of_class(_nitech_user_id bigint, _class tinyint) RETURNS DOUBLE
+CREATE FUNCTION p_of_class(_cluster_id bigint, _class tinyint) RETURNS DOUBLE
 BEGIN
-	RETURN
-		(select log(t1.n/t2.n) from
-			(select count(post_id) n from bb_possession where nitech_user_id=_nitech_user_id and class=_class) t1
-		join
-			(select count(post_id) n from bb_possession where nitech_user_id=_nitech_user_id) t2);;
+	IF _class >= 1 THEN
+		RETURN
+			select log(prior_1) from bb_user_cluster where id=_cluster_id;;
+	ELSE
+		RETURN
+			select log(prior_0) from bb_user_cluster where id=_cluster_id;;
+	END IF;;
 END;
 
 
@@ -298,9 +300,9 @@ END;
 
 -- ユーザ、クラスタごとの事後確率を返す
 DROP FUNCTION IF EXISTS p_of_class_given_words;
-CREATE FUNCTION p_of_class_given_words(_nitech_user_id bigint, _cluster_id bigint, _post_id bigint, _class int) RETURNS DOUBLE
+CREATE FUNCTION p_of_class_given_words(_cluster_id bigint, _post_id bigint, _class int) RETURNS DOUBLE
 BEGIN
-	RETURN (select p_of_class(_nitech_user_id, _class)+p_of_words_given_class(_cluster_id, _post_id, _class));;
+	RETURN (select p_of_class(_cluster_id, _class)+p_of_words_given_class(_cluster_id, _post_id, _class));;
 END;
 
 
@@ -317,12 +319,12 @@ BEGIN
 		insert into bb_estimation (nitech_user_id,depth,post_id,class,liklihood) values (_nitech_user_id,_depth,_post_id,null,null);;
 	END IF;;
 	
-	select p_of_class_given_words(_nitech_user_id,_cluster_id,_post_id,1) - p_of_class_given_words(_nitech_user_id,_cluster_id,_post_id,0) into _v;;
+	select p_of_class_given_words(_cluster_id,_post_id,1) - p_of_class_given_words(_cluster_id,_post_id,0) into _v;;
 	IF _v >= 0 THEN
 --		クラス 1
 		update bb_estimation set class=1, liklihood= _v where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id;;
-	ELSE
---		クラス 2
+	ELSEIF _depth == 0 THEN
+--		クラス 0
 		update bb_estimation set class=0, liklihood=-_v where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id;;
 	END IF;;
 	
