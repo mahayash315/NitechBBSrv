@@ -1,5 +1,6 @@
 package controllers;
 
+import java.util.Date;
 import java.util.List;
 
 import models.entity.Configuration;
@@ -42,7 +43,8 @@ public class BB extends Controller {
 		// 各掲示の特徴量算出結果が古ければ更新
 		List<Post> posts = new Post().findList();
 		for (Post post : posts) {
-			long lastSampled = post.getLastSampled().getTime();
+			Date lastSampledDate = post.getLastSampled();
+			long lastSampled = (lastSampledDate == null) ? 0 : lastSampledDate.getTime();
 			Logger.info("BB#extract(): post="+post+", lastSampled="+lastSampled);
 			if (lastSampled < lastWordListModified) {
 				postClassifier.calcPostFeature(post);
