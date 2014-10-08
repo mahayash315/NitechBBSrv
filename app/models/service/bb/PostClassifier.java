@@ -27,6 +27,7 @@ public class PostClassifier {
 	 */
 	public void calcPostFeature(Post post) {
 		HashMap<Word,Integer> feature = PostUtil.use().getPostFeature(post);
+		Logger.info("PostClassifier#calcPostFeature(): post="+post+", extracted feature="+feature);
 		
 		// WordInPost エントリ更新
 		List<Word> words = new Word().findList();

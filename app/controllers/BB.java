@@ -8,6 +8,7 @@ import models.entity.bb.Post;
 import models.service.bb.PostClassifier;
 import models.service.bb.UserClassifier;
 import models.setting.BBSetting;
+import play.Logger;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -36,15 +37,18 @@ public class BB extends Controller {
     	
 		// 単語リストの最終更新日時
 		long lastModified = Configuration.getLong(BBSetting.CONFIGURATION_KEY_WORD_LIST_LAST_MODIFIED, 0L);
+		Logger.info("BB#extract(): word list lastModified="+lastModified);
 		
 		// 各掲示の特徴量算出結果が古ければ更新
 		List<Post> posts = new Post().findList();
 		for (Post post : posts) {
 			long lastUpdated = post.getLastModified().getTime();
+			Logger.info("BB#extract(): post="+post+", lastUpdated="+lastUpdated);
 			if (lastUpdated < lastModified) {
 				postClassifier.calcPostFeature(post);
 			}
 		}
+		Logger.info("BB#extract(): done updating features");
     	
     	// 掲示距離を計算する
     	postClassifier.calcPostDistances();
