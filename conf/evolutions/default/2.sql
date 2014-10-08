@@ -176,6 +176,7 @@ DROP PROCEDURE IF EXISTS TrainFor;
 CREATE PROCEDURE TrainFor(IN _nitech_user_id BIGINT, IN _class TINYINT)
 BEGIN
 	DECLARE hasNext int;;
+	DECLARE _n bigint;;
 	DECLARE _cluster_id bigint;;
 	DECLARE _word_id bigint;;
 	DECLARE _v double;;
@@ -206,24 +207,18 @@ BEGIN
 --			join
 --				(select `post_id` from `bb_history` where `nitech_user_id` = _nitech_user_id) t2
 --			on t1.`post_id` = t2.`post_id`) t2;;
-		select t1.id,
-			case
-				when t2.n <= 0 then 0
-				else t1.v/t2.n
-			end v
-		from
-			(select t1.id, if(t2.v is null, 1, 1+t2.v) v from
-				`bb_word` t1
-			left join
-				(select t2.`word_id`, sum(t2.`value`) v from
-					(select `post_id` from `bb_possession` where `nitech_user_id`=_nitech_user_id and `class`=_class) t1
-				join
-					`bb_word_in_post` t2
-				on t1.`post_id`=t2.`post_id`
-				group by t2.word_id) t2
-			on t1.id=t2.`word_id`) t1
+	select
+		t1.id, if(t2.v is null, 1, 1+t2.v) v
+	from
+		`bb_word` t1
+	left join
+		(select t2.`word_id`, sum(t2.`value`) v from
+			(select `post_id` from `bb_possession` where `nitech_user_id`=_nitech_user_id and `class`=_class) t1
 		join
-			(select 2*count(`post_id`) n from `bb_possession` where `nitech_user_id` = _nitech_user_id and `class`=_class) t2;;
+			`bb_word_in_post` t2
+		on t1.`post_id`=t2.`post_id`
+		group by t2.word_id) t2
+	on t1.id=t2.`word_id`;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
 	
 --	ユーザクラスタが存在しなければ作成する
@@ -244,6 +239,23 @@ BEGIN
 		where nitech_user_id=_nitech_user_id;;
 	END IF;;
 	
+--	条件付き確率 p(w|c) の計算に必要な分母の値を求める
+	select
+		count(t2.`value`) n
+	from
+		(select
+			post_id
+		from `bb_possession`
+		where
+			`nitech_user_id`=_nitech_user_id
+			and
+			`class`=_class
+		) t1
+	join
+		`bb_word_in_post` t2
+	on t1.`post_id`=t2.`post_id`
+	into _n;;
+	
 --	各単語について条件付き確率 p(w|c) を更新し、ユーザベクトルを更新する
 	SET hasNext = 1;;
 	OPEN cur;;
@@ -253,7 +265,7 @@ BEGIN
 		IF NOT EXISTS (select `value` from bb_user_cluster_vector where `cluster_id`=_cluster_id and `class`=_class and `word_id`=_word_id) THEN
 			insert into bb_user_cluster_vector (`cluster_id`,`class`,`word_id`,`value`) values (_cluster_id,_class,_word_id,null);;
 		END IF;;
-		update bb_user_cluster_vector set `value` = _v where `cluster_id`=_cluster_id and `class`=_class and `word_id`=_word_id;;
+		update bb_user_cluster_vector set `value` = _v/_n where `cluster_id`=_cluster_id and `class`=_class and `word_id`=_word_id;;
 	END WHILE;;
 	CLOSE cur;;
 END;
