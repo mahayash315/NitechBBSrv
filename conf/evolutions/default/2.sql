@@ -251,7 +251,7 @@ BEGIN
 			`bb_word_in_post` t2
 		on t1.`post_id`=t2.`post_id`
 		group by t2.word_id) t2
-	on t1.id=t2.`word_id`;;
+	on t1.id=t2.`word_id`
 	into _n;;
 	
 --	各単語について条件付き確率 p(w|c) を更新し、ユーザベクトルを更新する
