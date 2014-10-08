@@ -178,36 +178,52 @@ BEGIN
 	DECLARE hasNext int;;
 	DECLARE _cluster_id bigint;;
 	DECLARE _word_id bigint;;
-	DECLARE _c1 bigint;;
-	DECLARE _c0 bigint;;
 	DECLARE _v double;;
     DECLARE cur CURSOR FOR
+--		select t1.id,
+--			case
+--				when t2.n <= 0 then (select if(n=0,0.5,1/n)  from (select count(`post_id`) n from `bb_history` where `nitech_user_id` = _nitech_user_id) t)
+--				else t1.v/t2.n
+--			end v
+--		from
+--			(select t1.id, if(t2.v is null, 1, 1+t2.v) v from
+--				`bb_word` t1
+--			left join
+--				(select t2.`word_id`, sum(t1.n*t2.value) v from
+--					(select t1.`post_id` `post_id`, t2.n n from
+--						(select `post_id` from `bb_possession` where `nitech_user_id`=_nitech_user_id and `class`=_class) t1
+--					join
+--						(select count(id) n, `post_id` from `bb_history` where `nitech_user_id`=_nitech_user_id group by `post_id`) t2
+--					on t1.`post_id`=t2.`post_id`) t1
+--				join
+--					`bb_word_in_post` t2
+--				on t1.`post_id`=t2.`post_id`
+--				group by t2.word_id) t2
+--			on t1.id=t2.`word_id`) t1
+--		join
+--			(select 2*count(t1.`post_id`) n from
+--				(select `post_id` from `bb_possession` where `nitech_user_id` = _nitech_user_id and `class`=_class) t1
+--			join
+--				(select `post_id` from `bb_history` where `nitech_user_id` = _nitech_user_id) t2
+--			on t1.`post_id` = t2.`post_id`) t2;;
 		select t1.id,
 			case
-				when t2.n <= 0 then (select if(n=0,0.5,1/n)  from (select count(`post_id`) n from `bb_history` where `nitech_user_id` = _nitech_user_id) t)
+				when t2.n <= 0 then 0
 				else t1.v/t2.n
 			end v
 		from
 			(select t1.id, if(t2.v is null, 1, 1+t2.v) v from
 				`bb_word` t1
 			left join
-				(select t2.`word_id`, sum(t1.n*t2.value) v from
-					(select t1.`post_id` `post_id`, t2.n n from
-						(select `post_id` from `bb_possession` where `nitech_user_id`=_nitech_user_id and `class`=_class) t1
-					join
-						(select count(id) n, `post_id` from `bb_history` where `nitech_user_id`=_nitech_user_id group by `post_id`) t2
-					on t1.`post_id`=t2.`post_id`) t1
+				(select t2.`word_id`, sum(t2.`value`) v from
+					(select `post_id` from `bb_possession` where `nitech_user_id`=_nitech_user_id and `class`=_class) t1
 				join
 					`bb_word_in_post` t2
 				on t1.`post_id`=t2.`post_id`
 				group by t2.word_id) t2
 			on t1.id=t2.`word_id`) t1
 		join
-			(select 2*count(t1.`post_id`) n from
-				(select `post_id` from `bb_possession` where `nitech_user_id` = _nitech_user_id and `class`=_class) t1
-			join
-				(select `post_id` from `bb_history` where `nitech_user_id` = _nitech_user_id) t2
-			on t1.`post_id` = t2.`post_id`) t2;;
+			(select 2*count(`post_id`) n from `bb_possession` where `nitech_user_id` = _nitech_user_id and `class`=_class) t2;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
 	
 --	ユーザクラスタが存在しなければ作成する
@@ -216,14 +232,17 @@ BEGIN
 	END IF;;
 	
 --	ユーザクラスタの事前確率 p(c) を更新する
-	select
-		(select count(post_id) from bb_possession where nitech_user_id=_nitech_user_id and `class`=1),
-		(select count(post_id) from bb_possession where nitech_user_id=_nitech_user_id and `class`=0)
-	into _c1,_c0;;
-	update bb_user_cluster set
-		prior_1=_c1/(_c1+_c0),
-		prior_0=_c0/(_c1+_c0)
-	where nitech_user_id=_nitech_user_id;;
+	IF _class >= 1 THEN
+		update bb_user_cluster set
+			prior_1 = (select count(post_id) from bb_possession where nitech_user_id=_nitech_user_id and `class`=1)
+					 /(select count(post_id) from bb_possession where nitech_user_id=_nitech_user_id)
+		where nitech_user_id=_nitech_user_id;;
+	ELSE
+		update bb_user_cluster set
+			prior_0 = (select count(post_id) from bb_possession where nitech_user_id=_nitech_user_id and `class`=0)
+					 /(select count(post_id) from bb_possession where nitech_user_id=_nitech_user_id)
+		where nitech_user_id=_nitech_user_id;;
+	END IF;;
 	
 --	各単語について条件付き確率 p(w|c) を更新し、ユーザベクトルを更新する
 	SET hasNext = 1;;
@@ -283,7 +302,7 @@ BEGIN
 		(select sum(p) from
 			(select
 				case
-					when v  = 0  then log(1-t2.`value`)
+					when v  = 0 then log(1-t2.`value`)
 					when 1 <= v then log(t2.`value`)
 				end p
 			from
