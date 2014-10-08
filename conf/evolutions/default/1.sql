@@ -135,6 +135,7 @@ create table bb_post (
   id_index                  integer,
   author                    varchar(255),
   title                     varchar(255),
+  last_sampled              datetime,
   last_modified             datetime not null,
   constraint uq_bb_post_1 unique (id_date,id_index),
   constraint pk_bb_post primary key (id))
