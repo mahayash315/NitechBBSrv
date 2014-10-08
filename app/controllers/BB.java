@@ -36,15 +36,15 @@ public class BB extends Controller {
     	PostClassifier postClassifier = new PostClassifier();
     	
 		// 単語リストの最終更新日時
-		long lastModified = Configuration.getLong(BBSetting.CONFIGURATION_KEY_WORD_LIST_LAST_MODIFIED, 0L);
-		Logger.info("BB#extract(): word list lastModified="+lastModified);
+		long lastWordListModified = Configuration.getLong(BBSetting.CONFIGURATION_KEY_WORD_LIST_LAST_MODIFIED, 0L);
+		Logger.info("BB#extract(): word list lastModified="+lastWordListModified);
 		
 		// 各掲示の特徴量算出結果が古ければ更新
 		List<Post> posts = new Post().findList();
 		for (Post post : posts) {
-			long lastUpdated = post.getLastModified().getTime();
-			Logger.info("BB#extract(): post="+post+", lastUpdated="+lastUpdated);
-			if (lastUpdated < lastModified) {
+			long lastSampled = post.getLastSampled().getTime();
+			Logger.info("BB#extract(): post="+post+", lastSampled="+lastSampled);
+			if (lastSampled < lastWordListModified) {
 				postClassifier.calcPostFeature(post);
 			}
 		}

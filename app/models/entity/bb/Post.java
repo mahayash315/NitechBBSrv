@@ -50,6 +50,9 @@ public class Post extends Model {
 	@OneToMany(mappedBy="post",cascade={CascadeType.REMOVE},fetch=FetchType.LAZY)
 	private List<History> histories;
 	
+	@Column(name="last_sampled")
+	private Date lastSampled;
+	
 	@Version
 	private Date lastModified;
 	
@@ -154,6 +157,12 @@ public class Post extends Model {
 	}
 	public void setWordsInPost(List<WordInPost> wordsInPost) {
 		this.wordsInPost = wordsInPost;
+	}
+	public Date getLastSampled() {
+		return lastSampled;
+	}
+	public void setLastSampled(Date lastSampled) {
+		this.lastSampled = lastSampled;
 	}
 	public Date getLastModified() {
 		return lastModified;

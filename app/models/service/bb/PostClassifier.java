@@ -1,5 +1,6 @@
 package models.service.bb;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,6 +30,8 @@ public class PostClassifier {
 		HashMap<Word,Integer> feature = PostUtil.use().getPostFeature(post);
 		Logger.info("PostClassifier#calcPostFeature(): post="+post+", extracted feature="+feature);
 		
+		Date lastSampled = new Date();
+		
 		// WordInPost エントリ更新
 		List<Word> words = new Word().findList();
 		for (Word word : words) {
@@ -43,6 +46,9 @@ public class PostClassifier {
 				}
 			}
 		}
+		
+		// 最終サンプル採取時刻を更新
+		post.setLastSampled(lastSampled);
 	}
 	
 	/**
