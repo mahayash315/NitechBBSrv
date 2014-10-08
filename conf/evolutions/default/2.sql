@@ -267,10 +267,10 @@ CREATE FUNCTION p_of_class(_cluster_id bigint, _class tinyint) RETURNS DOUBLE
 BEGIN
 	IF _class >= 1 THEN
 		RETURN
-			select log(prior_1) from bb_user_cluster where id=_cluster_id;;
+			(select log(prior_1) from bb_user_cluster where id=_cluster_id);;
 	ELSE
 		RETURN
-			select log(prior_0) from bb_user_cluster where id=_cluster_id;;
+			(select log(prior_0) from bb_user_cluster where id=_cluster_id);;
 	END IF;;
 END;
 
