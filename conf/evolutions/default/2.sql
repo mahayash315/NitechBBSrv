@@ -241,19 +241,17 @@ BEGIN
 	
 --	条件付き確率 p(w|c) の計算に必要な分母の値を求める
 	select
-		count(t2.`value`) n
+		sum(if(t2.v is null, 1, 1+t2.v)) v
 	from
-		(select
-			post_id
-		from `bb_possession`
-		where
-			`nitech_user_id`=_nitech_user_id
-			and
-			`class`=_class
-		) t1
-	join
-		`bb_word_in_post` t2
-	on t1.`post_id`=t2.`post_id`
+		`bb_word` t1
+	left join
+		(select t2.`word_id`, sum(t2.`value`) v from
+			(select `post_id` from `bb_possession` where `nitech_user_id`=_nitech_user_id and `class`=_class) t1
+		join
+			`bb_word_in_post` t2
+		on t1.`post_id`=t2.`post_id`
+		group by t2.word_id) t2
+	on t1.id=t2.`word_id`;;
 	into _n;;
 	
 --	各単語について条件付き確率 p(w|c) を更新し、ユーザベクトルを更新する
