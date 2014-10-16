@@ -26,7 +26,7 @@ public class PostClassifier {
 	 * 掲示の特徴量を更新する
 	 * @param post
 	 */
-	public void calcPostFeature(Post post) {
+	public void calcPostFeature(Post post) throws RuntimeException {
 		HashMap<Word,Integer> feature = PostUtil.use().getPostFeature(post);
 		Logger.info("PostClassifier#calcPostFeature(): post="+post+", extracted feature="+feature);
 		

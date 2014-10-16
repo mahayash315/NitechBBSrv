@@ -8,6 +8,7 @@ import models.entity.bb.Post;
 import models.service.bb.PostClassifier;
 import models.service.bb.UserClassifier;
 import models.setting.BBSetting;
+import play.Logger;
 import akka.actor.UntypedActor;
 
 import com.avaje.ebean.Ebean;
@@ -73,12 +74,16 @@ public class BBTaskActor extends UntypedActor {
 		for (final Post post : posts) {
 			long lastUpdated = post.getLastModified().getTime();
 			if (lastUpdated < lastModified) {
-				Ebean.execute(new TxRunnable() {
-					@Override
-					public void run() {
-						classifier.calcPostFeature(post);
-					}
-				});
+				try {
+					Ebean.execute(new TxRunnable() {
+						@Override
+						public void run() {
+							classifier.calcPostFeature(post);
+						}
+					});
+				} catch (RuntimeException e) {
+					Logger.error("BBTaskActor", e);
+				}
 			}
 		}
 	}

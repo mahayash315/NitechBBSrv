@@ -50,12 +50,16 @@ public class BB extends Controller {
 			long lastSampled = (lastSampledDate == null) ? 0 : lastSampledDate.getTime();
 			Logger.info("BB#extract(): post="+post+", lastSampled="+lastSampled);
 			if (lastSampled < lastWordListModified) {
-				Ebean.execute(new TxRunnable() {
-					@Override
-					public void run() {
-						postClassifier.calcPostFeature(post);
-					}
-				});
+				try {
+					Ebean.execute(new TxRunnable() {
+						@Override
+						public void run() {
+							postClassifier.calcPostFeature(post);
+						}
+					});
+				} catch (RuntimeException e) {
+					Logger.error("BB", e);
+				}
 			}
 		}
 		Logger.info("BB#extract(): done updating features");
