@@ -13,6 +13,9 @@ import play.Logger;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.TxRunnable;
+
 public class BB extends Controller {
 	
 	public static Result redirectToIndex() {
@@ -34,7 +37,7 @@ public class BB extends Controller {
 	}
 	
 	public static Result extract() {
-    	PostClassifier postClassifier = new PostClassifier();
+    	final PostClassifier postClassifier = new PostClassifier();
     	
 		// 単語リストの最終更新日時
 		long lastWordListModified = Configuration.getLong(BBSetting.CONFIGURATION_KEY_WORD_LIST_LAST_MODIFIED, 0L);
@@ -42,12 +45,17 @@ public class BB extends Controller {
 		
 		// 各掲示の特徴量算出結果が古ければ更新
 		List<Post> posts = new Post().findList();
-		for (Post post : posts) {
+		for (final Post post : posts) {
 			Date lastSampledDate = post.getLastSampled();
 			long lastSampled = (lastSampledDate == null) ? 0 : lastSampledDate.getTime();
 			Logger.info("BB#extract(): post="+post+", lastSampled="+lastSampled);
 			if (lastSampled < lastWordListModified) {
-				postClassifier.calcPostFeature(post);
+				Ebean.execute(new TxRunnable() {
+					@Override
+					public void run() {
+						postClassifier.calcPostFeature(post);
+					}
+				});
 			}
 		}
 		Logger.info("BB#extract(): done updating features");
@@ -77,14 +85,19 @@ public class BB extends Controller {
 	}
 	
 	public static Result estimate() {
-    	PostClassifier postClassifier = new PostClassifier();
+    	final PostClassifier postClassifier = new PostClassifier();
 
     	// 掲示を分類する
     	List<NitechUser> users = new NitechUser().findList();
-    	for (NitechUser user : users) {
+    	for (final NitechUser user : users) {
     		List<Post> posts = user.findPossessingPosts();
-    		for (Post post : posts) {
-    			postClassifier.estimate(user, post);
+    		for (final Post post : posts) {
+    			Ebean.execute(new TxRunnable() {
+					@Override
+					public void run() {
+		    			postClassifier.estimate(user, post);
+					}
+				});
     		}
     	}
     	

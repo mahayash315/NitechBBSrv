@@ -2,7 +2,6 @@ package models.actor;
 
 import java.util.List;
 
-import controllers.task.BBTaskActorBase;
 import models.entity.Configuration;
 import models.entity.NitechUser;
 import models.entity.bb.Post;
@@ -10,6 +9,11 @@ import models.service.bb.PostClassifier;
 import models.service.bb.UserClassifier;
 import models.setting.BBSetting;
 import akka.actor.UntypedActor;
+
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.TxRunnable;
+
+import controllers.task.BBTaskActorBase;
 
 public class BBTaskActor extends UntypedActor {
 
@@ -60,16 +64,21 @@ public class BBTaskActor extends UntypedActor {
 	/**
 	 * 全掲示の掲示者、件名から含まれる単語を取り出す
 	 */
-	public void calcPostFeatures(PostClassifier classifier) {
+	public void calcPostFeatures(final PostClassifier classifier) {
 		// 単語リストの最終更新日時
 		long lastModified = Configuration.getLong(BBSetting.CONFIGURATION_KEY_WORD_LIST_LAST_MODIFIED, 0L);
 		
 		// 各掲示の特徴量算出結果が古ければ更新
 		List<Post> posts = new Post().findList();
-		for (Post post : posts) {
+		for (final Post post : posts) {
 			long lastUpdated = post.getLastModified().getTime();
 			if (lastUpdated < lastModified) {
-				classifier.calcPostFeature(post);
+				Ebean.execute(new TxRunnable() {
+					@Override
+					public void run() {
+						classifier.calcPostFeature(post);
+					}
+				});
 			}
 		}
 	}
