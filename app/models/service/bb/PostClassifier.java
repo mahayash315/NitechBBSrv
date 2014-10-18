@@ -71,7 +71,6 @@ public class PostClassifier {
 											.setParameter(1, post.getId());
 					Ebean.execute(cSql);
 				    Ebean.execute(Ebean.createCallableSql("commit;"));
-					Ebean.commitTransaction();
 				}
 			});
 		}
@@ -87,7 +86,6 @@ public class PostClassifier {
 				CallableSql cSql = Ebean.createCallableSql("{call CalculatePostDistances()}");
 				Ebean.execute(cSql);
 	            Ebean.execute(Ebean.createCallableSql("commit;"));
-				Ebean.commitTransaction();
 			}
 		});
 	}
@@ -123,7 +121,6 @@ public class PostClassifier {
 											 .setParameter(1, 0);
 					Ebean.execute(cSql3);
 					Ebean.execute(Ebean.createCallableSql("commit;"));
-					Ebean.commitTransaction();
 				}
 			});
 		}
@@ -149,7 +146,6 @@ public class PostClassifier {
 				CallableSql cSql2 = Ebean.createCallableSql("{call Train()}");
 				Ebean.execute(cSql2);
 				Ebean.execute(Ebean.createCallableSql("commit;"));
-				Ebean.commitTransaction();
 			}
 		});
 	}
@@ -169,7 +165,6 @@ public class PostClassifier {
 											.setParameter(2, post.getId());
 					Ebean.execute(cSql);
 				    Ebean.execute(Ebean.createCallableSql("commit;"));
-					Ebean.commitTransaction();
 				}
 			});
 		}
