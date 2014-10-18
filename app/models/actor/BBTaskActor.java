@@ -78,7 +78,7 @@ public class BBTaskActor extends UntypedActor {
 					Ebean.execute(new TxRunnable() {
 						@Override
 						public void run() {
-							classifier.calcPostFeature(post);
+							classifier.extract(post);
 						}
 					});
 				} catch (RuntimeException e) {

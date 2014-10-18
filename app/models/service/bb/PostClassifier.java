@@ -27,7 +27,7 @@ public class PostClassifier {
 	 * 掲示の特徴量を更新する
 	 * @param post
 	 */
-	public void calcPostFeature(final Post post) throws RuntimeException {
+	public void extract(final Post post) throws RuntimeException {
 		Ebean.execute(new TxRunnable() {
 			@Override
 			public void run() {

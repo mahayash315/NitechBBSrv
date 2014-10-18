@@ -51,7 +51,7 @@ public class BB extends Controller {
 			Logger.info("BB#extract(): post="+post+", lastSampled="+lastSampled);
 			if (lastSampled < lastWordListModified) {
 				try {
-					postClassifier.calcPostFeature(post);
+					postClassifier.extract(post);
 				} catch (RuntimeException e) {
 					Logger.error("BB", e);
 				}
