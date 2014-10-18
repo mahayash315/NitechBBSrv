@@ -51,12 +51,7 @@ public class BB extends Controller {
 			Logger.info("BB#extract(): post="+post+", lastSampled="+lastSampled);
 			if (lastSampled < lastWordListModified) {
 				try {
-					Ebean.execute(new TxRunnable() {
-						@Override
-						public void run() {
-							postClassifier.calcPostFeature(post);
-						}
-					});
+					postClassifier.calcPostFeature(post);
 				} catch (RuntimeException e) {
 					Logger.error("BB", e);
 				}
@@ -96,12 +91,7 @@ public class BB extends Controller {
     	for (final NitechUser user : users) {
     		List<Post> posts = user.findPossessingPosts();
     		for (final Post post : posts) {
-    			Ebean.execute(new TxRunnable() {
-					@Override
-					public void run() {
-		    			postClassifier.estimate(user, post);
-					}
-				});
+    			postClassifier.estimate(user, post);
     		}
     	}
     	
