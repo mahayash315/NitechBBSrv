@@ -21,11 +21,11 @@ public class EstimationModelService implements
 			" group by post_id " +
 			" order by liklihood desc ")
 			.columnMapping("nitech_user_id", "id.nitechUserId")
-			.columnMapping("nitech_user_id", "nitechUser.id")
+//			.columnMapping("nitech_user_id", "nitechUser.id")
 			.columnMapping("depth", "id.depth")
-			.columnMapping("depth", "depth")
+//			.columnMapping("depth", "depth")
 			.columnMapping("post_id", "id.postId")
-			.columnMapping("post_id", "post.id")
+//			.columnMapping("post_id", "post.id")
 			.columnMapping("class", "clazz")
 			.columnMapping("liklihood", "likelihood")
 			.create();
