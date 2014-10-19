@@ -241,7 +241,7 @@ BEGIN
 	DECLARE _parent_cluster_id2 bigint;;
 	DECLARE _d double;;
 	DECLARE cur CURSOR FOR
-		select id,parent_id from bb_user_cluster where depth=_depth-1;;
+		select id,parent_id from bb_user_cluster where depth=_depth-1 and prior_1 IS NOT NULL and prior_0 IS NOT NULL;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
 	
 	IF 0 < _depth THEN
