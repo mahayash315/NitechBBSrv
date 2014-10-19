@@ -17,7 +17,7 @@ public class EstimationModelService implements
 	private static RawSql SQL_FIND_SUGGESTIONS = RawSqlBuilder.parse(
 			" select nitech_user_id, post_id, class, liklihood " +
 			" from bb_estimation " +
-			" where nitech_user_id=:uid" +
+			" where nitech_user_id=? " +
 			" order by liklihood desc " +
 			" group by post_id ")
 			.columnMapping("nitech_user_id", "nitechUser.id")
