@@ -36,7 +36,7 @@ public class Estimation extends Model {
 	private Boolean clazz;
 	
 	@Column(name="liklihood")
-	private Double liklihood;
+	private Double likelihood;
 	
 	
 	@Embeddable
@@ -160,9 +160,9 @@ public class Estimation extends Model {
 		this.clazz = clazz;
 	}
 	public Double getLiklihood() {
-		return liklihood;
+		return likelihood;
 	}
 	public void setLiklihood(Double liklihood) {
-		this.liklihood = liklihood;
+		this.likelihood = liklihood;
 	}
 }
