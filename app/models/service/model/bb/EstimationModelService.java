@@ -64,7 +64,7 @@ public class EstimationModelService implements
 		
 		return Estimation.find
 						 .setRawSql(SQL_FIND_SUGGESTIONS)
-						 .setParameter(0, nitechUser.getId())
+						 .setParameter(1, nitechUser.getId())
 						 .fetch("post")
 						 .findList();
 	}
