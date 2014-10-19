@@ -345,7 +345,7 @@ BEGIN
 	select depth,parent_id from bb_user_cluster where id=_cluster_id into _depth, _parent_cluster_id;;
 	
 	IF NOT EXISTS (select `class` from bb_estimation where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id) THEN
-		insert into bb_estimation (nitech_user_id,depth,post_id,class,liklihood) values (_nitech_user_id,_depth,_post_id,null,null);;
+		insert ignore into bb_estimation (nitech_user_id,depth,post_id,class,liklihood) values (_nitech_user_id,_depth,_post_id,null,null);;
 	END IF;;
 	
 	select p_of_class_given_words(_cluster_id,_post_id,1) - p_of_class_given_words(_cluster_id,_post_id,0) into _v;;
