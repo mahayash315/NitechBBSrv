@@ -140,7 +140,7 @@ BEGIN
 		select `class`,`word_id`,`value` from bb_user_cluster_vector where cluster_id=_child_cluster_id;;
 	DECLARE EXIT HANDLER FOR NOT FOUND SET hasNext = 0;;
 	
-	insert into bb_user_cluster (depth,weight) values (_depth,0);;
+	insert into bb_user_cluster (depth,weight,prior_1,prior_0) values (_depth,0,0,0);;
 	select last_insert_id() into _parent_cluster_id;;
 	
 	SET hasNext=1;;
