@@ -340,9 +340,10 @@ DROP PROCEDURE IF EXISTS EstimateFor;
 CREATE PROCEDURE EstimateFor(IN _nitech_user_id BIGINT, IN _cluster_id BIGINT, IN _post_id BIGINT)
 BEGIN
 	DECLARE _depth bigint;;
-	DECLARE _parent_cluster_id bigint;;
+--	DECLARE _parent_cluster_id bigint;;
 	DECLARE _v double;;
-	select depth,parent_id from bb_user_cluster where id=_cluster_id into _depth, _parent_cluster_id;;
+--	select depth,parent_id from bb_user_cluster where id=_cluster_id into _depth, _parent_cluster_id;;
+	select depth from bb_user_cluster where id=_cluster_id into _depth;;
 	
 	IF NOT EXISTS (select `class` from bb_estimation where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id) THEN
 		insert ignore into bb_estimation (nitech_user_id,depth,post_id,class,liklihood) values (_nitech_user_id,_depth,_post_id,null,null);;
@@ -357,9 +358,9 @@ BEGIN
 		update bb_estimation set class=0, liklihood=-_v where nitech_user_id=_nitech_user_id and depth=_depth and post_id=_post_id;;
 	END IF;;
 	
-	IF _parent_cluster_id IS NOT NULL AND _cluster_id != _parent_cluster_id THEN
-		call EstimateFor(_nitech_user_id, _parent_cluster_id, _post_id);;
-	END IF;;
+--	IF _parent_cluster_id IS NOT NULL AND _cluster_id != _parent_cluster_id THEN
+--		call EstimateFor(_nitech_user_id, _parent_cluster_id, _post_id);;
+--	END IF;;
 END;
 
 
@@ -368,10 +369,12 @@ DROP PROCEDURE IF EXISTS Estimate;
 CREATE PROCEDURE Estimate(IN _nitech_user_id BIGINT, IN _post_id BIGINT)
 BEGIN
 	DECLARE _cluster_id bigint;;
-	select id from bb_user_cluster where nitech_user_id=_nitech_user_id into _cluster_id;; 
-	SET `max_sp_recursion_depth` = 255;;
 	
-	call EstimateFor(_nitech_user_id, _cluster_id, _post_id);;
+	select id from bb_user_cluster where nitech_user_id=_nitech_user_id into _cluster_id;; 
+	WHILE _cluster_id IS NOT NULL DO
+		call EstimateFor(_nitech_user_id, _cluster_id, _post_id);;
+		select parent_id from bb_user_cluster where id=_cluster_id into _cluster_id;;
+	END WHILE;;
 END;
 
 
